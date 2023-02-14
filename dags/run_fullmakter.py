@@ -5,7 +5,7 @@ from airflow.decorators import dag, task
 
 from operators.slack_operator import slack_error, slack_info
 
-URL = "https://vdl-fullmakt.intern.nav.no/soda"  # run_job
+URL = "https://vdl-fullmakt.intern.nav.no/soda" #run_job
 APP = "https://vdl-fullmakt.intern.nav.no"
 
 
@@ -31,6 +31,5 @@ def run_fullmakt():
             )
 
     start_job()
-
 
 run_fullmakt()
