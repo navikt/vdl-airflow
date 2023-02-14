@@ -11,9 +11,7 @@ APP = "https://vdl-fullmakt.intern.nav.no"
 
 @dag(
     start_date=datetime(2023, 2, 14),
-    schedule_interval=None,
-    on_success_callback=slack_info,
-    on_failure_callback=slack_error,
+    schedule_interval=None
 )
 def run_fullmakt():
     @task()
