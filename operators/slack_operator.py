@@ -7,7 +7,7 @@ from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 
 
 def slack_info(
-    message: str = None, context=None, channel: str = None, emoji=":information_source:"
+    context=None, message=None, channel: str = None, emoji=":information_source:"
 ):
     if channel is None:
         channel = Variable.get("slack_info_channel")

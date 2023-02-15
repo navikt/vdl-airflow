@@ -12,9 +12,9 @@ from operators.slack_operator import slack_error, slack_info
     on_failure_callback=slack_error,
 )
 def hello_world():
-    @task(on_success_callback=slack_info)
+    @task()
     def send_slack_message():
-        slack_info(message="Hello, World!", channel="#virksomhetsdatalaget-info")
+        slack_info(message="Hello, World!")
 
     send_slack_message()
 
