@@ -6,7 +6,7 @@ from airflow.decorators import dag, task
 from operators.slack_operator import slack_error, slack_info
 
 URL = "https://vdl-fullmakt.intern.nav.no/soda" #run_job
-APP = "https://vdl-fullmakt.intern.nav.no"
+LOG = "https://vdl-fullmakt.intern.nav.no"
 
 
 @dag(
@@ -16,15 +16,21 @@ APP = "https://vdl-fullmakt.intern.nav.no"
 def run_fullmakt():
     @task()
     def start_job():
-        res = requests.get(url=URL)
-        data = res.json()
-        if data["defaultDataSource"] == "fullmakter":
-            slack_info(
-                message="Fullmakter oppdatert", channel="#virksomhetsdatalaget-info"
+        try:
+            res = requests.get(url=URL)
+            data = res.json()
+            if data.get("defaultDataSource") == "fullmakter":
+                slack_info(
+                    message="Fullmakter oppdatert", channel="#virksomhetsdatalaget-info"
+                )
+            else:
+                slack_info(
+                    message=f"Fullmakter kjøring feilet. Sjekk {LOG}.",
+                    channel="#virksomhetsdatalaget-info",
             )
-        else:
+        except Exception as e:
             slack_info(
-                message=f"Fullmakter kjøring feilet. Sjekk {APP}",
+                message=f"Fullmakter kjøring feilet. Sjekk {LOG}. {e}",
                 channel="#virksomhetsdatalaget-info",
             )
 
