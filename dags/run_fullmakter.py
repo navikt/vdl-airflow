@@ -1,39 +1,46 @@
-from datetime import datetime
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from airflow.utils.dates import days_ago
+from kubernetes import client as k8s
 
-import requests
-from airflow.decorators import dag, task
-
-from operators.slack_operator import slack_error, slack_info
-
-URL = "https://vdl-fullmakt.intern.nav.no/soda" #run_job
+URL = "https://vdl-fullmakt.intern.nav.no/soda"  # run_job
 LOG = "https://vdl-fullmakt.intern.nav.no"
 
 
-@dag(
-    start_date=datetime(2023, 2, 14),
-    schedule_interval=None
-)
-def run_fullmakt():
-    @task()
-    def start_job():
-        try:
-            res = requests.get(url=URL)
-            data = res.json()
-            if data.get("defaultDataSource") == "fullmakter":
-                slack_info(
-                    message="Fullmakter oppdatert", channel="#virksomhetsdatalaget-info"
-                )
-            else:
-                slack_info(
-                    message=f"Fullmakter kjøring feilet. Sjekk {LOG}.",
-                    channel="#virksomhetsdatalaget-info",
-            )
-        except Exception as e:
+def run_job():
+    import requests
+
+    from operators.slack_operator import slack_info
+
+    try:
+        res = requests.get(url=URL)
+        data = res.json()
+        if data.get("defaultDataSource") == "fullmakter":
             slack_info(
-                message=f"Fullmakter kjøring feilet. Sjekk {LOG}. {e}",
+                message="Fullmakter oppdatert", channel="#virksomhetsdatalaget-info"
+            )
+        else:
+            slack_info(
+                message=f"Fullmakter kjøring feilet. Sjekk {LOG}.",
                 channel="#virksomhetsdatalaget-info",
             )
+    except Exception as e:
+        slack_info(
+            message=f"Fullmakter kjøring feilet. Sjekk {LOG}. {e}",
+            channel="#virksomhetsdatalaget-info",
+        )
 
-    start_job()
 
-run_fullmakt()
+with DAG("run_fullmakt", start_date=days_ago(1), schedule_interval=None) as dag:
+    run_task = PythonOperator(
+        task_id="run_fullmakt_task",
+        python_callable=run_job,
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": URL})
+            )
+        },
+        dag=dag,
+    )
+
+    run_task
