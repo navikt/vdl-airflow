@@ -33,7 +33,7 @@ def run_job():
 
 with DAG("run_fullmakt", start_date=days_ago(1), schedule_interval=None) as dag:
     run_task = PythonOperator(
-        task_id="test",
+        task_id="run_fullmakt_task",
         python_callable=run_job,
         executor_config={
             "pod_override": k8s.V1Pod(
