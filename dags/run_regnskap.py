@@ -23,7 +23,7 @@ def run_regnskap():
         import requests
 
         res = requests.get(
-            url="https://vdl-regnskap.intern.nav.no/inbound/run/dimensional_data"
+            url="https://vdl-regnskap.dev.intern.nav.no/inbound/run/dimensional_data"
         )
 
     slack_message = send_slack_message()
