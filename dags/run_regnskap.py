@@ -5,7 +5,7 @@ from airflow.decorators import dag, task
 
 from operators.slack_operator import slack_error, slack_info
 
-URL = Variable.get("VDL_RENGSKAP_URL")
+URL = Variable.get("VDL_REGNSKAP_URL")
 
 
 @dag(
@@ -25,10 +25,24 @@ def run_regnskap():
 
         res = requests.get(url=f"{URL}/inbound/run/dimensional_data")
 
-    slack_message = send_slack_message()
-    ingest = ingest_dimensional_data()
+    @task()
+    def ingest_ledger_open():
+        import requests
 
-    slack_message >> ingest
+        requests.get(url=f"{URL}/inbound/run/ledger_open")
+
+    @task()
+    def ingest_ledger_closed():
+        import requests
+
+        requests.get(url=f"{URL}/inbound/run/ledger_open")
+
+    slack_message = send_slack_message()
+    dimensional_data = ingest_dimensional_data()
+    ledger_closed = ingest_ledger_closed()
+    ledger_open = ingest_ledger_open()
+
+    slack_message >> dimensional_data >> ledger_closed >> ledger_open
 
 
 run_regnskap()
