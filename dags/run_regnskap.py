@@ -1,10 +1,11 @@
 from datetime import datetime
 
+from airflow.models import Variable
 from airflow.decorators import dag, task
 
 from operators.slack_operator import slack_error, slack_info
 
-URL = "https://vdl-regnskap.dev-fss-pub.nais.io"
+URL = Variable.get("VDL_RENGSKAP_URL")
 
 
 @dag(
@@ -22,9 +23,7 @@ def run_regnskap():
     def ingest_dimensional_data() -> None:
         import requests
 
-        res = requests.get(
-            url="https://vdl-regnskap.dev.intern.nav.no/inbound/run/dimensional_data"
-        )
+        res = requests.get(url=f"{URL}/inbound/run/dimensional_data")
 
     slack_message = send_slack_message()
     ingest = ingest_dimensional_data()
