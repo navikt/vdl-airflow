@@ -42,7 +42,9 @@ def run_regnskap():
     ledger_closed = ingest_ledger_closed()
     ledger_open = ingest_ledger_open()
 
-    slack_message >> dimensional_data >> ledger_closed >> ledger_open
+    slack_message >> dimensional_data
+    slack_message >> ledger_closed
+    slack_message >> ledger_open
 
 
 run_regnskap()
