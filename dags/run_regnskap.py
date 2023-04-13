@@ -46,29 +46,39 @@ def run_regnskap():
         if job_status == "error":
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
 
-    dimensonal_data = run_inbound_job("dimensional_data")
+    dimensonal_data = run_inbound_job.override(task_id="dimensional_data")("dimensional_data")
     wait_dimensonal_data = wait_for_inbound_job(dimensonal_data)
 
-    general_ledger_closed = run_inbound_job("general_ledger_closed")
+    sync_check = run_inbound_job.override(task_id="sync_check")("sync_check")
+    wait_sync_check = wait_for_inbound_job(sync_check)    
+
+    general_ledger_closed = run_inbound_job.override(task_id="general_ledger_closed")("general_ledger_closed")
     wait_general_ledger_closed = wait_for_inbound_job(general_ledger_closed)
 
-    balance_closed = run_inbound_job("balance_closed")
+    general_ledger_open = run_inbound_job.override(task_id="general_ledger_open")("general_ledger_open")
+    wait_general_ledger_open = wait_for_inbound_job(general_ledger_open)
+
+    general_ledger_budget = run_inbound_job.override(task_id="general_ledger_budget")("general_ledger_budget")
+    wait_general_ledger_budget = wait_for_inbound_job(general_ledger_budget)
+
+    balance_closed = run_inbound_job.override(task_id="balance_closed")("balance_closed")
     wait_balance_closed = wait_for_inbound_job(balance_closed)
-    
-    #general_ledger_budget = run_inbound_job("general_ledger_budget")
-    #wait_general_ledger_budget = wait_for_inbound_job(general_ledger_budget)
+
+    balance_open = run_inbound_job.override(task_id="balance_open")("balance_open")
+    wait_balance_open = wait_for_inbound_job(balance_open)
+
+    balance_budget = run_inbound_job.override(task_id="balance_budget")("balance_budget")
+    wait_balance_budget = wait_for_inbound_job(balance_budget)
 
     slack_message = send_slack_message()
 
     slack_message >> dimensonal_data >> wait_dimensonal_data
-
+    slack_message >> sync_check >> wait_sync_check
+    slack_message >> general_ledger_open >> wait_general_ledger_open
+    slack_message >> general_ledger_budget >> wait_general_ledger_budget
     slack_message >> general_ledger_closed >> wait_general_ledger_closed
-
+    slack_message >> balance_open >> wait_balance_open
+    slack_message >> balance_budget >> wait_balance_budget
     slack_message >> balance_closed >> wait_balance_closed
-
-    # slack_message >> dimensional_data
-    # slack_message >> ledger_closed
-    # slack_message >> ledger_open
-
 
 run_regnskap()
