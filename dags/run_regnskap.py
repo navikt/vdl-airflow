@@ -22,51 +22,50 @@ def run_regnskap():
         slack_info(message="Jeg kjører ingest LoL!")
 
     @task()
-    def ingest_dimensional_data() -> dict:
+    def run_inbound_job(job_name: str) -> dict:
         import requests
 
-        return requests.get(url=f"{URL}/inbound/run/dimensional_data").json()
+        return requests.get(url=f"{URL}/inbound/run/{job_name}").json()
 
-    job_id = ingest_dimensional_data()
+    
 
     @task.sensor(poke_interval=60, timeout=3600, mode="reschedule")
-    def wait_for_upstream(job_id: dict) -> PokeReturnValue:
+    def wait_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
         id = job_id.get("job_id")
+
         response: dict = requests.get(url=f"{URL}/inbound/status/{id}").json()
         print(response)
         job_status = response.get("status")
-        print(job_status)
+
         if job_status == "running":
-            print("inside running")
             return PokeReturnValue(is_done=False)
         if job_status ==  "done":
-            print("inside done")
             return PokeReturnValue(is_done=True)
         if job_status == "error":
-            print("inside error")
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
 
-    wait = wait_for_upstream(job_id)
-    # @task()
-    # def ingest_ledger_open():
-    #    import requests
-    #
-    #    requests.get(url=f"{URL}/inbound/run/ledger_open")
-    #
-    # @task()
-    # def ingest_ledger_closed():
-    #    import requests
-    #
-    #    requests.get(url=f"{URL}/inbound/run/ledger_open")
+    dimensonal_data = run_inbound_job("dimensional_data")
+    wait_dimensonal_data = wait_for_inbound_job(dimensonal_data)
+
+    general_ledger_closed = run_inbound_job("general_ledger_closed")
+    wait_general_ledger_closed = wait_for_inbound_job(general_ledger_closed)
+
+    balance_closed = run_inbound_job("balance_closed")
+    wait_balance_closed = wait_for_inbound_job(balance_closed)
+    
+    #general_ledger_budget = run_inbound_job("general_ledger_budget")
+    #wait_general_ledger_budget = wait_for_inbound_job(general_ledger_budget)
 
     slack_message = send_slack_message()
 
-    # ledger_closed = ingest_ledger_closed()
-    # ledger_open = ingest_ledger_open()
+    slack_message >> dimensonal_data >> wait_dimensonal_data
 
-    slack_message >> job_id >> wait
+    slack_message >> general_ledger_closed >> wait_general_ledger_closed
+
+    slack_message >> balance_closed >> wait_balance_closed
+
     # slack_message >> dimensional_data
     # slack_message >> ledger_closed
     # slack_message >> ledger_open
