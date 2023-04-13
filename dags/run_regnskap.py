@@ -37,33 +37,35 @@ def run_regnskap():
     job_id = ingest_dimensional_data()
 
     sensor = HttpSensor(
-        task_id="my_http_sensor", 
-        http_conn_id='vdl-regnskap',
-        method='GET', 
+        task_id="my_http_sensor",
+        http_conn_id="vdl-regnskap",
+        endpoint=f"inbound/status/{job_id.job_id}",
+        method="GET",
         request_params=dict(job_id=job_id),
         response_check=response_check,
-        )
-    
-    #@task()
-    #def ingest_ledger_open():
+    )
+
+    # @task()
+    # def ingest_ledger_open():
     #    import requests
-#
+    #
     #    requests.get(url=f"{URL}/inbound/run/ledger_open")
-#
-    #@task()
-    #def ingest_ledger_closed():
+    #
+    # @task()
+    # def ingest_ledger_closed():
     #    import requests
-#
+    #
     #    requests.get(url=f"{URL}/inbound/run/ledger_open")
 
     slack_message = send_slack_message()
-    
-    #ledger_closed = ingest_ledger_closed()
-    #ledger_open = ingest_ledger_open()
+
+    # ledger_closed = ingest_ledger_closed()
+    # ledger_open = ingest_ledger_open()
 
     slack_message >> job_id >> sensor
-    #slack_message >> dimensional_data
-    #slack_message >> ledger_closed
-    #slack_message >> ledger_open
+    # slack_message >> dimensional_data
+    # slack_message >> ledger_closed
+    # slack_message >> ledger_open
+
 
 run_regnskap()
