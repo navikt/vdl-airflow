@@ -27,9 +27,7 @@ def run_regnskap():
 
         return requests.get(url=f"{URL}/inbound/run/{job_name}").json()
 
-    
-
-    @task.sensor(poke_interval=60, timeout=3600, mode="reschedule")
+    @task.sensor(poke_interval=60, timeout=2 * 60 * 60, mode="reschedule")
     def wait_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
@@ -41,33 +39,45 @@ def run_regnskap():
 
         if job_status == "running":
             return PokeReturnValue(is_done=False)
-        if job_status ==  "done":
+        if job_status == "done":
             return PokeReturnValue(is_done=True)
         if job_status == "error":
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
 
-    dimensonal_data = run_inbound_job.override(task_id="dimensional_data")("dimensional_data")
+    dimensonal_data = run_inbound_job.override(task_id="dimensional_data")(
+        "dimensional_data"
+    )
     wait_dimensonal_data = wait_for_inbound_job(dimensonal_data)
 
     sync_check = run_inbound_job.override(task_id="sync_check")("sync_check")
-    wait_sync_check = wait_for_inbound_job(sync_check)    
+    wait_sync_check = wait_for_inbound_job(sync_check)
 
-    general_ledger_closed = run_inbound_job.override(task_id="general_ledger_closed")("general_ledger_closed")
+    general_ledger_closed = run_inbound_job.override(task_id="general_ledger_closed")(
+        "general_ledger_closed"
+    )
     wait_general_ledger_closed = wait_for_inbound_job(general_ledger_closed)
 
-    general_ledger_open = run_inbound_job.override(task_id="general_ledger_open")("general_ledger_open")
+    general_ledger_open = run_inbound_job.override(task_id="general_ledger_open")(
+        "general_ledger_open"
+    )
     wait_general_ledger_open = wait_for_inbound_job(general_ledger_open)
 
-    general_ledger_budget = run_inbound_job.override(task_id="general_ledger_budget")("general_ledger_budget")
+    general_ledger_budget = run_inbound_job.override(task_id="general_ledger_budget")(
+        "general_ledger_budget"
+    )
     wait_general_ledger_budget = wait_for_inbound_job(general_ledger_budget)
 
-    balance_closed = run_inbound_job.override(task_id="balance_closed")("balance_closed")
+    balance_closed = run_inbound_job.override(task_id="balance_closed")(
+        "balance_closed"
+    )
     wait_balance_closed = wait_for_inbound_job(balance_closed)
 
     balance_open = run_inbound_job.override(task_id="balance_open")("balance_open")
     wait_balance_open = wait_for_inbound_job(balance_open)
 
-    balance_budget = run_inbound_job.override(task_id="balance_budget")("balance_budget")
+    balance_budget = run_inbound_job.override(task_id="balance_budget")(
+        "balance_budget"
+    )
     wait_balance_budget = wait_for_inbound_job(balance_budget)
 
     slack_message = send_slack_message()
@@ -80,5 +90,6 @@ def run_regnskap():
     slack_message >> balance_open >> wait_balance_open
     slack_message >> balance_budget >> wait_balance_budget
     slack_message >> balance_closed >> wait_balance_closed
+
 
 run_regnskap()
