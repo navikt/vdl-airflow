@@ -38,13 +38,13 @@ def run_regnskap():
         print(response)
         job_status = response.get("status")
         print(job_status)
-        if job_status is "running":
+        if job_status == "running":
             print("inside running")
             return PokeReturnValue(is_done=False)
-        if job_status is "done":
+        if job_status ==  "done":
             print("inside done")
             return PokeReturnValue(is_done=True)
-        if job_status is "error":
+        if job_status == "error":
             print("inside error")
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
 
