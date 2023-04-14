@@ -11,7 +11,7 @@ URL = Variable.get("VDL_REGNSKAP_URL")
 
 @dag(
     start_date=datetime(2023, 2, 28),
-    schedule_interval=None,
+    schedule_interval="@daily",
     on_success_callback=slack_info,
     on_failure_callback=slack_error,
     default_args={"retries": 1},
