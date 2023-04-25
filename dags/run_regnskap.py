@@ -38,6 +38,8 @@ def run_regnskap():
         print(response)
         job_status = response.get("status")
 
+        if job_status == "in_queue":
+            return PokeReturnValue(is_done=False)
         if job_status == "running":
             return PokeReturnValue(is_done=False)
         if job_status == "done":
@@ -102,6 +104,8 @@ def run_regnskap():
         print(response)
         job_status = response.get("status")
 
+        if job_status == "in_queue":
+            return PokeReturnValue(is_done=False)
         if job_status == "running":
             return PokeReturnValue(is_done=False)
         if job_status == "done":
