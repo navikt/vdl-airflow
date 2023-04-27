@@ -37,11 +37,6 @@ def run_regnskap():
         response: dict = requests.get(url=f"{URL}/inbound/status/{id}").json()
         print(response)
         job_status = response.get("status")
-
-        if job_status == "in_queue":
-            return PokeReturnValue(is_done=False)
-        if job_status == "running":
-            return PokeReturnValue(is_done=False)
         if job_status == "done":
             return PokeReturnValue(is_done=True)
         if job_status == "error":
@@ -103,11 +98,6 @@ def run_regnskap():
         response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
         print(response)
         job_status = response.get("status")
-
-        if job_status == "in_queue":
-            return PokeReturnValue(is_done=False)
-        if job_status == "running":
-            return PokeReturnValue(is_done=False)
         if job_status == "done":
             return PokeReturnValue(is_done=True)
         if job_status == "error":
