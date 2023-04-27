@@ -3,7 +3,7 @@ from typing import Optional
 
 from airflow.models import Variable
 from airflow.operators.python import get_current_context
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 
 
 def slack_info(
@@ -32,13 +32,9 @@ def __slack_message(
 ):
     if context is None:
         context = get_current_context()
-    SlackWebhookOperator(
-        http_conn_id=None,
+    SlackAPIPostOperator(
         task_id="slack-message",
-        webhook_token=os.environ["SLACK_TOKEN"],
-        message=message,
         channel=channel,
-        link_names=True,
-        icon_emoji=emoji,
-        attachments=attachments,
-    ).execute(context)
+        text=message,
+        token=os.environ["SLACK_TOKEN"],
+    ).execute()
