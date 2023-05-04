@@ -99,6 +99,12 @@ def run_regnskap():
         print(response)
         job_status = response.get("status")
         if job_status == "done":
+            job_result = response.get("job_result")
+            if job_result["dbt_run_result"]["exception"]:
+                slack_error(message=job_result["dbt_run_result"]["exception"])
+            if not job_result["dbt_run_result"]["success"]:
+                slack_error(message="\n".join(job_result["dbt_info_msg"]))
+            slack_info(message="\n".join(job_result["dbt_info_msg"]))
             return PokeReturnValue(is_done=True)
         if job_status == "error":
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")

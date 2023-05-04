@@ -16,10 +16,11 @@ def slack_info(
     __slack_message(context, message, channel, emoji)
 
 
-def slack_error(context=None, channel: str = None, emoji=":red_circle:"):
+def slack_error(context=None, message=None, channel: str = None, emoji=":red_circle:"):
     if channel is None:
         channel = Variable.get("slack_error_channel")
-    message = f"En Airflow DAG feilet!\n\n- DAG: {context['dag'].dag_id}\n- Task: {context['task_instance'].task_id}"
+    if message is None:
+        message = f"En Airflow DAG feilet!\n\n- DAG: {context['dag'].dag_id}\n- Task: {context['task_instance'].task_id}"
     __slack_message(context, message, channel, emoji)
 
 
