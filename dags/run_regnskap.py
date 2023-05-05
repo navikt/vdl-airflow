@@ -13,9 +13,8 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     start_date=datetime(2023, 2, 28),
     schedule_interval="@daily",
     catchup=False,
-    on_success_callback=slack_info,
     on_failure_callback=slack_error,
-    default_args={"retries": 1},
+    default_args={"retries": 0},
 )
 def run_regnskap():
     @task()
@@ -89,6 +88,7 @@ def run_regnskap():
     dbt_run = run_dbt_job.override(task_id="dbt_run")("run")
     dbt_test = run_dbt_job.override(task_id="dbt_test")("test")
 
+    # TODO: Overstyr on_error_callback
     @task.sensor(poke_interval=60, timeout=2 * 60 * 60, mode="reschedule")
     def wait_for_dbt(job_status: dict) -> PokeReturnValue:
         import requests
@@ -98,19 +98,43 @@ def run_regnskap():
         response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
         print(response)
         job_status = response.get("status")
-        if job_status == "done":
-            job_result = response.get("job_result")
-            if job_result["dbt_run_result"]["exception"]:
-                slack_error(message=job_result["dbt_run_result"]["exception"])
-            if not job_result["dbt_run_result"]["success"]:
-                slack_error(message="\n".join(job_result["dbt_info_msg"]))
-            slack_info(message="\n".join(job_result["dbt_info_msg"]))
-            return PokeReturnValue(is_done=True)
         if job_status == "error":
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
+        if job_status != "done":
+            return PokeReturnValue(is_done=False)
+
+        job_result = response.get("job_result")
+        if job_result["dbt_run_result"]["exception"]:
+            slack_error(message=job_result["dbt_run_result"]["exception"])
+            raise Exception(job_result["dbt_run_result"]["exception"])
+
+        if not job_result["dbt_run_result"]["success"]:
+            dbt_error_messages = [
+                result["dbt_log"]["msg"]
+                for result in job_result
+                if result["dbt_log"]["level"] in ["warning", "error"]
+            ]
+            error_message = "\n".join(dbt_error_messages)
+            slack_error(message=f"```\n{error_message}\n```")
+            raise Exception(error_message)
+        summary_messages = [
+            result["dbt_log"]["msg"]
+            for result in job_result
+            if result["dbt_log"]["code"] == "E047"
+        ]
+        return PokeReturnValue(is_done=True, xcom_value=summary_messages)
+
+    @task
+    def send_slack_summary(dbt_test, dbt_run):
+        dbt_test_summary = "\n".join(dbt_test)
+        dbt_run_summary = "\n".join(dbt_run)
+        summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
+        slack_info(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_run = wait_for_dbt.override(task_id="wait_for_dbt_run")(dbt_run)
     wait_dbt_test = wait_for_dbt.override(task_id="wait_for_dbt_test")(dbt_test)
+
+    slack_summary = send_slack_summary(dbt_test=wait_dbt_test, dbt_run=wait_dbt_run)
 
     slack_message >> dimensonal_data >> wait_dimensonal_data
     slack_message >> sync_check >> wait_sync_check
@@ -130,7 +154,7 @@ def run_regnskap():
     wait_balance_budget >> dbt_run
     wait_balance_closed >> dbt_run
 
-    dbt_run >> wait_dbt_run >> dbt_test >> wait_dbt_test
+    dbt_run >> wait_dbt_run >> dbt_test >> wait_dbt_test >> slack_summary
 
 
 run_regnskap()
