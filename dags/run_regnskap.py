@@ -13,8 +13,7 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     start_date=datetime(2023, 2, 28),
     schedule_interval="@daily",
     catchup=False,
-    on_failure_callback=slack_error,
-    default_args={"retries": 0},
+    default_args={"retries": 0, "on_failure_callback": slack_error},
 )
 def run_regnskap():
     @task()
@@ -82,14 +81,21 @@ def run_regnskap():
     dbt_run = run_dbt_job.override(task_id="dbt_run")("run")
     dbt_test = run_dbt_job.override(task_id="dbt_test")("test")
 
-    # TODO: Overstyr on_error_callback
-    @task.sensor(poke_interval=60, timeout=2 * 60 * 60, mode="reschedule")
+    @task.sensor(
+        poke_interval=60,
+        timeout=2 * 60 * 60,
+        mode="reschedule",
+        on_failure_callback=None,
+    )
     def wait_for_dbt(job_status: dict) -> PokeReturnValue:
         import requests
 
         id = job_status.get("job_id")
-
-        response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
+        try:
+            response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
+        except Exception:
+            slack_error()
+            raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
         print(response)
         job_status = response.get("status")
         if job_status == "error":

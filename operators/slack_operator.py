@@ -24,7 +24,9 @@ def slack_success(
     __slack_message(info_message, channel)
 
 
-def slack_error(context=None, message=None, channel: str = None, emoji=":red_circle:"):
+def slack_error(
+    context=None, message: str = None, channel: str = None, emoji=":red_circle:"
+):
     if channel is None:
         channel = Variable.get("slack_error_channel")
     if context is None:
