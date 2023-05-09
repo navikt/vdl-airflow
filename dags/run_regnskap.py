@@ -112,9 +112,9 @@ def run_regnskap():
             slack_error(message=f"```\n{error_message}\n```")
             raise Exception(error_message)
         summary_messages = [
-            result["dbt_log"]["msg"]
-            for result in job_result
-            if result["dbt_log"]["code"] == "E047"
+            result["msg"]
+            for result in job_result["dbt_log"]
+            if result["code"] == "E047"
         ]
         return PokeReturnValue(is_done=True, xcom_value=summary_messages)
 
