@@ -2,7 +2,7 @@ from datetime import datetime
 
 from airflow.models import Variable
 from airflow.decorators import dag, task
-from operators.slack_operator import slack_error, slack_info
+from operators.slack_operator import slack_error, slack_success
 from airflow.sensors.base import PokeReturnValue
 
 
@@ -17,10 +17,6 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     default_args={"retries": 0},
 )
 def run_regnskap():
-    @task()
-    def send_slack_message():
-        slack_info(message="Jeg kjører ingest LoL!")
-
     @task()
     def run_inbound_job(job_name: str) -> dict:
         import requests
@@ -77,8 +73,6 @@ def run_regnskap():
     )
     wait_balance_budget = wait_for_inbound_job(balance_budget)
 
-    slack_message = send_slack_message()
-
     @task()
     def run_dbt_job(job: str) -> dict:
         import requests
@@ -129,21 +123,21 @@ def run_regnskap():
         dbt_test_summary = "\n".join(dbt_test)
         dbt_run_summary = "\n".join(dbt_run)
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
-        slack_info(message=f"Resultat fra kjøringen:\n{summary}")
+        slack_success(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_run = wait_for_dbt.override(task_id="wait_for_dbt_run")(dbt_run)
     wait_dbt_test = wait_for_dbt.override(task_id="wait_for_dbt_test")(dbt_test)
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_test, dbt_run=wait_dbt_run)
 
-    slack_message >> dimensonal_data >> wait_dimensonal_data
-    slack_message >> sync_check >> wait_sync_check
-    slack_message >> general_ledger_open >> wait_general_ledger_open
-    slack_message >> general_ledger_budget >> wait_general_ledger_budget
-    slack_message >> general_ledger_closed >> wait_general_ledger_closed
-    slack_message >> balance_open >> wait_balance_open
-    slack_message >> balance_budget >> wait_balance_budget
-    slack_message >> balance_closed >> wait_balance_closed
+    dimensonal_data >> wait_dimensonal_data
+    sync_check >> wait_sync_check
+    general_ledger_open >> wait_general_ledger_open
+    general_ledger_budget >> wait_general_ledger_budget
+    general_ledger_closed >> wait_general_ledger_closed
+    balance_open >> wait_balance_open
+    balance_budget >> wait_balance_budget
+    balance_closed >> wait_balance_closed
 
     wait_dimensonal_data >> dbt_run
     wait_sync_check >> dbt_run

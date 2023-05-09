@@ -6,7 +6,12 @@ from airflow.operators.python import get_current_context
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 
 
-def slack_info(
+def slack_info(message: str, channel: str = None):
+    channel = Variable.get("slack_info_channel")
+    __slack_message(message=message, channel=channel)
+
+
+def slack_success(
     context=None, message=None, channel: str = None, emoji=":information_source:"
 ):
     if channel is None:
