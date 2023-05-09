@@ -104,9 +104,9 @@ def run_regnskap():
 
         if not job_result["dbt_run_result"]["success"]:
             dbt_error_messages = [
-                result["dbt_log"]["msg"]
-                for result in job_result
-                if result["dbt_log"]["level"] in ["warning", "error"]
+                result["msg"]
+                for result in job_result["dbt_log"]
+                if result["level"] in ["warning", "error"]
             ]
             error_message = "\n".join(dbt_error_messages)
             slack_error(message=f"```\n{error_message}\n```")
