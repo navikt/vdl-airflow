@@ -2,7 +2,7 @@ from datetime import datetime
 
 from airflow.models import Variable
 from airflow.decorators import dag, task
-from operators.slack_operator import slack_error, slack_info
+from operators.slack_operator import slack_error, slack_success
 from airflow.sensors.base import PokeReturnValue
 
 
@@ -13,15 +13,9 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     start_date=datetime(2023, 2, 28),
     schedule_interval="@daily",
     catchup=False,
-    on_success_callback=slack_info,
-    on_failure_callback=slack_error,
-    default_args={"retries": 1},
+    default_args={"retries": 0, "on_failure_callback": slack_error},
 )
 def run_regnskap():
-    @task()
-    def send_slack_message():
-        slack_info(message="Jeg kjører ingest LoL!")
-
     @task()
     def run_inbound_job(job_name: str) -> dict:
         import requests
@@ -78,8 +72,6 @@ def run_regnskap():
     )
     wait_balance_budget = wait_for_inbound_job(balance_budget)
 
-    slack_message = send_slack_message()
-
     @task()
     def run_dbt_job(job: str) -> dict:
         import requests
@@ -89,31 +81,69 @@ def run_regnskap():
     dbt_run = run_dbt_job.override(task_id="dbt_run")("run")
     dbt_test = run_dbt_job.override(task_id="dbt_test")("test")
 
-    @task.sensor(poke_interval=60, timeout=2 * 60 * 60, mode="reschedule")
+    @task.sensor(
+        poke_interval=60,
+        timeout=2 * 60 * 60,
+        mode="reschedule",
+        on_failure_callback=None,
+    )
     def wait_for_dbt(job_status: dict) -> PokeReturnValue:
         import requests
 
         id = job_status.get("job_id")
-
-        response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
+        try:
+            response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
+        except Exception:
+            slack_error()
+            raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
         print(response)
         job_status = response.get("status")
-        if job_status == "done":
-            return PokeReturnValue(is_done=True)
         if job_status == "error":
             raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
+        if job_status != "done":
+            return PokeReturnValue(is_done=False)
+
+        job_result = response.get("job_result")
+        if job_result["dbt_run_result"]["exception"]:
+            slack_error(message=job_result["dbt_run_result"]["exception"])
+            raise Exception(job_result["dbt_run_result"]["exception"])
+
+        if not job_result["dbt_run_result"]["success"]:
+            dbt_error_messages = [
+                result["msg"]
+                for result in job_result["dbt_log"]
+                if result["level"] in ["warning", "error"]
+            ]
+            error_message = "\n".join(dbt_error_messages)
+            slack_error(message=f"```\n{error_message}\n```")
+            raise Exception(error_message)
+        summary_messages = [
+            result["msg"]
+            for result in job_result["dbt_log"]
+            if result["code"] == "E047"
+        ]
+        return PokeReturnValue(is_done=True, xcom_value=summary_messages)
+
+    @task
+    def send_slack_summary(dbt_test, dbt_run):
+        dbt_test_summary = "\n".join(dbt_test)
+        dbt_run_summary = "\n".join(dbt_run)
+        summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
+        slack_success(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_run = wait_for_dbt.override(task_id="wait_for_dbt_run")(dbt_run)
     wait_dbt_test = wait_for_dbt.override(task_id="wait_for_dbt_test")(dbt_test)
 
-    slack_message >> dimensonal_data >> wait_dimensonal_data
-    slack_message >> sync_check >> wait_sync_check
-    slack_message >> general_ledger_open >> wait_general_ledger_open
-    slack_message >> general_ledger_budget >> wait_general_ledger_budget
-    slack_message >> general_ledger_closed >> wait_general_ledger_closed
-    slack_message >> balance_open >> wait_balance_open
-    slack_message >> balance_budget >> wait_balance_budget
-    slack_message >> balance_closed >> wait_balance_closed
+    slack_summary = send_slack_summary(dbt_test=wait_dbt_test, dbt_run=wait_dbt_run)
+
+    dimensonal_data >> wait_dimensonal_data
+    sync_check >> wait_sync_check
+    general_ledger_open >> wait_general_ledger_open
+    general_ledger_budget >> wait_general_ledger_budget
+    general_ledger_closed >> wait_general_ledger_closed
+    balance_open >> wait_balance_open
+    balance_budget >> wait_balance_budget
+    balance_closed >> wait_balance_closed
 
     wait_dimensonal_data >> dbt_run
     wait_sync_check >> dbt_run
@@ -124,7 +154,7 @@ def run_regnskap():
     wait_balance_budget >> dbt_run
     wait_balance_closed >> dbt_run
 
-    dbt_run >> wait_dbt_run >> dbt_test >> wait_dbt_test
+    dbt_run >> wait_dbt_run >> dbt_test >> wait_dbt_test >> slack_summary
 
 
 run_regnskap()
