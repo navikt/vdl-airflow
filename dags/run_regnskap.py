@@ -4,6 +4,7 @@ from airflow.models import Variable
 from airflow.decorators import dag, task
 from operators.slack_operator import slack_error, slack_success
 from airflow.sensors.base import PokeReturnValue
+from airflow.exceptions import AirflowFailException
 
 
 URL = Variable.get("VDL_REGNSKAP_URL")
@@ -13,7 +14,7 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     start_date=datetime(2023, 2, 28),
     schedule_interval="@daily",
     catchup=False,
-    default_args={"retries": 0, "on_failure_callback": slack_error},
+    default_args={"on_failure_callback": slack_error},
 )
 def run_regnskap():
     @task()
@@ -34,7 +35,9 @@ def run_regnskap():
         if job_status == "done":
             return PokeReturnValue(is_done=True)
         if job_status == "error":
-            raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
+            raise AirflowFailException(
+                "Lastejobben har feilet! Sjekk loggene til podden"
+            )
 
     dimensonal_data = run_inbound_job.override(task_id="dimensional_data")(
         "dimensional_data"
@@ -99,14 +102,16 @@ def run_regnskap():
         print(response)
         job_status = response.get("status")
         if job_status == "error":
-            raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
+            raise AirflowFailException(
+                "Lastejobben har feilet! Sjekk loggene til podden"
+            )
         if job_status != "done":
             return PokeReturnValue(is_done=False)
 
         job_result = response.get("job_result")
         if job_result["dbt_run_result"]["exception"]:
             slack_error(message=job_result["dbt_run_result"]["exception"])
-            raise Exception(job_result["dbt_run_result"]["exception"])
+            raise AirflowFailException(job_result["dbt_run_result"]["exception"])
 
         if not job_result["dbt_run_result"]["success"]:
             dbt_error_messages = [
@@ -116,7 +121,7 @@ def run_regnskap():
             ]
             error_message = "\n".join(dbt_error_messages)
             slack_error(message=f"```\n{error_message}\n```")
-            raise Exception(error_message)
+            raise AirflowFailException(error_message)
         summary_messages = [
             result["msg"]
             for result in job_result["dbt_log"]
