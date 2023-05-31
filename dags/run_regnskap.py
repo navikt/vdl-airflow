@@ -15,6 +15,7 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     schedule_interval="@daily",
     catchup=False,
     default_args={"on_failure_callback": slack_error},
+    max_active_runs=1,
 )
 def run_regnskap():
     @task()
