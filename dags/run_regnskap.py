@@ -24,7 +24,7 @@ def run_regnskap():
 
         return requests.get(url=f"{URL}/inbound/run/{job_name}").json()
 
-    @task.sensor(poke_interval=60, timeout=2 * 60 * 60, mode="reschedule")
+    @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
     def wait_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
