@@ -20,7 +20,15 @@ def ansattdata_til_anaplan():
 
     upload = transfer()
 
-    upload
+    @task
+    def update_hierarchy_data():
+        from anaplan.import_hierarchy import hierarchy_data
+
+        hierarchy_data()
+
+    refresh_hierarchy_data = update_hierarchy_data()
+
+    upload >> refresh_hierarchy_data
 
 
 ansattdata_til_anaplan()
