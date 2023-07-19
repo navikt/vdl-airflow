@@ -76,10 +76,10 @@ def run_regnskap():
     )
     wait_balance_budget = wait_for_inbound_job(balance_budget)
 
-    accounts_payable = run_inbound_job.override(task_id="accounts_payable")(
-        "accounts_payable"
-    )
-    wait_accounts_payable = wait_for_inbound_job(accounts_payable)
+    #    accounts_payable = run_inbound_job.override(task_id="accounts_payable")(
+    #        "accounts_payable"
+    #    )
+    #    wait_accounts_payable = wait_for_inbound_job(accounts_payable)
 
     @task()
     def run_dbt_job(job: str) -> dict:
@@ -155,7 +155,7 @@ def run_regnskap():
     balance_open >> wait_balance_open
     balance_budget >> wait_balance_budget
     balance_closed >> wait_balance_closed
-    accounts_payable >> wait_accounts_payable
+    # accounts_payable >> wait_accounts_payable
 
     wait_dimensonal_data >> dbt_run
     wait_sync_check >> dbt_run
@@ -165,7 +165,7 @@ def run_regnskap():
     wait_balance_open >> dbt_run
     wait_balance_budget >> dbt_run
     wait_balance_closed >> dbt_run
-    wait_accounts_payable >> dbt_run
+    # wait_accounts_payable >> dbt_run
 
     dbt_run >> wait_dbt_run >> dbt_test >> wait_dbt_test >> slack_summary
 
