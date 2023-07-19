@@ -14,7 +14,7 @@ from operators.slack_operator import slack_error, slack_success, slack_info
 def anaplan_ansattdata():
     @task
     def transfer():
-        from anaplan.singleChunkUpload import transfer_data
+        from anaplan.ansattdata.singleChunkUpload import transfer_data
 
         transfer_data()
 
@@ -22,7 +22,7 @@ def anaplan_ansattdata():
 
     @task
     def update_hierarchy_data():
-        from anaplan.import_hierarchy import hierarchy_data
+        from anaplan.ansattdata.import_hierarchy import hierarchy_data
 
         hierarchy_data()
 
@@ -30,7 +30,7 @@ def anaplan_ansattdata():
 
     @task
     def update_module_data():
-        from anaplan.import_module_data import module_data
+        from anaplan.ansattdata.import_module_data import module_data
 
         module_data()
 
