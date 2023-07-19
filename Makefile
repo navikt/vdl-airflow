@@ -9,9 +9,12 @@ black = $(PY) black $(src)
 
 .PHONY: install ## install requirements in virtual env 
 install:
-	python3.11 -m venv .venv && \
+	python3.10 -m venv .venv && \
 		${PY} pip install --upgrade pip && \
-		${PY} pip install -r requirements.txt
+		${PY} pip install -r docker/requirements.txt \
+			black \
+			isort \
+			--constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.2/constraints-3.10.txt"
 
 .PHONY: format  ## Auto-format the source code (isort, black)
 format:
