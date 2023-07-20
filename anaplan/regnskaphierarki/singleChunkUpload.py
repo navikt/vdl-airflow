@@ -69,7 +69,7 @@ def transfer_data():
     # Opens the data file (filData['name'] by default) and encodes it to utf-8
     # filepath = str(Path(__file__).parent)
     # dataFile = open(filepath + "/ansattdata.csv", "r").read()
-    dataFile = get_artskonti_data()
+    dataFile = get_artskonti_data().encode("utf-8")
 
     fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
     if fileUpload.ok:

@@ -15,5 +15,4 @@ def get_artskonti_data():
         writer = csv.writer(f)
         writer.writerow(column_names)
         writer.writerows(result)
-        f.seek(0)
-        return f
+        return f.getvalue()
