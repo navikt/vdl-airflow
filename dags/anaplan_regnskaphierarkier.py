@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 
-# from custom.decorators import task
+from custom.decorators import task
 
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
 
@@ -17,12 +17,8 @@ def anaplan_regnskaphierarkier():
     @task
     def transfer():
         from anaplan.regnskaphierarki.singleChunkUpload import transfer_data
-        from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 
-        with SnowflakeHook().get_cursor() as cursor:
-            cursor.execute("select 1 from dual")
-            result = cursor.fetchone()
-            print(result)
+        transfer_data()
 
     upload = transfer()
 

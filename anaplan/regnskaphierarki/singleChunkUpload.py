@@ -21,6 +21,8 @@ import json
 from airflow.models import Variable
 from pathlib import Path
 
+from anaplan.regnskaphierarki.get_data import get_artskonti_data
+
 
 def transfer_data():
     # Insert your workspace Guid
@@ -31,8 +33,8 @@ def transfer_data():
     username = "virksomhetsdatalaget@nav.no"
     # Replace with your file metadata
     fileData = {
-        "id": "113000000030",
-        "name": "ansattdata.csv",
+        "id": "113000000033",
+        "name": "dim_artskonti.csv",
         "chunkCount": 1,
         "delimiter": '"',
         "encoding": "UTF-8",
@@ -65,8 +67,9 @@ def transfer_data():
     putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
 
     # Opens the data file (filData['name'] by default) and encodes it to utf-8
-    filepath = str(Path(__file__).parent)
-    dataFile = open(filepath + "/ansattdata.csv", "r").read()
+    # filepath = str(Path(__file__).parent)
+    # dataFile = open(filepath + "/ansattdata.csv", "r").read()
+    dataFile = get_artskonti_data()
 
     fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
     if fileUpload.ok:
