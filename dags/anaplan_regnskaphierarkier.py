@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from airflow.decorators import dag, task
+from airflow.decorators import dag
+from custom.decorators import task
 
 from operators.slack_operator import slack_error, slack_success, slack_info
-from kubernetes import client as k8s
 
 
 @dag(
@@ -13,20 +13,7 @@ from kubernetes import client as k8s
     on_failure_callback=slack_error,
 )
 def anaplan_regnskaphierarkier():
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image="ghcr.io/navikt/vdl-airflow:2739f712d781142f78e173f76bb0be31d17b94df",
-                        )
-                    ]
-                )
-            )
-        }
-    )
+    @task
     def transfer():
         from anaplan.regnskaphierarki.singleChunkUpload import transfer_data
         from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
