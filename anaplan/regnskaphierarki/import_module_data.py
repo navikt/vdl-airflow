@@ -31,9 +31,9 @@ def module_data():
 
     # Replace with your import metadata
     importData = {
-        "id": "112000000045",
-        "name": "TEST 01.00 DummyData from ansattdata.csv",
-        "importDataSourceId": "113000000030",
+        "id": "112000000051",
+        "name": "TEST 01.02 Test Kontostruktur 2 from dim_artskonti.csv",
+        "importDataSourceId": "113000000033",
         "importType": "MODULE_DATA",
     }
 

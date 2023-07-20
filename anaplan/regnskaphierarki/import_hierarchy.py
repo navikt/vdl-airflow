@@ -31,9 +31,9 @@ def hierarchy_data():
 
     # Replace with your import metadata
     importData = {
-        "id": "112000000044",
-        "name": "TesteDummyData from ansattdata.csv",
-        "importDataSourceId": "113000000030",
+        "id": "112000000052",
+        "name": "Test Artskonto Flat from dim_artskonti.csv",
+        "importDataSourceId": "113000000033",
         "importType": "HIERARCHY_DATA",
     }
 

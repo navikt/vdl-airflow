@@ -26,11 +26,15 @@ def anaplan_regnskaphierarkier():
     def update_hierarchy_data():
         from anaplan.regnskaphierarki.import_hierarchy import hierarchy_data
 
+        hierarchy_data()
+
     refresh_hierarchy_data = update_hierarchy_data()
 
     @task
     def update_module_data():
         from anaplan.regnskaphierarki.import_module_data import module_data
+
+        module_data()
 
     refresh_module_data = update_module_data()
 
