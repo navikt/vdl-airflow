@@ -10,7 +10,7 @@ LOG = "https://vdl-fullmakt.intern.nav.no"
 def run_job():
     import requests
 
-    from operators.slack_operator import slack_info
+    from custom.operators.slack_operator import slack_info
 
     try:
         res = requests.get(url=URL)

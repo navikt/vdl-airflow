@@ -2,7 +2,7 @@ from datetime import datetime
 
 from airflow.models import Variable
 from airflow.decorators import dag, task
-from operators.slack_operator import slack_error, slack_success
+from custom.operators.slack_operator import slack_error, slack_success
 from airflow.sensors.base import PokeReturnValue
 from airflow.exceptions import AirflowFailException
 
