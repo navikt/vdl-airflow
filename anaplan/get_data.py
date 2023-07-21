@@ -1,7 +1,9 @@
 from io import StringIO
 import csv
+from sqlite3 import Cursor
 
-def get_data(query:str, cursor):
+
+def get_data(query: str, cursor: Cursor):
     cursor.execute(query)
     column_names = map(lambda x: x[0], cursor.description)
     result = cursor.fetchall()
