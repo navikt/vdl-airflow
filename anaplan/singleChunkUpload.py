@@ -19,7 +19,7 @@ from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 from anaplan.get_data import get_data
 
 
-def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dict):
+def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dict, data:str):
     # Insert your workspace Guid
     #wGuid = "8a868cda860a533a0186334e91805794"
     # Insert your model Guid
@@ -60,15 +60,8 @@ def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dic
 
     putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
 
-    with SnowflakeHook().get_cursor() as cursor:
-        query =  """
-            select *
-            from reporting.microstrategy.dim_artskonti
-            where
-                er_budsjetterbar = 1 and
-                artskonti_segment_kode_niva_1 is not null
-            """
-        dataFile = get_data(query, cursor).encode("utf-8")
+    
+    dataFile = data.encode("utf-8")
 
     fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
     if fileUpload.ok:
