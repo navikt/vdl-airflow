@@ -18,15 +18,18 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
 
 
 def anaplan_regnskaphierarkier():
+    
+    wGuid = "8a868cda860a533a0186334e91805794"
+    mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
+    username = "virksomhetsdatalaget@nav.no"
+    password = Variable.get("anaplan_password")
+    
     @task
     def transfer():
         from anaplan.singleChunkUpload import transfer_data
         from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
         from anaplan.get_data import get_data
-        wGuid = "8a868cda860a533a0186334e91805794"
-        mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
-        username = "virksomhetsdatalaget@nav.no"
-        password = Variable.get("anaplan_password")
+
         fileData = {
             "id": "113000000033",
             "name": "dim_artskonti.csv",
@@ -55,17 +58,31 @@ def anaplan_regnskaphierarkier():
 
     @task
     def update_hierarchy_data():
-        from anaplan.regnskaphierarki.import_hierarchy import hierarchy_data
+        from anaplan.import_data import import_data
+        
+        importData = {
+            "id": "112000000052",
+            "name": "Test Artskonto Flat from dim_artskonti.csv",
+            "importDataSourceId": "113000000033",
+            "importType": "HIERARCHY_DATA",
+        }
 
-        hierarchy_data()
+        import_data(wGuid, mGuid, username, password, importData)
 
     refresh_hierarchy_data = update_hierarchy_data()
 
     @task
     def update_module_data():
-        from anaplan.regnskaphierarki.import_module_data import module_data
+        from anaplan.import_data import import_data
 
-        module_data()
+        importData = {
+            "id" : "112000000051",
+            "name" : "TEST 01.02 Test Kontostruktur 2 from dim_artskonti.csv",
+            "importDataSourceId" : "113000000033",
+            "importType" : "MODULE_DATA"
+        }
+
+        import_data(wGuid, mGuid, username, password, importData)
 
     refresh_module_data = update_module_data()
 
