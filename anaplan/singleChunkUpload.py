@@ -14,21 +14,20 @@
 
 import requests
 import base64
-from airflow.models import Variable
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 
 from anaplan.get_data import get_data
 
 
-def transfer_data():
+def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dict):
     # Insert your workspace Guid
-    wGuid = "8a868cda860a533a0186334e91805794"
+    #wGuid = "8a868cda860a533a0186334e91805794"
     # Insert your model Guid
-    mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
+    #mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
     # Insert the Anaplan account email being used
-    username = "virksomhetsdatalaget@nav.no"
+    #username = "virksomhetsdatalaget@nav.no"
     # Replace with your file metadata
-    fileData = {
+    """fileData = {
         "id": "113000000033",
         "name": "dim_artskonti.csv",
         "chunkCount": 1,
@@ -38,14 +37,13 @@ def transfer_data():
         "format": "txt",
         "headerRow": 1,
         "separator": ",",
-    }
-
+    }"""
     # If using cert auth, replace cert.pem with your pem converted certificate
     # filename. Otherwise, remove this line.
     # cert = open("cert.pem").read()
 
     # If using basic auth, insert your password. Otherwise, remove this line.
-    password = Variable.get("anaplan_password")
+    #password = Variable.get("anaplan_password")
 
     # Uncomment your authentication method (cert or basic). Remove the other.
     # user = 'AnaplanCertificate ' + str(base64.b64encode((
@@ -80,6 +78,3 @@ def transfer_data():
             "There was an issue with your file upload: " + str(fileUpload.status_code)
         )
         raise Exception("Noe gikk galt...")
-
-
-transfer_data()

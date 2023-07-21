@@ -2,6 +2,8 @@ from datetime import datetime
 
 from airflow.decorators import dag
 
+from airflow.models import Variable
+
 from custom.decorators import task
 
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
@@ -13,12 +15,29 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
     on_success_callback=slack_success,
     on_failure_callback=slack_error,
 )
+
+
 def anaplan_regnskaphierarkier():
     @task
     def transfer():
-        from anaplan.regnskaphierarki.singleChunkUpload import transfer_data
+        from anaplan.singleChunkUpload import transfer_data
+        wGuid = "8a868cda860a533a0186334e91805794"
+        mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
+        username = "virksomhetsdatalaget@nav.no"
+        password = Variable.get("anaplan_password")
+        fileData = {
+            "id": "113000000033",
+            "name": "dim_artskonti.csv",
+            "chunkCount": 1,
+            "delimiter": '"',
+            "encoding": "UTF-8",
+            "firstDataRow": 2,
+            "format": "txt",
+            "headerRow": 1,
+            "separator": ",",
+        }
 
-        transfer_data()
+        transfer_data(wGuid, mGuid, username, password, fileData)
 
     upload = transfer()
 
