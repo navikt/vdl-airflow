@@ -14,14 +14,10 @@
 
 import requests
 import base64
-import sys
-import string
-import os
-import json
 from airflow.models import Variable
-from pathlib import Path
+from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
 
-from anaplan.regnskaphierarki.get_data import get_artskonti_data
+from anaplan.get_data import get_data
 
 
 def transfer_data():
@@ -66,10 +62,15 @@ def transfer_data():
 
     putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
 
-    # Opens the data file (filData['name'] by default) and encodes it to utf-8
-    # filepath = str(Path(__file__).parent)
-    # dataFile = open(filepath + "/ansattdata.csv", "r").read()
-    dataFile = get_artskonti_data().encode("utf-8")
+    with SnowflakeHook().get_cursor() as cursor:
+        query =  """
+            select *
+            from reporting.microstrategy.dim_artskonti
+            where
+                er_budsjetterbar = 1 and
+                artskonti_segment_kode_niva_1 is not null
+            """
+        dataFile = get_data(query, cursor).encode("utf-8")
 
     fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
     if fileUpload.ok:
