@@ -39,17 +39,7 @@ def anaplan_regnskaphierarkier():
         import_data(wGuid, mGuid, username, password, importData)
 
     upload_artskonti = transfer.override(task_id="transfer_artskonti")(
-        fileData={
-            "id": "113000000033",
-            "name": "dim_artskonti.csv",
-            "chunkCount": 1,
-            "delimiter": '"',
-            "encoding": "UTF-8",
-            "firstDataRow": 2,
-            "format": "txt",
-            "headerRow": 1,
-            "separator": ",",
-        },
+        fileData={"id": "113000000033", "name": "dim_artskonti.csv"},
         query="""
                 select *
                 from reporting.microstrategy.dim_artskonti
@@ -65,8 +55,6 @@ def anaplan_regnskaphierarkier():
         importData={
             "id": "112000000052",
             "name": "Test Artskonto Flat from dim_artskonti.csv",
-            "importDataSourceId": "113000000033",
-            "importType": "HIERARCHY_DATA",
         }
     )
 
@@ -76,23 +64,11 @@ def anaplan_regnskaphierarkier():
         importData={
             "id": "112000000051",
             "name": "TEST 01.02 Test Kontostruktur 2 from dim_artskonti.csv",
-            "importDataSourceId": "113000000033",
-            "importType": "MODULE_DATA",
         }
     )
 
     upload_felles = transfer.override(task_id="transfer_felles")(
-        fileData={
-            "id": "113000000034",
-            "name": "dim_felles.csv",
-            "chunkCount": 1,
-            "delimiter": '"',
-            "encoding": "UTF-8",
-            "firstDataRow": 2,
-            "format": "txt",
-            "headerRow": 1,
-            "separator": ",",
-        },
+        fileData={"id": "113000000034", "name": "dim_felles.csv"},
         query="""
                 select *
                 from reporting.microstrategy.dim_felles
@@ -103,36 +79,17 @@ def anaplan_regnskaphierarkier():
 
     refresh_hierarchy_data_felles = update_data.override(
         task_id="update_hierarchy_felles"
-    )(
-        importData={
-            "id": "112000000053",
-            "name": "Test Felles Flat from dim_felles.csv",
-            "importDataSourceId": "113000000034",
-            "importType": "HIERARCHY_DATA",
-        }
-    )
+    )(importData={"id": "112000000053", "name": "Test Felles Flat from dim_felles.csv"})
 
     refresh_module_data_felles = update_data.override(task_id="update_module_felles")(
         importData={
             "id": "112000000054",
             "name": "TEST 01.02 Test Felles from dim_felles.csv",
-            "importDataSourceId": "113000000034",
-            "importType": "MODULE_DATA",
         }
     )
 
     upload_kostnadssteder = transfer.override(task_id="transfer_kostnadssteder")(
-        fileData={
-            "id": "113000000035",
-            "name": "dim_kostnadssteder.csv",
-            "chunkCount": 1,
-            "delimiter": '"',
-            "encoding": "UTF-8",
-            "firstDataRow": 2,
-            "format": "txt",
-            "headerRow": 1,
-            "separator": ",",
-        },
+        fileData={"id": "113000000035", "name": "dim_kostnadssteder.csv"},
         query="""
                 select *
                 from reporting.microstrategy.dim_kostnadssteder
@@ -147,8 +104,6 @@ def anaplan_regnskaphierarkier():
         importData={
             "id": "112000000055",
             "name": "Test Ksted Flat from dim_kostnadssteder.csv",
-            "importDataSourceId": "113000000035",
-            "importType": "HIERARCHY_DATA",
         }
     )
 
@@ -158,8 +113,6 @@ def anaplan_regnskaphierarkier():
         importData={
             "id": "112000000056",
             "name": "TEST 01.04 Org.Struktur from dim_kostnadssteder.csv",
-            "importDataSourceId": "113000000035",
-            "importType": "MODULE_DATA",
         }
     )
 
