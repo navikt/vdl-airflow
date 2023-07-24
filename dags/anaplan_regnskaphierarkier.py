@@ -173,7 +173,7 @@ def anaplan_regnskaphierarkier():
     (
         upload_kostnadssteder
         >> refresh_hierarchy_data_kostnadssteder
-        >> refresh_hierarchy_data_kostnadssteder
+        >> refresh_module_data_kostnadssteder
     )
 
 
