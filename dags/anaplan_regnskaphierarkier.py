@@ -32,6 +32,12 @@ def anaplan_regnskaphierarkier():
 
         transfer_data(wGuid, mGuid, username, password, fileData, data)
 
+    @task
+    def update_data(importData: dict):
+        from anaplan.import_data import import_data
+
+        import_data(wGuid, mGuid, username, password, importData)
+
     upload_artskonti = transfer.override(task_id="transfer_artskonti")(
         fileData={
             "id": "113000000033",
@@ -52,12 +58,6 @@ def anaplan_regnskaphierarkier():
                     artskonti_segment_kode_niva_1 is not null
                 """,
     )
-
-    @task
-    def update_data(importData: dict):
-        from anaplan.import_data import import_data
-
-        import_data(wGuid, mGuid, username, password, importData)
 
     refresh_hierarchy_data_artskonti = update_data.override(
         task_id="update_hierarchy_artskonti"
@@ -121,12 +121,60 @@ def anaplan_regnskaphierarkier():
         }
     )
 
+    upload_kostnadssteder = transfer.override(task_id="transfer_kostnadssteder")(
+        fileData={
+            "id": "113000000035",
+            "name": "dim_kostnadssteder.csv",
+            "chunkCount": 1,
+            "delimiter": '"',
+            "encoding": "UTF-8",
+            "firstDataRow": 2,
+            "format": "txt",
+            "headerRow": 1,
+            "separator": ",",
+        },
+        query="""
+                select *
+                from reporting.microstrategy.dim_kostnadssteder
+                where
+                    er_budsjetterbar = 1
+                """,
+    )
+
+    refresh_hierarchy_data_kostnadssteder = update_data.override(
+        task_id="update_hierarchy_kostnadssteder"
+    )(
+        importData={
+            "id": "112000000055",
+            "name": "Test Ksted Flat from dim_kostnadssteder.csv",
+            "importDataSourceId": "113000000035",
+            "importType": "HIERARCHY_DATA",
+        }
+    )
+
+    refresh_module_data_kostnadssteder = update_data.override(
+        task_id="update_module_kostnadssteder"
+    )(
+        importData={
+            "id": "112000000056",
+            "name": "TEST 01.04 Org.Struktur from dim_kostnadssteder.csv",
+            "importDataSourceId": "113000000035",
+            "importType": "MODULE_DATA",
+        }
+    )
+
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
         >> refresh_module_data_artskonti
     )
     upload_felles >> refresh_hierarchy_data_felles >> refresh_module_data_felles
+
+    (
+        upload_kostnadssteder
+        >> refresh_hierarchy_data_kostnadssteder
+        >> refresh_hierarchy_data_kostnadssteder
+    )
 
 
 anaplan_regnskaphierarkier()
