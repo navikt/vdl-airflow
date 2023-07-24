@@ -144,6 +144,36 @@ def anaplan_regnskaphierarkier():
         }
     )
 
+    upload_statsregnskapskonti = transfer.override(
+        task_id="transfer_statsregnskapskonti"
+    )(
+        fileData={"id": "113000000038", "name": "dim_statsregnskapskonti.csv"},
+        query="""
+            select *
+            from reporting.microstrategy.dim_statsregnskapskonti
+            where
+                er_budsjetterbar = 1
+            """,
+    )
+
+    refresh_hierarchy_data_statsregnskapskonti = update_data.override(
+        task_id="update_hierarchy_statsregnskapskonti"
+    )(
+        importData={
+            "id": "112000000061",
+            "name": "Test Statsregnskapskonto Fl from dim_statsregnskapskonti.csv",
+        }
+    )
+
+    refresh_module_data_statsregnskapskonti = update_data.override(
+        task_id="update_module_statsregnskapskonti"
+    )(
+        importData={
+            "id": "112000000062",
+            "name": "TEST 01.06 Statskonto from dim_statsregnskapskonti.csv",
+        }
+    )
+
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
@@ -162,6 +192,12 @@ def anaplan_regnskaphierarkier():
         upload_produkter
         >> refresh_hierarchy_data_produkter
         >> refresh_module_data_produkter
+    )
+
+    (
+        upload_statsregnskapskonti
+        >> refresh_hierarchy_data_statsregnskapskonti
+        >> refresh_module_data_statsregnskapskonti
     )
 
 
