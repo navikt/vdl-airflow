@@ -54,34 +54,32 @@ def anaplan_regnskaphierarkier():
     )
 
     @task
-    def update_hierarchy_data():
+    def update_data(importData: dict):
         from anaplan.import_data import import_data
 
-        importData = {
+        import_data(wGuid, mGuid, username, password, importData)
+
+    refresh_hierarchy_data_artskonti = update_data.override(
+        task_id="update_hierarchy_artskonti"
+    )(
+        importData={
             "id": "112000000052",
             "name": "Test Artskonto Flat from dim_artskonti.csv",
             "importDataSourceId": "113000000033",
             "importType": "HIERARCHY_DATA",
         }
+    )
 
-        import_data(wGuid, mGuid, username, password, importData)
-
-    refresh_hierarchy_data = update_hierarchy_data()
-
-    @task
-    def update_module_data():
-        from anaplan.import_data import import_data
-
-        importData = {
+    refresh_module_data_artskonti = update_data.override(
+        task_id="update_module_artskonti"
+    )(
+        importData={
             "id": "112000000051",
             "name": "TEST 01.02 Test Kontostruktur 2 from dim_artskonti.csv",
             "importDataSourceId": "113000000033",
             "importType": "MODULE_DATA",
         }
-
-        import_data(wGuid, mGuid, username, password, importData)
-
-    refresh_module_data = update_module_data()
+    )
 
     upload_felles = transfer.override(task_id="transfer_felles")(
         fileData={
@@ -103,37 +101,31 @@ def anaplan_regnskaphierarkier():
                 """,
     )
 
-    @task
-    def update_hierarchy_data_felles():
-        from anaplan.import_data import import_data
-
-        importData = {
+    refresh_hierarchy_data_felles = update_data.override(
+        task_id="update_hierarchy_felles"
+    )(
+        importData={
             "id": "112000000053",
             "name": "Test Felles Flat from dim_felles.csv",
             "importDataSourceId": "113000000034",
             "importType": "HIERARCHY_DATA",
         }
+    )
 
-        import_data(wGuid, mGuid, username, password, importData)
-
-    refresh_hierarchy_data_felles = update_hierarchy_data_felles()
-
-    @task
-    def update_module_data_felles():
-        from anaplan.import_data import import_data
-
-        importData = {
+    refresh_module_data_felles = update_data.override(task_id="update_module_felles")(
+        importData={
             "id": "112000000054",
             "name": "TEST 01.02 Test Felles from dim_felles.csv",
             "importDataSourceId": "113000000034",
             "importType": "MODULE_DATA",
         }
+    )
 
-        import_data(wGuid, mGuid, username, password, importData)
-
-    refresh_module_data_felles = update_module_data_felles()
-
-    upload_artskonti >> refresh_hierarchy_data >> refresh_module_data
+    (
+        upload_artskonti
+        >> refresh_hierarchy_data_artskonti
+        >> refresh_module_data_artskonti
+    )
     upload_felles >> refresh_hierarchy_data_felles >> refresh_module_data_felles
 
 
