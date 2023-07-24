@@ -86,7 +86,40 @@ def anaplan_regnskaphierarkier():
 
     refresh_module_data = update_module_data()
 
+
+    @task
+    def transfer_felles():
+        from anaplan.singleChunkUpload import transfer_data
+        from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+        from anaplan.get_data import get_data
+
+        fileData = {
+            "id" : "113000000034",
+            "name" : "dim_felles.csv",
+            "chunkCount" : 1,
+            "delimiter" : "\"",
+            "encoding" : "UTF-8",
+            "firstDataRow" : 2,
+            "format" : "txt",
+            "headerRow" : 1,
+            "separator" : ","
+        }
+
+        with SnowflakeHook().get_cursor() as cursor:
+            query =  """
+                select *
+                from reporting.microstrategy.dim_felles
+                where
+                    er_budsjetterbar = 1
+                """
+            data = get_data(query, cursor)
+
+        transfer_data(wGuid, mGuid, username, password, fileData, data)
+
+    upload_felles = transfer_felles()
+
     upload >> refresh_hierarchy_data >> refresh_module_data
+    upload_felles
 
 
 anaplan_regnskaphierarkier()
