@@ -116,17 +116,52 @@ def anaplan_regnskaphierarkier():
         }
     )
 
+    upload_produkter = transfer.override(task_id="transfer_produkter")(
+        fileData={"id": "113000000037", "name": "dim_produkter.csv"},
+        query="""
+            select *
+            from reporting.microstrategy.dim_produkter
+            where
+                er_budsjetterbar = 1
+            """,
+    )
+
+    refresh_hierarchy_data_produkter = update_data.override(
+        task_id="update_hierarchy_produkter"
+    )(
+        importData={
+            "id": "112000000059",
+            "name": "Test Produkt Flat from dim_produkter.csv",
+        }
+    )
+
+    refresh_module_data_produkter = update_data.override(
+        task_id="update_module_produkter"
+    )(
+        importData={
+            "id": "112000000060",
+            "name": "TEST 01.01 Test Produkt from dim_produkter.csv",
+        }
+    )
+
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
         >> refresh_module_data_artskonti
     )
-    upload_felles >> refresh_hierarchy_data_felles >> refresh_module_data_felles
+
+    (upload_felles >> refresh_hierarchy_data_felles >> refresh_module_data_felles)
 
     (
         upload_kostnadssteder
         >> refresh_hierarchy_data_kostnadssteder
         >> refresh_module_data_kostnadssteder
+    )
+
+    (
+        upload_produkter
+        >> refresh_hierarchy_data_produkter
+        >> refresh_module_data_produkter
     )
 
 
