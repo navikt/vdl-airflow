@@ -116,6 +116,55 @@ def anaplan_regnskaphierarkier():
         }
     )
 
+    upload_oppgaver = transfer.override(task_id="transfer_oppgaver")(
+        fileData={"id": "113000000036", "name": "dim_oppgaver.csv"},
+        query="""
+            with
+
+statskonti as (
+    select distinct
+         oppgaver_segment_kode
+        ,statsregnskapskonti_segment_kode
+    from reporting.microstrategy.fak_hovedbok_posteringer
+    where er_budsjett = 1
+)
+
+,oppgaver as (
+    select * from dim_oppgaver where er_budsjetterbar = 1
+)
+
+select
+     oppgaver.*
+    ,statskonti.statsregnskapskonti_segment_kode
+    ,case
+        when statskonti.statsregnskapskonti_segment_kode is null then
+            oppgaver.oppgaver_segment_kode else
+            concat(oppgaver.oppgaver_segment_kode,'_',statskonti.statsregnskapskonti_segment_kode)
+     end as pk_oppgaver_statskonti
+from oppgaver
+left join statskonti on
+    statskonti.oppgaver_segment_kode = oppgaver.oppgaver_segment_kode
+            """,
+    )
+
+    refresh_hierarchy_data_oppgaver = update_data.override(
+        task_id="update_hierarchy_oppgaver"
+    )(
+        importData={
+            "id": "112000000057",
+            "name": "Test Oppgave Flat from dim_oppgaver.csv",
+        }
+    )
+
+    refresh_module_data_oppgaver = update_data.override(
+        task_id="update_module_oppgaver"
+    )(
+        importData={
+            "id": "112000000064",
+            "name": "TEST 01.05 Oppgave from dim_oppgaver.csv",
+        }
+    )
+
     upload_produkter = transfer.override(task_id="transfer_produkter")(
         fileData={"id": "113000000037", "name": "dim_produkter.csv"},
         query="""
@@ -186,6 +235,12 @@ def anaplan_regnskaphierarkier():
         upload_kostnadssteder
         >> refresh_hierarchy_data_kostnadssteder
         >> refresh_module_data_kostnadssteder
+    )
+
+    (
+        upload_produkter
+        >> refresh_hierarchy_data_produkter
+        >> refresh_module_data_produkter
     )
 
     (
