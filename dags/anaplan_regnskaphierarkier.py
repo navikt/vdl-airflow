@@ -160,8 +160,8 @@ left join statskonti on
         task_id="update_module_oppgaver"
     )(
         importData={
-            "id": "112000000064",
-            "name": "TEST 01.05 Oppgave from dim_oppgaver.csv",
+            "id": "112000000065",
+            "name": "TEST 01.05 Oppgave items from dim_oppgaver.csv",
         }
     )
 
