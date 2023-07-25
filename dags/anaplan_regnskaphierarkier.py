@@ -130,7 +130,7 @@ statskonti as (
 )
 
 ,oppgaver as (
-    select * from dim_oppgaver where er_budsjetterbar = 1
+    select * from reporting.microstrategy.dim_oppgaver where er_budsjetterbar = 1
 )
 
 select
