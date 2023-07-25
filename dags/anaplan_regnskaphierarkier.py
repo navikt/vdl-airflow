@@ -237,11 +237,7 @@ left join statskonti on
         >> refresh_module_data_kostnadssteder
     )
 
-    (
-        upload_produkter
-        >> refresh_hierarchy_data_produkter
-        >> refresh_module_data_produkter
-    )
+    (upload_oppgaver >> refresh_hierarchy_data_oppgaver >> refresh_module_data_oppgaver)
 
     (
         upload_produkter
