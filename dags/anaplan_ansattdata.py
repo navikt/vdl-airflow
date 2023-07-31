@@ -2,6 +2,8 @@ from datetime import datetime
 
 from airflow.decorators import dag, task
 
+from airflow.models import Variable
+
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
 
 
@@ -12,31 +14,54 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
     on_failure_callback=slack_error,
 )
 def anaplan_ansattdata():
-    @task
-    def transfer():
-        from anaplan.ansattdata.singleChunkUpload import transfer_data
-
-        transfer_data()
-
-    upload = transfer()
+    wGuid = "8a868cda860a533a0186334e91805794"
+    mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
+    username = "virksomhetsdatalaget@nav.no"
+    password = Variable.get("anaplan_password")
 
     @task
-    def update_hierarchy_data():
-        from anaplan.ansattdata.import_hierarchy import hierarchy_data
+    def transfer(fileData: dict, query: str):
+        from anaplan.singleChunkUpload import transfer_data
+        import oracledb
+        from anaplan.get_data import get_data
 
-        hierarchy_data()
+        creds = Variable.get("dvh_password", deserialize_json=True)
 
-    refresh_hierarchy_data = update_hierarchy_data()
+        with oracledb.connect(**creds) as con:
+            with con.cursor() as cursor:
+                data = get_data(query, cursor)
+
+        transfer_data(wGuid, mGuid, username, password, fileData, data)
 
     @task
-    def update_module_data():
-        from anaplan.ansattdata.import_module_data import module_data
+    def update_data(importData: dict):
+        from anaplan.import_data import import_data
 
-        module_data()
+        import_data(wGuid, mGuid, username, password, importData)
 
-    refresh_module_data = update_module_data()
+    upload = transfer.override(task_id="transfer_hr_data")(
+        fileData={"id": "113000000040", "name": "anaplan_hrres_stillinger.csv"},
+        query="""
+                    select *
+                    from DT_HR.ANAPLAN_HRRES_STILLINGER
+                    """,
+    )
 
-    upload >> refresh_hierarchy_data >> refresh_module_data
+    refresh_hierarchy_data = update_data.override(task_id="update_hierarchy_hr_data")(
+        importData={
+            "id": "112000000068",
+            "name": "Test Ansatte Flat from anaplan_hrres_stillinger.csv",
+        }
+    )
+
+    refresh_module_data = update_data.override(task_id="update_module_hr_data")(
+        importData={
+            "id": "112000000069",
+            "name": "TEST 01.07 HR-Data from anaplan_hrres_stillinger.csv",
+        }
+    )
+
+    (upload >> refresh_hierarchy_data >> refresh_module_data)
 
 
 anaplan_ansattdata()
