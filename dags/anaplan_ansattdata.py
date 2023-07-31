@@ -23,7 +23,21 @@ def anaplan_ansattdata():
     def transfer(fileData: dict, query: str):
         from anaplan.singleChunkUpload import transfer_data
         import oracledb
-        from anaplan.get_data import get_data
+
+        from io import StringIO
+        import csv
+        from sqlite3 import Cursor
+
+        def get_data(query: str, cursor: Cursor):
+            cursor.execute(query)
+            column_names = map(lambda x: x[0], cursor.description)
+            result = cursor.fetchall()
+            print(f"Number of rows: {len(result)}")
+            f = StringIO(newline="")
+            writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+            writer.writerow(column_names)
+            writer.writerows(result)
+            return f.getvalue()
 
         creds = Variable.get("dvh_password", deserialize_json=True)
 
