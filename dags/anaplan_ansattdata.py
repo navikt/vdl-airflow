@@ -55,12 +55,12 @@ def anaplan_ansattdata():
             from dt_hr.anaplan_hrres_stillinger
         """,
         hierarchy_import_data={
-            "id": "112000000068",
-            "name": "Test Ansatte Flat from anaplan_hrres_stillinger.csv",
+            "id": "112000000072",
+            "name": "Test Ansatte Fla from anaplan_hrres_stillinger.csv",
         },
         model_import_data={
-            "id": "112000000069",
-            "name": "TEST 01.07 HR-Data from anaplan_hrres_stillinger.csv",
+            "id": "112000000073",
+            "name": "TEST 01.07 HR-Data - Copy from anaplan_hrres_stillinger.csv",
         },
     )
 
