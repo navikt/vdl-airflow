@@ -53,7 +53,7 @@ def anaplan_regnskaphierarkier():
         task_id="update_hierarchy_artskonti"
     )(
         importData={
-            "id": "112000000052",
+            "id": "112000000051",
             "name": "Test Artskonto Flat from dim_artskonti.csv",
         }
     )
@@ -62,7 +62,7 @@ def anaplan_regnskaphierarkier():
         task_id="update_module_artskonti"
     )(
         importData={
-            "id": "112000000051",
+            "id": "112000000052",
             "name": "TEST 01.02 Test Kontostruktur 2 from dim_artskonti.csv",
         }
     )
