@@ -23,7 +23,10 @@ def anaplan_regnskaphierarkier():
 
     @task
     def transfer(
-        fileData: dict, query: str, hierarchy_import_data: dict, model_import_data: dict
+        fileData: dict,
+        query: str,
+        hierarchy_import_data: dict,
+        module_import_data: dict,
     ):
         from anaplan.singleChunkUpload import transfer_data
         from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
@@ -46,7 +49,7 @@ def anaplan_regnskaphierarkier():
             mGuid=mGuid,
             username=username,
             password=password,
-            importData=model_import_data,
+            importData=module_import_data,
         )
 
     upload_artskonti = transfer.override(task_id="transfer_artskonti")(
@@ -62,7 +65,7 @@ def anaplan_regnskaphierarkier():
             "id": "112000000052",
             "name": "Test Artskonto Flat from dim_artskonti.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000051",
             "name": "TEST 01.02 Test Kontostruktur 2 from dim_artskonti.csv",
         },
@@ -80,7 +83,7 @@ def anaplan_regnskaphierarkier():
             "id": "112000000053",
             "name": "Test Felles Flat from dim_felles.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000054",
             "name": "TEST 01.02 Test Felles from dim_felles.csv",
         },
@@ -98,7 +101,7 @@ def anaplan_regnskaphierarkier():
             "id": "112000000055",
             "name": "Test Ksted Flat from dim_kostnadssteder.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000056",
             "name": "TEST 01.04 Org.Struktur from dim_kostnadssteder.csv",
         },
@@ -137,7 +140,7 @@ def anaplan_regnskaphierarkier():
             "id": "112000000057",
             "name": "Test Oppgave Flat from dim_oppgaver.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000064",
             "name": "TEST 01.05 Oppgave from dim_oppgaver.csv",
         },
@@ -155,7 +158,7 @@ def anaplan_regnskaphierarkier():
             "id": "112000000059",
             "name": "Test Produkt Flat from dim_produkter.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000060",
             "name": "TEST 01.01 Test Produkt from dim_produkter.csv",
         },
@@ -175,7 +178,7 @@ def anaplan_regnskaphierarkier():
             "id": "112000000061",
             "name": "Test Statsregnskapskonto Fl from dim_statsregnskapskonti.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000062",
             "name": "TEST 01.06 Statskonto from dim_statsregnskapskonti.csv",
         },

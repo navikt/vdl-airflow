@@ -21,7 +21,10 @@ def anaplan_ansattdata():
 
     @task
     def transfer(
-        fileData: dict, query: str, hierarchy_import_data: dict, model_import_data: dict
+        fileData: dict,
+        query: str,
+        hierarchy_import_data: dict,
+        module_import_data: dict,
     ):
         from anaplan.import_data import import_data
         from anaplan.singleChunkUpload import transfer_data
@@ -45,7 +48,7 @@ def anaplan_ansattdata():
             mGuid=mGuid,
             username=username,
             password=password,
-            importData=model_import_data,
+            importData=module_import_data,
         )
 
     upload = transfer.override(task_id="transfer_hr_data")(
@@ -58,7 +61,7 @@ def anaplan_ansattdata():
             "id": "112000000072",
             "name": "Test Ansatte Fla from anaplan_hrres_stillinger.csv",
         },
-        model_import_data={
+        module_import_data={
             "id": "112000000073",
             "name": "TEST 01.07 HR-Data - Copy from anaplan_hrres_stillinger.csv",
         },
