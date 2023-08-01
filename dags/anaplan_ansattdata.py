@@ -22,30 +22,25 @@ def anaplan_ansattdata():
     @task
     def transfer(fileData: dict, query: str):
         from anaplan.singleChunkUpload import transfer_data
+        from anaplan.get_data import get_data
         import oracledb
 
         from io import StringIO
         import csv
         from sqlite3 import Cursor
-
-        def get_data(query: str, cursor: Cursor):
-            cursor.execute(query)
-            column_names = map(lambda x: x[0], cursor.description)
-            result = cursor.fetchall()
-            print(f"Number of rows: {len(result)}")
-            f = StringIO(newline="")
-            writer = csv.writer(f)
-            writer.writerow(column_names)
-            writer.writerows(result)
-            return f.getvalue()
+        import time
 
         creds = Variable.get("dvh_password", deserialize_json=True)
-
+        ora_start = time.perf_counter()
         with oracledb.connect(**creds) as con:
             with con.cursor() as cursor:
                 data = get_data(query, cursor)
-
+        ora_stop = time.perf_counter()
+        print(f"oracle duration: {ora_stop - ora_start}")
+        t_start = time.perf_counter()
         transfer_data(wGuid, mGuid, username, password, fileData, data)
+        t_stop = time.perf_counter()
+        print(f"transfer duration: {t_stop - t_start}")
 
     @task
     def update_data(importData: dict):
