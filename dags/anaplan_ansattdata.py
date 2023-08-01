@@ -20,57 +20,51 @@ def anaplan_ansattdata():
     password = Variable.get("anaplan_password")
 
     @task
-    def transfer(fileData: dict, query: str):
+    def transfer(
+        fileData: dict, query: str, hierarchy_import_data: dict, model_import_data: dict
+    ):
+        from anaplan.import_data import import_data
         from anaplan.singleChunkUpload import transfer_data
         from anaplan.get_data import get_data
         import oracledb
 
-        from io import StringIO
-        import csv
-        from sqlite3 import Cursor
-        import time
-
         creds = Variable.get("dvh_password", deserialize_json=True)
-        ora_start = time.perf_counter()
         with oracledb.connect(**creds) as con:
             with con.cursor() as cursor:
                 data = get_data(query, cursor)
-        ora_stop = time.perf_counter()
-        print(f"oracle duration: {ora_stop - ora_start}")
-        t_start = time.perf_counter()
         transfer_data(wGuid, mGuid, username, password, fileData, data)
-        t_stop = time.perf_counter()
-        print(f"transfer duration: {t_stop - t_start}")
-
-    @task
-    def update_data(importData: dict):
-        from anaplan.import_data import import_data
-
-        import_data(wGuid, mGuid, username, password, importData)
+        import_data(
+            wGuid=wGuid,
+            mGuid=mGuid,
+            username=username,
+            password=password,
+            importData=hierarchy_import_data,
+        )
+        import_data(
+            wGuid=wGuid,
+            mGuid=mGuid,
+            username=username,
+            password=password,
+            importData=model_import_data,
+        )
 
     upload = transfer.override(task_id="transfer_hr_data")(
         fileData={"id": "113000000040", "name": "anaplan_hrres_stillinger.csv"},
         query="""
-                    select *
-                    from DT_HR.ANAPLAN_HRRES_STILLINGER
-                    """,
+            select *
+            from dt_hr.anaplan_hrres_stillinger
+        """,
+        hierarchy_import_data={
+            "id": "112000000068",
+            "name": "Test Ansatte Flat from anaplan_hrres_stillinger.csv",
+        },
+        model_import_data={
+            "id": "112000000069",
+            "name": "TEST 01.07 HR-Data from anaplan_hrres_stillinger.csv",
+        },
     )
 
-    refresh_hierarchy_data = update_data.override(task_id="update_hierarchy_hr_data")(
-        importData={
-            "id": "112000000072",
-            "name": "Test Ansatte Fla from anaplan_hrres_stillinger.csv",
-        }
-    )
-
-    refresh_module_data = update_data.override(task_id="update_module_hr_data")(
-        importData={
-            "id": "112000000073",
-            "name": "TEST 01.07 HR-Data - Copy from anaplan_hrres_stillinger.csv",
-        }
-    )
-
-    (upload >> refresh_hierarchy_data >> refresh_module_data)
+    upload
 
 
 anaplan_ansattdata()
