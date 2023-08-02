@@ -41,11 +41,7 @@ def anaplan_regnskaphierarkier():
     upload_artskonti = transfer.override(task_id="transfer_artskonti")(
         fileData={"id": "113000000033", "name": "dim_artskonti.csv"},
         query="""
-                select *
-                from reporting.microstrategy.dim_artskonti
-                where
-                    er_budsjetterbar = 1 and
-                    artskonti_segment_kode_niva_1 is not null
+                select * from reporting.microstrategy.dim_artskonti where ENDSWITH(artskonti_segment_kode, '0000000') and er_budsjetterbar=1
                 """,
     )
 
