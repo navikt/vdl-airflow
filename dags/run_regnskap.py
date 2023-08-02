@@ -87,6 +87,7 @@ def run_regnskap():
 
         return requests.get(url=f"{URL}/dbt/{job}").json()
 
+    dbt_freshness = run_dbt_job.override(task_id="dbt_freshness")("freshness")
     dbt_run = run_dbt_job.override(task_id="dbt_run")("run")
     dbt_test = run_dbt_job.override(task_id="dbt_test")("test")
 
@@ -142,6 +143,9 @@ def run_regnskap():
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
         slack_success(message=f"Resultat fra kjøringen:\n{summary}")
 
+    wait_dbt_freshness = wait_for_dbt.override(task_id="wait_for_dbt_freshness")(
+        dbt_freshness
+    )
     wait_dbt_run = wait_for_dbt.override(task_id="wait_for_dbt_run")(dbt_run)
     wait_dbt_test = wait_for_dbt.override(task_id="wait_for_dbt_test")(dbt_test)
 
@@ -157,17 +161,25 @@ def run_regnskap():
     balance_closed >> wait_balance_closed
     # accounts_payable >> wait_accounts_payable
 
-    wait_dimensonal_data >> dbt_run
-    wait_sync_check >> dbt_run
-    wait_general_ledger_open >> dbt_run
-    wait_general_ledger_budget >> dbt_run
-    wait_general_ledger_closed >> dbt_run
-    wait_balance_open >> dbt_run
-    wait_balance_budget >> dbt_run
-    wait_balance_closed >> dbt_run
+    wait_dimensonal_data >> dbt_freshness
+    wait_sync_check >> dbt_freshness
+    wait_general_ledger_open >> dbt_freshness
+    wait_general_ledger_budget >> dbt_freshness
+    wait_general_ledger_closed >> dbt_freshness
+    wait_balance_open >> dbt_freshness
+    wait_balance_budget >> dbt_freshness
+    wait_balance_closed >> dbt_freshness
     # wait_accounts_payable >> dbt_run
 
-    dbt_run >> wait_dbt_run >> dbt_test >> wait_dbt_test >> slack_summary
+    (
+        dbt_freshness
+        >> wait_dbt_freshness
+        >> dbt_run
+        >> wait_dbt_run
+        >> dbt_test
+        >> wait_dbt_test
+        >> slack_summary
+    )
 
 
 run_regnskap()
