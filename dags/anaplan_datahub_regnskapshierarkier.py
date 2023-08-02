@@ -10,7 +10,7 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
 
 
 @dag(
-    start_date=datetime(2023, 7, 17),
+    start_date=datetime(2023, 8, 2),
     schedule_interval=None,
     on_success_callback=slack_success,
     on_failure_callback=slack_error,
