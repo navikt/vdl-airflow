@@ -15,7 +15,7 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
     on_success_callback=slack_success,
     on_failure_callback=slack_error,
 )
-def anaplan_regnskaphierarkier():
+def anaplan_database_regnskaphierarkier():
     wGuid = "8a868cd985f53e7701860542f59e276e"
     mGuid = "06128127571046D7AA58504E98667194"
     username = "virksomhetsdatalaget@nav.no"
@@ -70,4 +70,4 @@ def anaplan_regnskaphierarkier():
     )
 
 
-anaplan_regnskaphierarkier()
+anaplan_database_regnskaphierarkier()
