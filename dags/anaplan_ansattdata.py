@@ -58,15 +58,15 @@ def anaplan_ansattdata():
 
     refresh_hierarchy_data = update_data.override(task_id="update_hierarchy_hr_data")(
         importData={
-            "id": "112000000078",
-            "name": "Test Ansatte Flat 4 from anaplan_hrres_stillinger.csv",
+            "id": "112000000080",
+            "name": "Test Ansatte Flat 5 from anaplan_hrres_stillinger.csv",
         }
     )
 
     refresh_module_data = update_data.override(task_id="update_module_hr_data")(
         importData={
-            "id": "112000000079",
-            "name": "TEST 01.07 HR-Data 4 from anaplan_hrres_stillinger.csv",
+            "id": "112000000081",
+            "name": "TEST 01.07 HR-Data 5 from anaplan_hrres_stillinger.csv",
         }
     )
 
