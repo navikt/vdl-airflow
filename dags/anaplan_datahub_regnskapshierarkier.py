@@ -167,6 +167,32 @@ left join statskonti on
         }
     )
 
+    upload_felles = transfer.override(task_id="transfer_felles")(
+        fileData={"id": "113000000033", "name": "dim_felles_snowflake.csv"},
+        query="""
+                select *
+                from reporting.microstrategy.dim_felles
+                where
+                    er_budsjetterbar = 1
+                """,
+    )
+
+    refresh_hierarchy_data_felles = update_data.override(
+        task_id="update_hierarchy_felles"
+    )(
+        importData={
+            "id": "112000000049",
+            "name": "Felles Flat from dim_felles_snowflake.csv",
+        }
+    )
+
+    refresh_module_data_felles = update_data.override(task_id="update_module_felles")(
+        importData={
+            "id": "112000000050",
+            "name": "Felles from dim_felles_snowflake.csv",
+        }
+    )
+
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
@@ -186,6 +212,8 @@ left join statskonti on
     )
 
     (upload_oppgaver >> refresh_hierarchy_data_oppgaver >> refresh_module_data_oppgaver)
+
+    (upload_felles >> refresh_hierarchy_data_felles >> refresh_module_data_felles)
 
 
 anaplan_database_regnskaphierarkier()
