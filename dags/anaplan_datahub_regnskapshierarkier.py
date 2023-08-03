@@ -62,11 +62,44 @@ def anaplan_database_regnskaphierarkier():
             "name": "Artskonti from dim_artskonti_snowflake.csv",
         }
     )
+    upload_kostnadssteder = transfer.override(task_id="transfer_kostnadssteder")(
+        fileData={"id": "113000000030", "name": "dim_kostnadssteder_snowflake.csv"},
+        query="""
+                select *
+                from reporting.microstrategy.dim_kostnadssteder
+                where
+                    er_budsjetterbar = 1
+                """,
+    )
+
+    refresh_hierarchy_data_kostnadssteder = update_data.override(
+        task_id="update_hierarchy_kostnadssteder"
+    )(
+        importData={
+            "id": "112000000043",
+            "name": "Ksted Flat from dim_kostnadssteder_snowflake.csv",
+        }
+    )
+
+    refresh_module_data_kostnadssteder = update_data.override(
+        task_id="update_module_kostnadssteder"
+    )(
+        importData={
+            "id": "112000000044",
+            "name": "Ksted from dim_kostnadssteder_snowflake.csv",
+        }
+    )
 
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
         >> refresh_module_data_artskonti
+    )
+
+    (
+        upload_kostnadssteder
+        >> refresh_hierarchy_data_kostnadssteder
+        >> refresh_module_data_kostnadssteder
     )
 
 
