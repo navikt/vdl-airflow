@@ -62,7 +62,7 @@ def anaplan_regnskapsdata():
     oppgaver_segment_kode,
     felles_segment_kode,
     sum(sum_netto_nok) as sum_netto_nok
-from reporting.microstrategy.regnskap.marts.agg_hovedbok_posteringer_all_mnd
+from reporting.microstrategy.agg_hovedbok_posteringer_all_mnd
 where
     ER_BUDSJETT_POSTERING = 0 and
     hovedbok_id = '3022' and
