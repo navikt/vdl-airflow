@@ -90,6 +90,34 @@ def anaplan_database_regnskaphierarkier():
         }
     )
 
+    upload_produkter = transfer.override(task_id="transfer_produkter")(
+        fileData={"id": "113000000031", "name": "dim_produkter_snowflake.csv"},
+        query="""
+            select *
+            from reporting.microstrategy.dim_produkter
+            where
+                er_budsjetterbar = 1
+            """,
+    )
+
+    refresh_hierarchy_data_produkter = update_data.override(
+        task_id="update_hierarchy_produkter"
+    )(
+        importData={
+            "id": "112000000045",
+            "name": "Produkt Flat from dim_produkter_snowflake.csv",
+        }
+    )
+
+    refresh_module_data_produkter = update_data.override(
+        task_id="update_module_produkter"
+    )(
+        importData={
+            "id": "112000000046",
+            "name": "Produkt from dim_produkter_snowflake.csv",
+        }
+    )
+
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
@@ -100,6 +128,12 @@ def anaplan_database_regnskaphierarkier():
         upload_kostnadssteder
         >> refresh_hierarchy_data_kostnadssteder
         >> refresh_module_data_kostnadssteder
+    )
+
+    (
+        upload_produkter
+        >> refresh_hierarchy_data_produkter
+        >> refresh_module_data_produkter
     )
 
 
