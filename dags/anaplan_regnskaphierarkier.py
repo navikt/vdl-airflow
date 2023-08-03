@@ -194,7 +194,7 @@ left join statskonti on
     )(
         fileData={"id": "113000000038", "name": "dim_statsregnskapskonti.csv"},
         query="""
-        select * from reporting.microstrategy.dim_statsregnskapskonti where ENDSWITH(artskonti_segment_kode, '0000000') and er_budsjetterbar=1
+        select * from reporting.microstrategy.dim_statsregnskapskonti where ENDSWITH(statsregnskapskonti_segment_kode, '000000') and er_budsjetterbar=1
             """,
     )
 
