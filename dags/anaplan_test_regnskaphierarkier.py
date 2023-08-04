@@ -16,9 +16,9 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
     on_failure_callback=slack_error,
 )
 def anaplan_test_regnskaphierarkier():
-    wGuid = "8a868cdc860a6af50186334b17be68b8"
-    mGuid = "609BEDCBF89447DFACFE439152F903E1"
-    username = "virksomhetsdatalaget@nav.no"
+    wGuid = Variable.get("anaplan_workspace_id")
+    mGuid = Variable.get("anaplan_model_id")
+    username = Variable.get("anaplan_username")
     password = Variable.get("anaplan_password")
 
     @task
