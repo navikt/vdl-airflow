@@ -77,15 +77,15 @@ group by 1,2,3,4,5,6,7,8
         task_id="update_hierarchy_regnskapsdata"
     )(
         importData={
-            "id": "112000000086",
-            "name": "Test Regnskap Flat from agg_hovedbok_posteringer_all_mnd_sno",
+            "id": "112000000088",
+            "name": "Test Regnskap Flat 2 from agg_hovedbok_posteringer_all_mnd_s",
         }
     )
 
     refresh_module_data = update_data.override(task_id="update_module_regnskapsdata")(
         importData={
-            "id": "112000000087",
-            "name": "TEST 01.08 Regnskap from agg_hovedbok_posteringer_all_mnd_sn",
+            "id": "112000000089",
+            "name": "TEST 01.08 Regnskap 2 from agg_hovedbok_posteringer_all_mnd~",
         }
     )
 
