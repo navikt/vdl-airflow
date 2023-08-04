@@ -193,6 +193,36 @@ left join statskonti on
         }
     )
 
+    upload_statsregnskapskonti = transfer.override(
+        task_id="transfer_statsregnskapskonti"
+    )(
+        fileData={
+            "id": "113000000034",
+            "name": "dim_statsregnskapskonti_snowflake.csv",
+        },
+        query="""
+        select * from reporting.microstrategy.dim_statsregnskapskonti where ENDSWITH(statsregnskapskonti_segment_kode, '000000') and er_budsjetterbar=1
+            """,
+    )
+
+    refresh_hierarchy_data_statsregnskapskonti = update_data.override(
+        task_id="update_hierarchy_statsregnskapskonti"
+    )(
+        importData={
+            "id": "112000000051",
+            "name": "Statskonto Flat from dim_statsregnskapskonti_snowflake.csv",
+        }
+    )
+
+    refresh_module_data_statsregnskapskonti = update_data.override(
+        task_id="update_module_statsregnskapskonti"
+    )(
+        importData={
+            "id": "112000000052",
+            "name": "Statskonti from dim_statsregnskapskonti_snowflake.csv",
+        }
+    )
+
     (
         upload_artskonti
         >> refresh_hierarchy_data_artskonti
@@ -214,6 +244,12 @@ left join statskonti on
     (upload_oppgaver >> refresh_hierarchy_data_oppgaver >> refresh_module_data_oppgaver)
 
     (upload_felles >> refresh_hierarchy_data_felles >> refresh_module_data_felles)
+
+    (
+        upload_statsregnskapskonti
+        >> refresh_hierarchy_data_statsregnskapskonti
+        >> refresh_module_data_statsregnskapskonti
+    )
 
 
 anaplan_database_regnskaphierarkier()
