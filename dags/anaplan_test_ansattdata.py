@@ -20,14 +20,17 @@ def anaplan_test_ansattdata():
     password = Variable.get("anaplan_password")
 
     @task
-    def transfer(fileData: dict, query: str):
+    def transfer(
+        fileData: dict,
+        query: str,
+        import_hierarchy_data: dict,
+        import_module_data: dict,
+    ):
         from anaplan.singleChunkUpload import transfer_data
         from anaplan.get_data import get_data
+        from anaplan.import_data import import_data
         import oracledb
 
-        from io import StringIO
-        import csv
-        from sqlite3 import Cursor
         import time
 
         creds = Variable.get("dvh_password", deserialize_json=True)
@@ -42,35 +45,26 @@ def anaplan_test_ansattdata():
         t_stop = time.perf_counter()
         print(f"transfer duration: {t_stop - t_start}")
 
-    @task
-    def update_data(importData: dict):
-        from anaplan.import_data import import_data
-
-        import_data(wGuid, mGuid, username, password, importData)
+        import_data(wGuid, mGuid, username, password, import_hierarchy_data)
+        import_data(wGuid, mGuid, username, password, import_module_data)
 
     upload = transfer.override(task_id="transfer_hr_data")(
         fileData={"id": "113000000040", "name": "anaplan_hrres_stillinger.csv"},
         query="""
-                    select *
-                    from DT_HR.ANAPLAN_HRRES_STILLINGER
-                    """,
-    )
-
-    refresh_hierarchy_data = update_data.override(task_id="update_hierarchy_hr_data")(
-        importData={
+            select *
+            from DT_HR.ANAPLAN_HRRES_STILLINGER
+        """,
+        import_hierarchy_data={
             "id": "112000000080",
             "name": "Test Ansatte Flat 5 from anaplan_hrres_stillinger.csv",
-        }
-    )
-
-    refresh_module_data = update_data.override(task_id="update_module_hr_data")(
-        importData={
+        },
+        import_module_data={
             "id": "112000000081",
             "name": "TEST 01.07 HR-Data 5 from anaplan_hrres_stillinger.csv",
-        }
+        },
     )
 
-    (upload >> refresh_hierarchy_data >> refresh_module_data)
+    (upload)
 
 
 anaplan_test_ansattdata()
