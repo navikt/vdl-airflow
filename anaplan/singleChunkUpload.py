@@ -14,44 +14,8 @@
 
 import requests
 import base64
-import sys
-import string
-import os
-import json
-from airflow.models import Variable
-from pathlib import Path
 
-
-def transfer_data():
-    # Insert your workspace Guid
-    wGuid = "8a868cda860a533a0186334e91805794"
-    # Insert your model Guid
-    mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
-    # Insert the Anaplan account email being used
-    username = "virksomhetsdatalaget@nav.no"
-    # Replace with your file metadata
-    fileData = {
-        "id": "113000000030",
-        "name": "ansattdata.csv",
-        "chunkCount": 1,
-        "delimiter": '"',
-        "encoding": "UTF-8",
-        "firstDataRow": 2,
-        "format": "txt",
-        "headerRow": 1,
-        "separator": ",",
-    }
-
-    # If using cert auth, replace cert.pem with your pem converted certificate
-    # filename. Otherwise, remove this line.
-    # cert = open("cert.pem").read()
-
-    # If using basic auth, insert your password. Otherwise, remove this line.
-    password = Variable.get("anaplan_password")
-
-    # Uncomment your authentication method (cert or basic). Remove the other.
-    # user = 'AnaplanCertificate ' + str(base64.b64encode((
-    #       f'{username}:{cert}').encode('utf-8')).decode('utf-8'))
+def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dict, data:str):
 
     user = "Basic " + str(
         base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
@@ -64,9 +28,8 @@ def transfer_data():
 
     putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
 
-    # Opens the data file (filData['name'] by default) and encodes it to utf-8
-    filepath = str(Path(__file__).parent)
-    dataFile = open(filepath + "/ansattdata.csv", "r").read()
+    
+    dataFile = data.encode("utf-8")
 
     fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
     if fileUpload.ok:
@@ -76,6 +39,3 @@ def transfer_data():
             "There was an issue with your file upload: " + str(fileUpload.status_code)
         )
         raise Exception("Noe gikk galt...")
-
-
-transfer_data()

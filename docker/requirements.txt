@@ -1,0 +1,1 @@
+apache-airflow[slack,snowflake,oracle]==2.6.2

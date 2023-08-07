@@ -21,26 +21,7 @@ import json
 from airflow.models import Variable
 
 
-def module_data():
-    # Insert your workspace Guid
-    wGuid = "8a868cda860a533a0186334e91805794"
-    # Insert your model Guid
-    mGuid = "A07AB2A8DBA24E13B8A6E9EBCDB6235E"
-    # Insert the Anaplan account email being used
-    username = "virksomhetsdatalaget@nav.no"
-
-    # Replace with your import metadata
-    importData = {
-        "id": "112000000045",
-        "name": "TEST 01.00 DummyData from ansattdata.csv",
-        "importDataSourceId": "113000000030",
-        "importType": "MODULE_DATA",
-    }
-
-    # If using basic auth, insert your password. Otherwise, remove this line.
-    password = Variable.get("anaplan_password")
-
-    # Uncomment your authentication method (cert or basic). Remove the other.
+def import_data(wGuid:str, mGuid:str, username:str, password:str, importData:dict):
 
     user = "Basic " + str(
         base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
