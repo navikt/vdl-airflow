@@ -49,18 +49,18 @@ def anaplan_test_ansattdata():
         import_data(wGuid, mGuid, username, password, import_module_data)
 
     upload = transfer.override(task_id="transfer_hr_data")(
-        fileData={"id": "113000000040", "name": "anaplan_hrres_stillinger.csv"},
+        fileData={"id": "113000000046", "name": "anaplan_hrres_stillinger_dvh.csv"},
         query="""
             select *
             from DT_HR.ANAPLAN_HRRES_STILLINGER
         """,
         import_hierarchy_data={
-            "id": "112000000080",
-            "name": "Test Ansatte Flat 5 from anaplan_hrres_stillinger.csv",
+            "id": "112000000093",
+            "name": "Test Ansatte Flat from anaplan_hrres_stillinger_dvh.csv",
         },
         import_module_data={
-            "id": "112000000081",
-            "name": "TEST 01.07 HR-Data 5 from anaplan_hrres_stillinger.csv",
+            "id": "112000000094",
+            "name": "TEST 01.07 HR-Data from anaplan_hrres_stillinger_dvh.csv",
         },
     )
 
