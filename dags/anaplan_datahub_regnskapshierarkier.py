@@ -16,15 +16,15 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
     on_failure_callback=slack_error,
 )
 def anaplan_datahub_regnskaphierarkier():
-    # wGuid = "8a868cd985f53e7701860542f59e276e"
-    # mGuid = "06128127571046D7AA58504E98667194"
-    # username = "virksomhetsdatalaget@nav.no"
-    # password = Variable.get("anaplan_password")
-
-    wGuid = Variable.get("anaplan_workspace_id")
-    mGuid = Variable.get("anaplan_model_id")
-    username = Variable.get("anaplan_username")
+    wGuid = "8a868cd985f53e7701860542f59e276e"
+    mGuid = "06128127571046D7AA58504E98667194"
+    username = "virksomhetsdatalaget@nav.no"
     password = Variable.get("anaplan_password")
+
+    # wGuid = Variable.get("anaplan_workspace_id")
+    # mGuid = Variable.get("anaplan_model_id")
+    # username = Variable.get("anaplan_username")
+    # password = Variable.get("anaplan_password")
 
     @task
     def transfer(
