@@ -60,7 +60,7 @@ def anaplan_test_regnskaphierarkier():
             "id": "112000000060",
             "name": "TEST encoding from artskonti_encoding_test.csv",
         },
-        local_csv="../anaplan/artskonti_encoding_test.csv",
+        local_csv="../../anaplan/artskonti_encoding_test.csv",
         # query="""
         # select *
         # from reporting.microstrategy.dim_artskonti
