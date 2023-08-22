@@ -44,7 +44,7 @@ def anaplan_test_regnskaphierarkier():
                 data = get_data(query, cursor)
 
         if local_csv:
-            data = open(local_csv, "r").read().encode("utf-8")
+            data = open(local_csv, "r").read()
 
         transfer_data(wGuid, mGuid, username, password, fileData, data)
         import_data(wGuid, mGuid, username, password, import_hierarchy_data)
@@ -60,14 +60,14 @@ def anaplan_test_regnskaphierarkier():
             "id": "112000000060",
             "name": "TEST encoding from artskonti_encoding_test.csv",
         },
-        # local_csv="/Users/rubypaloma/Desktop/Anaplan/Python scripts/API/artskonti_encoding_test.csv",
-        query="""
-            select *
-            from reporting.microstrategy.dim_artskonti
-            where
-                endswith(artskonti_segment_kode, '0000000') and
-                er_budsjetterbar=1
-        """,
+        local_csv="../anaplan/artskonti_encoding_test.csv",
+        # query="""
+        # select *
+        # from reporting.microstrategy.dim_artskonti
+        # where
+        # endswith(artskonti_segment_kode, '0000000') and
+        # er_budsjetterbar=1
+        # """,
     )
 
     (upload_artskonti)
