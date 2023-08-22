@@ -60,7 +60,14 @@ def anaplan_test_regnskaphierarkier():
             "id": "112000000060",
             "name": "TEST encoding from artskonti_encoding_test.csv",
         },
-        local_csv="/Users/rubypaloma/Desktop/Anaplan/Python scripts/API/artskonti_encoding_test.csv",
+        # local_csv="/Users/rubypaloma/Desktop/Anaplan/Python scripts/API/artskonti_encoding_test.csv",
+        query="""
+            select *
+            from reporting.microstrategy.dim_artskonti
+            where
+                endswith(artskonti_segment_kode, '0000000') and
+                er_budsjetterbar=1
+        """,
     )
 
     (upload_artskonti)
