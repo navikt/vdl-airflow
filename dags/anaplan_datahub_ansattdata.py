@@ -54,7 +54,7 @@ def anaplan_datahub_ansattdata():
         t_stop = time.perf_counter()
         print(f"transfer duration: {t_stop - t_start}")
 
-        csv_file = transform_to_csv(data)
+        csv_file = transform_to_csv(data[0], data[1])
 
         transfer_data(wGuid, mGuid, username, password, fileData, csv_file)
         import_data(wGuid, mGuid, username, password, import_hierarchy_data)

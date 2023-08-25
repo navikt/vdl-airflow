@@ -36,7 +36,7 @@ def anaplan_datahub_regnskaphierarkier():
         with SnowflakeHook().get_cursor() as cursor:
             data = get_data(query, cursor)
 
-        csv_file = transform_to_csv(data)
+        csv_file = transform_to_csv(data[0], data[1])
 
         transfer_data(wGuid, mGuid, username, password, fileData, csv_file)
         import_data(wGuid, mGuid, username, password, import_hierarchy_data)
