@@ -16,15 +16,10 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
     on_failure_callback=slack_error,
 )
 def anaplan_datahub_regnskapsdata():
-    wGuid = "8a868cd985f53e7701860542f59e276e"
-    mGuid = "06128127571046D7AA58504E98667194"
-    username = "virksomhetsdatalaget@nav.no"
+    wGuid = Variable.get("anaplan_workspace_id")
+    mGuid = Variable.get("anaplan_model_id")
+    username = Variable.get("anaplan_username")
     password = Variable.get("anaplan_password")
-
-    # wGuid = Variable.get("anaplan_workspace_id")
-    # mGuid = Variable.get("anaplan_model_id")
-    # username = Variable.get("anaplan_username")
-    # password = Variable.get("anaplan_password")
 
     @task
     def transfer(
@@ -35,13 +30,15 @@ def anaplan_datahub_regnskapsdata():
     ):
         from anaplan.singleChunkUpload import transfer_data
         from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
-        from anaplan.get_data import get_data
+        from anaplan.get_data import get_data, transform_to_csv
         from anaplan.import_data import import_data
 
         with SnowflakeHook().get_cursor() as cursor:
             data = get_data(query, cursor)
 
-        transfer_data(wGuid, mGuid, username, password, fileData, data)
+        csv_file = transform_to_csv(data)
+
+        transfer_data(wGuid, mGuid, username, password, fileData, csv_file)
         import_data(wGuid, mGuid, username, password, import_hierarchy_data)
         import_data(wGuid, mGuid, username, password, import_module_data)
 

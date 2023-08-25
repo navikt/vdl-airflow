@@ -8,8 +8,12 @@ def get_data(query: str, cursor: Cursor):
     column_names = map(lambda x: x[0], cursor.description)
     result = cursor.fetchall()
     print(f"Number of rows: {len(result)}")
+    return result, column_names
+
+
+def transform_to_csv(data: list, column_names: list):
     f = StringIO(newline="")
     writer = csv.writer(f)
     writer.writerow(column_names)
-    writer.writerows(result)
-    return f.getvalue()
+    writer.writerows(data)
+    return f.getvalue().encode("UTF-8")
