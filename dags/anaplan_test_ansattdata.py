@@ -40,6 +40,7 @@ def anaplan_test_ansattdata():
         from anaplan.get_data import get_data
         from anaplan.import_data import import_data
         import oracledb
+        import time
 
         creds = Variable.get("dvh_password", deserialize_json=True)
         ora_start = time.perf_counter()
