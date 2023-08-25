@@ -20,6 +20,16 @@ def anaplan_test_ansattdata():
     password = Variable.get("anaplan_password")
 
     @task
+    def clean(processData: dict):
+        from anaplan.run_process import run_process
+
+        run_process(wGuid, mGuid, username, password, processData)
+
+    clean_module = clean.override(tas_id="delete_hr_data_history")(
+        processData={"id": "118000000011", "name": "P10 (X) Slette HR-data"}
+    )
+
+    @task
     def transfer(
         fileData: dict,
         query: str,
@@ -30,8 +40,6 @@ def anaplan_test_ansattdata():
         from anaplan.get_data import get_data
         from anaplan.import_data import import_data
         import oracledb
-
-        import time
 
         creds = Variable.get("dvh_password", deserialize_json=True)
         ora_start = time.perf_counter()
@@ -64,6 +72,7 @@ def anaplan_test_ansattdata():
         },
     )
 
+    (clean_module)
     (upload)
 
 
