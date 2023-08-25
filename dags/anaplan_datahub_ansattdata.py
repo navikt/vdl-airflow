@@ -49,14 +49,15 @@ def anaplan_datahub_ansattdata():
                 data = get_data(query, cursor)
         ora_stop = time.perf_counter()
         print(f"oracle duration: {ora_stop - ora_start}")
+        ora_start = time.perf_counter()
+        csv_file = transform_to_csv(data[0], data[1])
+        ora_stop = time.perf_counter()
+        print(f"transform to csv duration: {ora_stop - ora_start}")
         t_start = time.perf_counter()
-        transfer_data(wGuid, mGuid, username, password, fileData, data)
+        transfer_data(wGuid, mGuid, username, password, fileData, csv_file)
         t_stop = time.perf_counter()
         print(f"transfer duration: {t_stop - t_start}")
 
-        csv_file = transform_to_csv(data[0], data[1])
-
-        transfer_data(wGuid, mGuid, username, password, fileData, csv_file)
         import_data(wGuid, mGuid, username, password, import_hierarchy_data)
         import_data(wGuid, mGuid, username, password, import_module_data)
 
