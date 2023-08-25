@@ -25,7 +25,7 @@ def anaplan_test_ansattdata():
 
         run_process(wGuid, mGuid, username, password, processData)
 
-    clean_module = clean.override(tas_id="delete_hr_data_history")(
+    clean_module = clean.override(task_id="delete_hr_data_history")(
         processData={"id": "118000000011", "name": "P10 (X) Slette HR-data"}
     )
 
