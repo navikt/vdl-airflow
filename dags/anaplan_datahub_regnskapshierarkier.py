@@ -74,8 +74,8 @@ def anaplan_datahub_regnskaphierarkier():
             "name": "Ksted Flat from dim_kostnadssteder_snowflake.csv",
         },
         import_module_data={
-            "id": "112000000044",
-            "name": "Ksted from dim_kostnadssteder_snowflake.csv",
+            "id" : "112000000067",
+            "name" : "SYS 03.01 Organisasjonsstru from dim_kostnadssteder_snowflak",
         },
     )
 
