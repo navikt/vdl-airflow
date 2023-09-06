@@ -56,8 +56,8 @@ def anaplan_datahub_regnskaphierarkier():
             "name": "Artskonti Flat from dim_artskonti_snowflake.csv",
         },
         import_module_data={
-            "id": "112000000042",
-            "name": "Artskonti from dim_artskonti_snowflake.csv",
+            "id" : "112000000066",
+            "name" : "SYS 02.01 Kontostruktur from dim_artskonti_snowflake.csv",
         },
     )
 
