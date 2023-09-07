@@ -131,8 +131,8 @@ def anaplan_datahub_regnskaphierarkier():
             "name": "Oppgave Flat from dim_oppgaver_snowflake.csv",
         },
         import_module_data={
-            "id": "112000000048",
-            "name": "Oppgave from dim_oppgaver_snowflake.csv",
+            "id" : "112000000069",
+            "name" : "SYS 05.01 Oppgave from dim_oppgaver_snowflake.csv",
         },
     )
 
