@@ -173,8 +173,8 @@ def anaplan_datahub_regnskaphierarkier():
             "name": "Statskonto Flat from dim_statsregnskapskonti_snowflake.csv",
         },
         import_module_data={
-            "id": "112000000052",
-            "name": "Statskonti from dim_statsregnskapskonti_snowflake.csv",
+            "id" : "112000000071",
+            "name" : "SYS 06.01 Statskontohierark from dim_statsregnskapskonti_sno",
         },
     )
 
