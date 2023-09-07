@@ -92,8 +92,8 @@ def anaplan_datahub_regnskaphierarkier():
             "name": "Produkt Flat from dim_produkter_snowflake.csv",
         },
         import_module_data={
-            "id": "112000000046",
-            "name": "Produkt from dim_produkter_snowflake.csv",
+            "id" : "112000000068",
+            "name" : "SYS 04.01 Produkthierarki from dim_produkter_snowflake.csv",
         },
     )
 
