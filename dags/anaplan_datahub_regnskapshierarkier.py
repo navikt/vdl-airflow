@@ -149,8 +149,8 @@ def anaplan_datahub_regnskaphierarkier():
             "name": "Felles Flat from dim_felles_snowflake.csv",
         },
         import_module_data={
-            "id": "112000000050",
-            "name": "Felles from dim_felles_snowflake.csv",
+            "id" : "112000000070",
+            "name" : "SYS 05.02 Felles from dim_felles_snowflake.csv",
         },
     )
 
