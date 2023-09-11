@@ -1,4 +1,4 @@
-FROM apache/airflow:2.6.2-python3.10
+FROM apache/airflow:2.7.1-python3.10
 LABEL org.opencontainers.image.source https://github.com/navikt/vdl-airflow
 USER airflow
 
