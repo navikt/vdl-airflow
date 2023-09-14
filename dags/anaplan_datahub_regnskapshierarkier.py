@@ -47,8 +47,7 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_artskonti
-            where
-                endswith(artskonti_segment_kode, '0000000') and
+            where 
                 er_budsjetterbar=1
         """,
         import_hierarchy_data={
