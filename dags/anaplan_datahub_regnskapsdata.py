@@ -71,7 +71,6 @@ def anaplan_datahub_regnskapsdata():
                 ER_BUDSJETT_POSTERING = 0 and
                 hovedbok_id = '3022' and
                 endswith(periode_navn, '23') and
-                endswith(artskonti_segment_kode, '0000000') and
                 endswith(statsregnskapskonti_segment_kode, '000000')
             group by 1,2,3,4,5,6,7,8
         """,
