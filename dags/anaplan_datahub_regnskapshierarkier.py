@@ -47,8 +47,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_artskonti
-            where 
-                er_budsjetterbar=1
         """,
         import_hierarchy_data={
             "id": "112000000041",
