@@ -99,31 +99,10 @@ def anaplan_datahub_regnskaphierarkier():
     upload_oppgaver = transfer.override(task_id="transfer_oppgaver")(
         fileData={"id": "113000000032", "name": "dim_oppgaver_snowflake.csv"},
         query="""
-            with
-
-            statskonti as (
-                select distinct
-                    oppgaver_segment_kode
-                    ,statsregnskapskonti_segment_kode
-                from reporting.microstrategy.fak_hovedbok_posteringer
-                where er_budsjett = 1
-            )
-
-            ,oppgaver as (
-                select * from reporting.microstrategy.dim_oppgaver where er_budsjetterbar = 1
-            )
-
-            select
-                oppgaver.*
-                ,statskonti.statsregnskapskonti_segment_kode
-                ,case
-                    when statskonti.statsregnskapskonti_segment_kode is null then
-                        oppgaver.oppgaver_segment_kode else
-                        concat(oppgaver.oppgaver_segment_kode,'_',statskonti.statsregnskapskonti_segment_kode)
-                end as pk_oppgaver_statskonti
-            from oppgaver
-            left join statskonti on
-                statskonti.oppgaver_segment_kode = oppgaver.oppgaver_segment_kode
+            select *
+            from reporting.microstrategy.dim_oppgaver
+            where
+                er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000047",
