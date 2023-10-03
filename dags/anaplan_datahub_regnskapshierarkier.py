@@ -145,6 +145,7 @@ def anaplan_datahub_regnskaphierarkier():
             from reporting.microstrategy.dim_statsregnskapskonti
             where
                 endswith(statsregnskapskonti_segment_kode, '000000') and
+                length(statsregnskapskonti_segment_kode) = 12 and
                 er_budsjetterbar=1
         """,
         import_hierarchy_data={
