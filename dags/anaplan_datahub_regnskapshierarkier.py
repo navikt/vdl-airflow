@@ -67,6 +67,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_kostnadssteder
             where
+                length(kostnadssteder_segment_kode) = 12 and
                 er_budsjetterbar = 1
         """,
         import_hierarchy_data={
@@ -85,7 +86,8 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_produkter
             where
-                length(produkter_segment_kode) = 6 and er_budsjetterbar = 1
+                length(produkter_segment_kode) = 6 and 
+                er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000045",
@@ -103,7 +105,8 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_oppgaver
             where
-                length(oppgaver_segment_kode) = 6 and er_budsjetterbar = 1
+                length(oppgaver_segment_kode) = 6 and 
+                er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000047",
@@ -121,7 +124,8 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_felles
             where
-                length(felles_segment_kode) = 6 and er_budsjetterbar = 1
+                length(felles_segment_kode) = 6 and 
+                er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000049",
