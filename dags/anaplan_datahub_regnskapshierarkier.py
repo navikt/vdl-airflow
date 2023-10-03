@@ -103,7 +103,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_oppgaver
             where
-                er_budsjetterbar = 1
+                length(oppgaver_segment_kode) = 6 and er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000047",
