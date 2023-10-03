@@ -11,7 +11,8 @@ from custom.operators.slack_operator import slack_error, slack_success, slack_in
 
 @dag(
     start_date=datetime(2023, 8, 16),
-    schedule_interval=None,
+    schedule_interval="daily",
+    catchup=False
     on_success_callback=slack_success,
     on_failure_callback=slack_error,
 )
