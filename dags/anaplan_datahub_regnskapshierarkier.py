@@ -67,7 +67,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_kostnadssteder
             where
-                length(kostnadssteder_segment_kode) = 12 and
+                length(kostnadssteder_segment_kode) = 6 and
                 er_budsjetterbar = 1
         """,
         import_hierarchy_data={
