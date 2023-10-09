@@ -25,7 +25,7 @@ def run_regnskap():
         return requests.get(url=f"{URL}/inbound/run/{job_name}").json()
 
     @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
-    def wait_for_inbound_job(job_id: dict) -> PokeReturnValue:
+    def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
         id = job_id.get("job_id")
@@ -40,41 +40,41 @@ def run_regnskap():
                 "Lastejobben har feilet! Sjekk loggene til podden"
             )
 
-    dimensonal_data = run_inbound_job.override(task_id="dimensional_data")(
+    dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
         "dimensional_data"
     )
-    wait_dimensonal_data = wait_for_inbound_job(dimensonal_data)
+    wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
 
-    sync_check = run_inbound_job.override(task_id="sync_check")("sync_check")
-    wait_sync_check = wait_for_inbound_job(sync_check)
+    sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
+    wait_sync_check = check_status_for_inbound_job(sync_check)
 
-    general_ledger_closed = run_inbound_job.override(task_id="general_ledger_closed")(
+    general_ledger_closed = run_inbound_job.override(task_id="start_general_ledger_closed")(
         "general_ledger_closed"
     )
-    wait_general_ledger_closed = wait_for_inbound_job(general_ledger_closed)
+    wait_general_ledger_closed = check_status_for_inbound_job(general_ledger_closed)
 
-    general_ledger_open = run_inbound_job.override(task_id="general_ledger_open")(
+    general_ledger_open = run_inbound_job.override(task_id="start_general_ledger_open")(
         "general_ledger_open"
     )
-    wait_general_ledger_open = wait_for_inbound_job(general_ledger_open)
+    wait_general_ledger_open = check_status_for_inbound_job(general_ledger_open)
 
-    general_ledger_budget = run_inbound_job.override(task_id="general_ledger_budget")(
+    general_ledger_budget = run_inbound_job.override(task_id="start_general_ledger_budget")(
         "general_ledger_budget"
     )
-    wait_general_ledger_budget = wait_for_inbound_job(general_ledger_budget)
+    wait_general_ledger_budget = check_status_for_inbound_job(general_ledger_budget)
 
-    balance_closed = run_inbound_job.override(task_id="balance_closed")(
+    balance_closed = run_inbound_job.override(task_id="start_balance_closed")(
         "balance_closed"
     )
-    wait_balance_closed = wait_for_inbound_job(balance_closed)
+    wait_balance_closed = check_status_for_inbound_job(balance_closed)
 
-    balance_open = run_inbound_job.override(task_id="balance_open")("balance_open")
-    wait_balance_open = wait_for_inbound_job(balance_open)
+    balance_open = run_inbound_job.override(task_id="start_balance_open")("balance_open")
+    wait_balance_open = check_status_for_inbound_job(balance_open)
 
-    balance_budget = run_inbound_job.override(task_id="balance_budget")(
+    balance_budget = run_inbound_job.override(task_id="start_balance_budget")(
         "balance_budget"
     )
-    wait_balance_budget = wait_for_inbound_job(balance_budget)
+    wait_balance_budget = check_status_for_inbound_job(balance_budget)
 
     #    accounts_payable = run_inbound_job.override(task_id="accounts_payable")(
     #        "accounts_payable"
@@ -87,9 +87,9 @@ def run_regnskap():
 
         return requests.get(url=f"{URL}/dbt/{job}").json()
 
-    dbt_freshness = run_dbt_job.override(task_id="dbt_freshness")("freshness")
-    dbt_run = run_dbt_job.override(task_id="dbt_run")("run")
-    dbt_test = run_dbt_job.override(task_id="dbt_test")("test")
+    dbt_freshness = run_dbt_job.override(task_id="start_dbt_freshness")("freshness")
+    dbt_run = run_dbt_job.override(task_id="start_dbt_run")("run")
+    dbt_test = run_dbt_job.override(task_id="start_dbt_test")("test")
 
     @task.sensor(
         poke_interval=60,
@@ -143,11 +143,11 @@ def run_regnskap():
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
         slack_success(message=f"Resultat fra kjøringen:\n{summary}")
 
-    wait_dbt_freshness = wait_for_dbt.override(task_id="wait_for_dbt_freshness")(
+    wait_dbt_freshness = wait_for_dbt.override(task_id="check_status_for_dbt_freshness")(
         dbt_freshness
     )
-    wait_dbt_run = wait_for_dbt.override(task_id="wait_for_dbt_run")(dbt_run)
-    wait_dbt_test = wait_for_dbt.override(task_id="wait_for_dbt_test")(dbt_test)
+    wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run")(dbt_run)
+    wait_dbt_test = wait_for_dbt.override(task_id="check_status_for_dbt_test")(dbt_test)
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_test, dbt_run=wait_dbt_run)
 
