@@ -22,7 +22,12 @@ def run_regnskap():
     def run_inbound_job(job_name: str) -> dict:
         import requests
 
-        return requests.get(url=f"{URL}/inbound/run/{job_name}").json()
+        response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
+        if response.status_code > 400:
+            raise AirflowFailException(
+                "dbt job eksisterer mest sannsynlig ikke på podden"
+            )
+        return response.json()
 
     @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
     def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
@@ -30,7 +35,12 @@ def run_regnskap():
 
         id = job_id.get("job_id")
 
-        response: dict = requests.get(url=f"{URL}/inbound/status/{id}").json()
+        response: requests.Response = requests.get(url=f"{URL}/inbound/status/{id}")
+        if response.status_code > 400:
+            raise AirflowFailException(
+                "inbound job eksisterer mest sannsynlig ikke på podden"
+            )
+        response: dict = response.json()
         print(response)
         job_status = response.get("status")
         if job_status == "done":
@@ -48,9 +58,9 @@ def run_regnskap():
     sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
     wait_sync_check = check_status_for_inbound_job(sync_check)
 
-    general_ledger_closed = run_inbound_job.override(task_id="start_general_ledger_closed")(
-        "general_ledger_closed"
-    )
+    general_ledger_closed = run_inbound_job.override(
+        task_id="start_general_ledger_closed"
+    )("general_ledger_closed")
     wait_general_ledger_closed = check_status_for_inbound_job(general_ledger_closed)
 
     general_ledger_open = run_inbound_job.override(task_id="start_general_ledger_open")(
@@ -58,9 +68,9 @@ def run_regnskap():
     )
     wait_general_ledger_open = check_status_for_inbound_job(general_ledger_open)
 
-    general_ledger_budget = run_inbound_job.override(task_id="start_general_ledger_budget")(
-        "general_ledger_budget"
-    )
+    general_ledger_budget = run_inbound_job.override(
+        task_id="start_general_ledger_budget"
+    )("general_ledger_budget")
     wait_general_ledger_budget = check_status_for_inbound_job(general_ledger_budget)
 
     balance_closed = run_inbound_job.override(task_id="start_balance_closed")(
@@ -68,7 +78,9 @@ def run_regnskap():
     )
     wait_balance_closed = check_status_for_inbound_job(balance_closed)
 
-    balance_open = run_inbound_job.override(task_id="start_balance_open")("balance_open")
+    balance_open = run_inbound_job.override(task_id="start_balance_open")(
+        "balance_open"
+    )
     wait_balance_open = check_status_for_inbound_job(balance_open)
 
     balance_budget = run_inbound_job.override(task_id="start_balance_budget")(
@@ -143,9 +155,9 @@ def run_regnskap():
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
         slack_success(message=f"Resultat fra kjøringen:\n{summary}")
 
-    wait_dbt_freshness = wait_for_dbt.override(task_id="check_status_for_dbt_freshness")(
-        dbt_freshness
-    )
+    wait_dbt_freshness = wait_for_dbt.override(
+        task_id="check_status_for_dbt_freshness"
+    )(dbt_freshness)
     wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run")(dbt_run)
     wait_dbt_test = wait_for_dbt.override(task_id="check_status_for_dbt_test")(dbt_test)
 
