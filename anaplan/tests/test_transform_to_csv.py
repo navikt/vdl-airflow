@@ -10,8 +10,9 @@ class Test_transform_to_csv(unittest.TestCase):
         transform_to_csv(data, column_names).decode("UTF-8")
 
     def test_column_names(self):
-        column_names = ["Kake"]
+        column_names = ["Kake", "Ost"]
         data = [("æøå",)]
-        result = transform_to_csv(data, column_names).decode("UTF-8")
-        expected = "Kake"
-        assert result.split()[0] == expected
+        csv = transform_to_csv(data, column_names).decode("UTF-8")
+        result = csv.split()[0]
+        expected = "Kake,Ost"
+        assert result == expected
