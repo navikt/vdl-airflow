@@ -14,29 +14,33 @@
 
 import requests
 import base64
-
+from anaplan.splitBytesIntoChunks import splitBytesIntoChuncks
 
 def transfer_data(
-    wGuid: str, mGuid: str, username: str, password: str, fileData: dict, data: str
+    wGuid: str, mGuid: str, username: str, password: str, fileData: dict, data: bytes
 ):
     user = "Basic " + str(
         base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
     )
 
     url = (
-        f"https://api.anaplan.com/1/3/workspaces/{wGuid}/models/{mGuid}/"
+        f"https://api.anaplan.com/2/0/workspaces/{wGuid}/models/{mGuid}/"
         + f'files/{fileData["id"]}'
     )
 
     putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
 
-    dataFile = data
-
-    fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
-    if fileUpload.ok:
-        print("File Upload Successful.")
-    else:
-        print(
-            "There was an issue with your file upload: " + str(fileUpload.status_code)
-        )
-        raise Exception("Noe gikk galt...")
+    #dataFile = data
+    i = 0 
+    for dataFile in splitBytesIntoChuncks(data):
+        # Vilched endre chunkCount til -1 
+        fileUpload = requests.put(url+f"/chunks/{i}", headers=putHeaders, data=(dataFile))
+        i += 1
+        if fileUpload.ok:
+            print("File Upload Successful.")
+        else:
+            print(
+                "There was an issue with your file upload: " + str(fileUpload.status_code)
+            )   
+            raise Exception("Noe gikk galt...")
+    complet= requests.put(url+f"/complete", headers=putHeaders)
