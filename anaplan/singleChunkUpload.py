@@ -15,8 +15,10 @@
 import requests
 import base64
 
-def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dict, data:str):
 
+def transfer_data(
+    wGuid: str, mGuid: str, username: str, password: str, fileData: dict, data: str
+):
     user = "Basic " + str(
         base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
     )
@@ -28,8 +30,7 @@ def transfer_data(wGuid:str, mGuid:str, username:str, password:str, fileData:dic
 
     putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
 
-    
-    dataFile = data.encode("utf-8")
+    dataFile = data
 
     fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
     if fileUpload.ok:
