@@ -52,7 +52,7 @@ def anaplan_datahub_regnskapsdata():
           select
           md5(
               k.periode_navn||
-              ds.statsregnskapskonti_segment_kode_niva_2||'000000'
+              ds.statsregnskapskonti_segment_kode_niva_2||'000000'||
               k.artskonti_segment_kode||
               k.kostnadssteder_segment_kode||
               k.produkter_segment_kode||
