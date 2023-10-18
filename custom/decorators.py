@@ -13,7 +13,7 @@ def task(func: Callable, **kwargs):
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="ghcr.io/navikt/vdl-airflow:2739f712d781142f78e173f76bb0be31d17b94df",
+                            image="ghcr.io/navikt/vdl-airflow:bac4c3893897c69bfaf645affd551e1a15914669",
                         )
                     ]
                 )
