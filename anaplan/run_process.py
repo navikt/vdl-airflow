@@ -29,7 +29,7 @@ def run_process(
     )
 
     url = (
-        f"https://api.anaplan.com/1/3/workspaces/{wGuid}/models/{mGuid}/"
+        f"https://api.anaplan.com/2/0/workspaces/{wGuid}/models/{mGuid}/"
         + f'processes/{processData["id"]}/tasks'
     )
 

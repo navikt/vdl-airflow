@@ -28,7 +28,7 @@ def import_data(wGuid:str, mGuid:str, username:str, password:str, importData:dic
     )
 
     url = (
-        f"https://api.anaplan.com/1/3/workspaces/{wGuid}/models/{mGuid}/"
+        f"https://api.anaplan.com/2/0/workspaces/{wGuid}/models/{mGuid}/"
         + f'imports/{importData["id"]}/tasks'
     )
 
