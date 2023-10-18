@@ -35,9 +35,9 @@ def anaplan_datahub_regnskapsdata():
         from anaplan.import_data import import_data
 
         with SnowflakeHook().get_cursor() as cursor:
-            data = get_data(query, cursor)
+            data, column_names = get_data(query, cursor)
 
-        csv_file = transform_to_csv(data[0], data[1])
+        csv_file = transform_to_csv(data=data, column_names=column_names)
 
         transfer_data(wGuid, mGuid, username, password, fileData, csv_file)
         import_data(wGuid, mGuid, username, password, import_hierarchy_data)
