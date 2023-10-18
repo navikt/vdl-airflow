@@ -14,52 +14,29 @@
 
 import requests
 import base64
-from anaplan.splitBytesIntoChunks import splitBytesIntoChuncks
 
 
-def _get_token(username, password):
+def transfer_data(
+    wGuid: str, mGuid: str, username: str, password: str, fileData: dict, data: str
+):
     user = "Basic " + str(
         base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
     )
 
-    auth_url = "https://auth.anaplan.com/token/authenticate"
-
-    putHeaders = {"Authorization": user, "Content-Type": "application/json"}
-    token = requests.post(url=auth_url, headers=putHeaders)
-    if not token.ok:
-        print("There was an issue with auth: " + str(token.status_code))
-        raise Exception("Auth mot anaplan gikk galt.")
-    print("Auth sucess against anaplan")
-    return token.json()
-
-
-def transfer_data(
-    wGuid: str, mGuid: str, username: str, password: str, fileData: dict, data: bytes
-):
     url = (
-        f"https://api.anaplan.com/2/0/workspaces/{wGuid}/models/{mGuid}/"
+        f"https://api.anaplan.com/1/3/workspaces/{wGuid}/models/{mGuid}/"
         + f'files/{fileData["id"]}'
     )
-    token = _get_token(username=username, password=password)
-    putHeaders = {
-        "Authorization": f"AnaplanAuthToken {token}",
-        "Content-Type": "application/octet-stream",
-    }
 
-    # dataFile = data
-    i = 0
-    for dataFile in splitBytesIntoChuncks(data):
-        # Vilched endre chunkCount til -1
-        fileUpload = requests.put(
-            url + f"/chunks/{i}", headers=putHeaders, data=(dataFile)
+    putHeaders = {"Authorization": user, "Content-Type": "application/octet-stream"}
+
+    dataFile = data
+
+    fileUpload = requests.put(url, headers=putHeaders, data=(dataFile))
+    if fileUpload.ok:
+        print("File Upload Successful.")
+    else:
+        print(
+            "There was an issue with your file upload: " + str(fileUpload.status_code)
         )
-        i += 1
-        if fileUpload.ok:
-            print("File Upload Successful.")
-        else:
-            print(
-                "There was an issue with your file upload: "
-                + str(fileUpload.status_code)
-            )
-            raise Exception("Noe gikk galt...")
-    complet = requests.put(url + f"/complete", headers=putHeaders)
+        raise Exception("Noe gikk galt...")
