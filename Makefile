@@ -15,7 +15,7 @@ install:
 			black \
 			isort \
 			kubernetes \
-			--constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.6.2/constraints-3.10.txt"
+			--constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.10.txt"
 
 .PHONY: format  ## Auto-format the source code (isort, black)
 format:
