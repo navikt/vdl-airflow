@@ -45,5 +45,5 @@ def __slack_message(
         task_id="slack-message",
         channel=channel,
         text=message,
-        token=os.environ["SLACK_TOKEN"],
+        slack_conn_id="slack_connection",
     ).execute()
