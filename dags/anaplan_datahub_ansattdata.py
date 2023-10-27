@@ -77,8 +77,7 @@ def anaplan_datahub_ansattdata():
         },
     )
 
-    (clean_module)
-    (upload)
+    clean_module >> upload
 
 
 anaplan_datahub_ansattdata()
