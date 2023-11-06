@@ -76,7 +76,7 @@ def run_faktura():
             else: 
                 jobs_status.append(False)
 
-        if jobs_status.all(): # all succeeded?
+        if all(jobs_status.all): # all succeeded?
             return PokeReturnValue(is_done=True)
         else:
             raise AirflowFailException(
