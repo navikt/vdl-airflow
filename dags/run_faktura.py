@@ -44,12 +44,12 @@ def run_faktura():
         return response.json()
     
     @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
-    def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
+    def check_status_for_inbound_job(job_run_response: dict) -> PokeReturnValue:
         import requests
 
-        id = job_id.get("job_id")
+        id = job_run_response.get("job_id")
 
-        print("job id :", job_id)
+        print("job id :", id)
         url=f"{URL}/job_results/?job_id={id}"
         print("job status url: ", url)
 
@@ -59,15 +59,29 @@ def run_faktura():
             raise AirflowFailException(
                 f"url {url}. response: {response.status_code}. {response.reason}"
             )
-        response: dict = response.json()
-        print("probe response ", response)
+        
+        job_results: dict = response.json()
+        print("job results ", job_results)
 
-        job_status = response.get("status")
-        if job_status == "done":
-            return PokeReturnValue(is_done=True)
-        if job_status == "error":
+        if not job_results:
             raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
+                # TODO: link til GUI
+                f"Ingen jobbresultater funnet for inbound jobb: {id}"
+            )
+        
+        jobs_status = []
+        for job_result in job_results:
+            if job_result.get("success") == "True":
+                jobs_status.append(True)
+            else: 
+                jobs_status.append(False)
+
+        if jobs_status.all(): # all succeeded?
+            return PokeReturnValue(is_done=True)
+        else:
+            raise AirflowFailException(
+                # TODO: link til GUI
+                f"En eller flere inbound jobber har feilet! Sjekk loggene til podden for job: {id}"
             )
 
     row_counts = run_inbound_job(action="ingest", job="rowcounts.yml")
