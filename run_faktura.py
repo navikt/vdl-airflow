@@ -39,7 +39,7 @@ def run_faktura():
         response: requests.Response = requests.get(url=url)
         if response.status_code > 400:
             raise AirflowFailException(
-                "dbt job eksisterer mest sannsynlig ikke på podden"
+                f"url {url}. response: {response.status_code}. {response.reason}"
             )
         return response.json()
     
@@ -49,14 +49,19 @@ def run_faktura():
 
         id = job_id.get("job_id")
 
-        response: requests.Response = requests.get(url=f"{URL}/job_result/{id}")
+        print("job id :", job_id)
+        url=f"{URL}/job_results/{id}"
+        print("job status url: ", url)
+
+        response: requests.Response = requests.get(url=url)
         if response.status_code > 400:
+            print("response :", response.status_code, ". ", response.reason)
             raise AirflowFailException(
-                "inbound job eksisterer mest sannsynlig ikke på podden"
+                f"url {url}. response: {response.status_code}. {response.reason}"
             )
         response: dict = response.json()
         print("probe response ", response)
-        
+
         job_status = response.get("status")
         if job_status == "done":
             return PokeReturnValue(is_done=True)
