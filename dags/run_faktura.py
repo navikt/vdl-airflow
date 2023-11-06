@@ -21,7 +21,7 @@ def run_faktura():
     def run_inbound_job(action: str = None, job: str = None, callback: str = None) -> dict:
         import requests
 
-        response: requests.Response = requests.get(url=f"{URL}/jobs/run_job/?action={action}&job={job}&callback={callback}")
+        response: requests.Response = requests.get(url=f"{URL}/run_job/?action={action}&job={job}&callback={callback}")
         if response.status_code > 400:
             raise AirflowFailException(
                 "dbt job eksisterer mest sannsynlig ikke på podden"
