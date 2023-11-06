@@ -18,10 +18,25 @@ URL = Variable.get("VDL_FAKTURA_URL")
 )
 def run_faktura():
     @task()
-    def run_inbound_job(action: str = None, job: str = None, callback: str = None) -> dict:
+    def run_inbound_job(action: str = None, job: str = None, job_id: str = None, callback: str = None) -> dict:
         import requests
 
-        response: requests.Response = requests.get(url=f"{URL}/run_job/?action={action}&job={job}&callback={callback}")
+        url = f"{URL}/run_job/"
+
+        if action is not None:
+            url = f"{url}?action={action}"
+
+        if job is not None:
+            url = f"{url}&job={job}"
+
+        if job_id is not None:
+            url = f"{url}&job_id={job_id}"
+
+        if callback is not None:
+            url = f"{url}&callback={callback}"
+
+        print("request url: ", url)
+        response: requests.Response = requests.get(url=url)
         if response.status_code > 400:
             raise AirflowFailException(
                 "dbt job eksisterer mest sannsynlig ikke på podden"
@@ -40,7 +55,8 @@ def run_faktura():
                 "inbound job eksisterer mest sannsynlig ikke på podden"
             )
         response: dict = response.json()
-        print(response)
+        print("probe response ", response)
+        
         job_status = response.get("status")
         if job_status == "done":
             return PokeReturnValue(is_done=True)
