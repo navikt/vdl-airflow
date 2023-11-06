@@ -50,7 +50,7 @@ def run_faktura():
         id = job_id.get("job_id")
 
         print("job id :", job_id)
-        url=f"{URL}/job_results/{id}"
+        url=f"{URL}/job_results/?job_id={id}"
         print("job status url: ", url)
 
         response: requests.Response = requests.get(url=url)
