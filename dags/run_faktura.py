@@ -59,7 +59,7 @@ def run_faktura():
             raise AirflowFailException(
                 f"url {url}. response: {response.status_code}. {response.reason}"
             )
-        
+        # TODO: Dette kan forenkles betydelig om vi henter global status i stedet for liste av jobber...
         job_results: dict = response.json()
         print("job results ", job_results)
 
