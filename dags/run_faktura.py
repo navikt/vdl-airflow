@@ -56,7 +56,7 @@ def run_faktura():
         import requests
 
         id = job_id.get("job_id")
-        url = f"{URL}/job_results/{id}"
+        url = f"{URL}/job_results?job_id={id}"
         print(url)
         response: requests.Response = requests.get(url=url)
         if response.status_code > 400:
