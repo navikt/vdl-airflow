@@ -56,9 +56,12 @@ def run_faktura():
         import requests
 
         id = job_id.get("job_id")
-
-        response: requests.Response = requests.get(url=f"{URL}/job_result/{id}")
+        url = f"{URL}/job_result/{id}"
+        print(url)
+        response: requests.Response = requests.get(url=url)
         if response.status_code > 400:
+            print(response)
+            print(response.text)
             raise AirflowFailException(
                 "inbound job eksisterer mest sannsynlig ikke på podden"
             )
