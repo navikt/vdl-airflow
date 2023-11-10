@@ -21,7 +21,7 @@ def run_faktura():
     def run_inbound_job(action: str = None, job: str = None, job_id: str = None, callback: str = None) -> dict:
         import requests
 
-        url = f"{URL}/run_job/"
+        url = f"{URL}/run_job/?action={action}"
 
         if action is not None:
             url = f"{url}?action={action}"
@@ -34,6 +34,21 @@ def run_faktura():
 
         if callback is not None:
             url = f"{url}&callback={callback}"
+
+        print("request url: ", url)
+        response: requests.Response = requests.get(url=url)
+        if response.status_code > 400:
+            raise AirflowFailException(
+                f"url {url}. response: {response.status_code}. {response.reason}"
+            )
+        return response.json()
+    
+    # TODO: Denne kan droppes når vi finner ut hvorfor dbt forsøker å opprette et dbt_packages dir og får permission denied når dbt kjøres med dbtrunner
+    @task()
+    def run_dbt_job() -> dict:
+        import requests
+
+        url = f"{URL}/run_dbt"
 
         print("request url: ", url)
         response: requests.Response = requests.get(url=url)
@@ -84,9 +99,10 @@ def run_faktura():
                 f"En eller flere inbound jobber har feilet! Sjekk loggene til podden for job: {id}"
             )
 
-    run_all_jobs = run_inbound_job()
-    get_result = check_status_for_inbound_job(run_all_jobs)
+    run_ingest = run_inbound_job(action="ingest")
+    get_result = check_status_for_inbound_job(run_ingest)
+    run_dbt = run_dbt_job()
 
-    run_all_jobs >> get_result
+    run_ingest >> get_result >> run_dbt
 
 run_faktura()
