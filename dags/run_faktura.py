@@ -67,13 +67,13 @@ def run_faktura():
             )
         response: dict = response.json()
         print(response)
-        job_status = response.get("status")
-        if job_status == "done":
-            return PokeReturnValue(is_done=True)
-        if job_status == "error":
-            raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
-            )
+        for itms in response: 
+            if itms.ge('success')==True:
+                return PokeReturnValue(is_done=True)
+            else:
+                raise AirflowFailException(
+                    "Lastejobben har feilet! Sjekk loggene til podden"
+                )
 
     ingest = run_inbound_job(action="ingest")
     wait_for_ingest = check_status_for_inbound_job(ingest)
