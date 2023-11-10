@@ -84,9 +84,9 @@ def run_faktura():
                 f"En eller flere inbound jobber har feilet! Sjekk loggene til podden for job: {id}"
             )
 
-    row_counts = run_inbound_job(action="ingest", job="rowcounts.yml")
-    wait_row_counts = check_status_for_inbound_job(row_counts)
+    run_all_jobs = run_inbound_job()
+    get_result = check_status_for_inbound_job(run_all_jobs)
 
-    row_counts >> wait_row_counts
+    run_all_jobs >> get_result
 
 run_faktura()
