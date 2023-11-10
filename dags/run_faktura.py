@@ -24,7 +24,8 @@ def run_faktura():
     ) -> dict:
         import requests
 
-        url = f"{URL}/run_job/?action={action}&job={job}&callback={callback}"
+        # url = f"{URL}/run_job/?action={action}&job={job}&callback={callback}"
+        url = f"{URL}/run_job/?action={action}"
         print(url)
         response: requests.Response = requests.get(url)
         if response.status_code > 400:
