@@ -28,6 +28,8 @@ def run_faktura():
         print(url)
         response: requests.Response = requests.get(url)
         if response.status_code > 400:
+            print(response)
+            print(response.text)
             raise AirflowFailException(
                 "dbt job eksisterer mest sannsynlig ikke på podden"
             )
