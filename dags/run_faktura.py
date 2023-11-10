@@ -9,6 +9,7 @@ from airflow.exceptions import AirflowFailException
 
 URL = Variable.get("VDL_FAKTURA_URL")
 
+
 @dag(
     start_date=datetime(2023, 11, 1, 6),
     schedule_interval="@daily",
@@ -18,16 +19,20 @@ URL = Variable.get("VDL_FAKTURA_URL")
 )
 def run_faktura():
     @task()
-    def run_inbound_job(action: str = None, job: str = None, callback: str = None) -> dict:
+    def run_inbound_job(
+        action: str = None, job: str = None, callback: str = None
+    ) -> dict:
         import requests
 
-        response: requests.Response = requests.get(url=f"{URL}/run_job/?action={action}&job={job}&callback={callback}")
+        url = f"{URL}/run_job/?action={action}&job={job}&callback={callback}"
+        print(url)
+        response: requests.Response = requests.get(url)
         if response.status_code > 400:
             raise AirflowFailException(
                 "dbt job eksisterer mest sannsynlig ikke på podden"
             )
         return response.json()
-    
+
     # TODO: Denne kan droppes når vi finner ut hvorfor dbt forsøker å opprette et dbt_packages dir og får permission denied når dbt kjøres med dbtrunner
     @task()
     def run_dbt_job() -> dict:
@@ -42,7 +47,7 @@ def run_faktura():
                 f"url {url}. response: {response.status_code}. {response.reason}"
             )
         return response.json()
-    
+
     @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
     def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
@@ -65,9 +70,10 @@ def run_faktura():
             )
 
     ingest = run_inbound_job(action="ingest")
-    wait_for_ingest= check_status_for_inbound_job(ingest)
+    wait_for_ingest = check_status_for_inbound_job(ingest)
     transform = run_dbt_job()
 
     ingest >> wait_for_ingest >> transform
+
 
 run_faktura()
