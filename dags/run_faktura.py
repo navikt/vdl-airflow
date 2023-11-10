@@ -68,7 +68,7 @@ def run_faktura():
         response: dict = response.json()
         print(response)
         for itms in response: 
-            if itms.ge('success')==True:
+            if itms.get('success')==True:
                 return PokeReturnValue(is_done=True)
             else:
                 raise AirflowFailException(
