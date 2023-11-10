@@ -64,7 +64,7 @@ def run_faktura():
                 "Lastejobben har feilet! Sjekk loggene til podden"
             )
 
-    ingest = run_inbound_job(action="ingest", job="rowcounts.yml")
+    ingest = run_inbound_job(action="ingest")
     wait_for_ingest= check_status_for_inbound_job(ingest)
     transform = run_dbt_job()
 
