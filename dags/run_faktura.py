@@ -41,7 +41,9 @@ def run_faktura():
     def run_dbt_job() -> dict:
         import requests
 
-        url = f"{URL}/run_dbt"
+        action = "transform"
+        # url = f"{URL}/run_dbt"
+        url = f"{URL}/run_job/?action={action}"
 
         print("request url: ", url)
         response: requests.Response = requests.get(url=url)
@@ -67,8 +69,8 @@ def run_faktura():
             )
         response: dict = response.json()
         print(response)
-        for itms in response: 
-            if itms.get('success')=='True':
+        for itms in response:
+            if itms.get("success") == "True":
                 return PokeReturnValue(is_done=True)
             else:
                 raise AirflowFailException(
