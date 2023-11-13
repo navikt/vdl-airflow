@@ -76,12 +76,13 @@ def run_faktura():
                 raise AirflowFailException(
                     "Lastejobben har feilet! Sjekk loggene til podden"
                 )
-
+            
     ingest = run_inbound_job(action="ingest")
     wait_for_ingest = check_status_for_inbound_job(ingest)
     transform = run_dbt_job()
+    wait_for_transform = check_status_for_inbound_job(transform)
 
-    ingest >> wait_for_ingest >> transform
+    ingest >> wait_for_ingest >> transform >> wait_for_transform
 
 
 run_faktura()
