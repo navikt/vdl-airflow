@@ -36,23 +36,6 @@ def run_faktura():
             )
         return response.json()
 
-    # TODO: Denne kan droppes når vi finner ut hvorfor dbt forsøker å opprette et dbt_packages dir og får permission denied når dbt kjøres med dbtrunner
-    @task()
-    def run_dbt_job() -> dict:
-        import requests
-
-        action = "transform"
-        # url = f"{URL}/run_dbt"
-        url = f"{URL}/run_job/?action={action}"
-
-        print("request url: ", url)
-        response: requests.Response = requests.get(url=url)
-        if response.status_code > 400:
-            raise AirflowFailException(
-                f"url {url}. response: {response.status_code}. {response.reason}"
-            )
-        return response.json()
-
     @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
     def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
@@ -79,7 +62,7 @@ def run_faktura():
             
     ingest = run_inbound_job(action="ingest")
     wait_for_ingest = check_status_for_inbound_job(ingest)
-    transform = run_dbt_job()
+    transform = run_inbound_job(action="transform")
     wait_for_transform = check_status_for_inbound_job(transform)
 
     ingest >> wait_for_ingest >> transform >> wait_for_transform
