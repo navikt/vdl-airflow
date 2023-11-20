@@ -36,47 +36,36 @@ def run_faktura():
             )
         return response.json()
 
-    # TODO: Denne kan droppes når vi finner ut hvorfor dbt forsøker å opprette et dbt_packages dir og får permission denied når dbt kjøres med dbtrunner
-    @task()
-    def run_dbt_job() -> dict:
-        import requests
-
-        url = f"{URL}/run_dbt"
-
-        print("request url: ", url)
-        response: requests.Response = requests.get(url=url)
-        if response.status_code > 400:
-            raise AirflowFailException(
-                f"url {url}. response: {response.status_code}. {response.reason}"
-            )
-        return response.json()
-
     @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
     def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
         id = job_id.get("job_id")
-
-        response: requests.Response = requests.get(url=f"{URL}/job_result/{id}")
+        url = f"{URL}/job_results?job_id={id}"
+        print(url)
+        response: requests.Response = requests.get(url=url)
         if response.status_code > 400:
+            print(response)
+            print(response.text)
             raise AirflowFailException(
                 "inbound job eksisterer mest sannsynlig ikke på podden"
             )
         response: dict = response.json()
         print(response)
-        job_status = response.get("status")
-        if job_status == "done":
-            return PokeReturnValue(is_done=True)
-        if job_status == "error":
-            raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
-            )
-
+        for itms in response:
+            if itms.get("success") == "True":
+                return PokeReturnValue(is_done=True)
+            else:
+                raise AirflowFailException(
+                    "Lastejobben har feilet! Sjekk loggene til podden"
+                )
+            
     ingest = run_inbound_job(action="ingest")
     wait_for_ingest = check_status_for_inbound_job(ingest)
-    transform = run_dbt_job()
+    transform = run_inbound_job(action="transform")
+    wait_for_transform = check_status_for_inbound_job(transform)
 
-    ingest >> wait_for_ingest >> transform
+    ingest >> wait_for_ingest >> transform >> wait_for_transform
 
 
 run_faktura()
