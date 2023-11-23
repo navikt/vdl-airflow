@@ -59,13 +59,29 @@ def run_faktura():
                 raise AirflowFailException(
                     "Lastejobben har feilet! Sjekk loggene til podden"
                 )
-            
+
+    @task()
+    def run_elementary(action: str) -> dict:
+        import requests
+
+        url = f"{URL}/elementary/{action}"
+        response: requests.Response = requests.get(url)
+        if response.status_code > 400:
+            print(response)
+            print(response.text)
+            raise AirflowFailException("elementary har feilet")
+        return response.json()
+
     ingest = run_inbound_job(action="ingest")
     wait_for_ingest = check_status_for_inbound_job(ingest)
     transform = run_inbound_job(action="transform")
     wait_for_transform = check_status_for_inbound_job(transform)
+    send_report_to_slack = run_elementary(action="report")
+    send_alert_to_slack = run_elementary(action="alert")
 
     ingest >> wait_for_ingest >> transform >> wait_for_transform
+    wait_for_transform >> send_alert_to_slack
+    wait_for_transform >> send_report_to_slack
 
 
 run_faktura()
