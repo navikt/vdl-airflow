@@ -12,7 +12,7 @@ URL = Variable.get("VDL_FAKTURA_URL")
 
 @dag(
     start_date=datetime(2023, 11, 1, 6),
-    schedule_interval="@daily",
+    schedule_interval="0 4 * * *",  # Hver dag klokken 04:00 UTC
     catchup=False,
     default_args={"on_failure_callback": slack_error},
     max_active_runs=1,
