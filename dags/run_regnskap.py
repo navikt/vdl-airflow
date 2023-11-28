@@ -100,8 +100,7 @@ def run_regnskap():
         return requests.get(url=f"{URL}/dbt/{job}").json()
 
     dbt_freshness = run_dbt_job.override(task_id="start_dbt_freshness")("freshness")
-    dbt_run = run_dbt_job.override(task_id="start_dbt_run")("run")
-    dbt_test = run_dbt_job.override(task_id="start_dbt_test")("test")
+    dbt_run = run_dbt_job.override(task_id="start_dbt_run")("build")
 
     @task.sensor(
         poke_interval=60,
@@ -188,8 +187,6 @@ def run_regnskap():
         >> wait_dbt_freshness
         >> dbt_run
         >> wait_dbt_run
-        >> dbt_test
-        >> wait_dbt_test
         >> slack_summary
     )
 
