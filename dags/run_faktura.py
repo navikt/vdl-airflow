@@ -79,9 +79,14 @@ def run_faktura():
     send_report_to_slack = run_elementary(action="report")
     send_alert_to_slack = run_elementary(action="alert")
 
-    ingest >> wait_for_ingest >> transform >> wait_for_transform
-    wait_for_transform >> send_alert_to_slack
-    wait_for_transform >> send_report_to_slack
+    (
+        ingest
+        >> wait_for_ingest
+        >> transform
+        >> wait_for_transform
+        >> send_alert_to_slack
+        >> send_report_to_slack
+    )
 
 
 run_faktura()
