@@ -158,9 +158,8 @@ def run_regnskap():
         task_id="check_status_for_dbt_freshness"
     )(dbt_freshness)
     wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run")(dbt_run)
-    wait_dbt_test = wait_for_dbt.override(task_id="check_status_for_dbt_test")(dbt_test)
 
-    slack_summary = send_slack_summary(dbt_test=wait_dbt_test, dbt_run=wait_dbt_run)
+    slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
 
     dimensonal_data >> wait_dimensonal_data
     sync_check >> wait_sync_check
