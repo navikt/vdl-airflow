@@ -50,14 +50,15 @@ def run_faktura():
             raise AirflowFailException(
                 "inbound job eksisterer mest sannsynlig ikke på podden"
             )
-        response: dict = response.json()
+        response: list[dict] = response.json()
         print(response)
-        if response.get("success") == "True":
-            return PokeReturnValue(is_done=True)
-        else:
-            raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
-            )
+        for res in response:
+            if res.get("success") == "True":
+                return PokeReturnValue(is_done=True)
+            else:
+                raise AirflowFailException(
+                    "Lastejobben har feilet! Sjekk loggene til podden"
+                )
 
     @task()
     def run_elementary(action: str) -> dict:
