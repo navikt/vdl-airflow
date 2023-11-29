@@ -5,7 +5,7 @@ from airflow.decorators import task as airflow_task
 from kubernetes import client as k8s
 
 
-def task(allowlist: list[str] = ["slack.com"], **kwargs):
+def task(allowlist: list[str] = [], **kwargs):
     def decorator(func):
         @airflow_task(
             executor_config={

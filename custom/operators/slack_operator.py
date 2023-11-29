@@ -4,6 +4,7 @@ from typing import Optional
 from airflow.models import Variable
 from airflow.operators.python import get_current_context
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
+from kubernetes import client as k8s
 
 
 def slack_info(message: str, channel: str = None):
@@ -46,4 +47,9 @@ def __slack_message(
         channel=channel,
         text=message,
         slack_conn_id="slack_connection",
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
+            )
+        },
     ).execute()
