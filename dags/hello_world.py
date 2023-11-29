@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
+from custom.decorators import task
 
 
 @dag(
