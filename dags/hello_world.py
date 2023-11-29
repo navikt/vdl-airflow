@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from airflow.decorators import dag
+from airflow.decorators import dag, task
 
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
-from custom.decorators import task
+#from custom.decorators import task
+from kubernetes import client as k8s
 
 
 @dag(
@@ -11,6 +12,13 @@ from custom.decorators import task
     schedule_interval=None,
     on_success_callback=slack_success,
     on_failure_callback=slack_error,
+    default_args={
+        "executor_config": {
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
+            )
+        },
+    },
 )
 def hello_world():
     @task()
