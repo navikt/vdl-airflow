@@ -50,10 +50,10 @@ def run_faktura():
             raise AirflowFailException(
                 "inbound job eksisterer mest sannsynlig ikke på podden"
             )
-        response: dict = response.json()
+        response: list[dict] = response.json()
         print(response)
-        for itms in response:
-            if itms.get("success") == "True":
+        for res in response:
+            if res.get("success") == "True":
                 return PokeReturnValue(is_done=True)
             else:
                 raise AirflowFailException(
@@ -74,14 +74,18 @@ def run_faktura():
 
     ingest = run_inbound_job(action="ingest")
     wait_for_ingest = check_status_for_inbound_job(ingest)
+    freshness = run_inbound_job(action="freshness")
+    wait_for_freshness = check_status_for_inbound_job(freshness)
     transform = run_inbound_job(action="transform")
     wait_for_transform = check_status_for_inbound_job(transform)
-    send_report_to_slack = run_elementary(action="report")
     send_alert_to_slack = run_elementary(action="alert")
+    send_report_to_slack = run_elementary(action="report")
 
     (
         ingest
         >> wait_for_ingest
+        >> freshness
+        >> wait_for_freshness
         >> transform
         >> wait_for_transform
         >> send_alert_to_slack
