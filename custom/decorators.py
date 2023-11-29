@@ -16,7 +16,7 @@ def task(func: Callable, allowlist: list[str] = [], **kwargs):
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5a2d6ad5da2e264fdfe1be4182fb7d7ff34ac2b0f1a731899dff63e93d2c0541",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
                         )
                     ]
                 ),
