@@ -5,10 +5,13 @@ from airflow.decorators import task as airflow_task
 from kubernetes import client as k8s
 
 
-def task(func: Callable, **kwargs):
+def task(func: Callable, allowlist: list[str] = [], **kwargs):
     @airflow_task(
         executor_config={
             "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={"allowlist": ",".join(allowlist)}
+                ),
                 spec=k8s.V1PodSpec(
                     containers=[
                         k8s.V1Container(
@@ -16,7 +19,7 @@ def task(func: Callable, **kwargs):
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5a2d6ad5da2e264fdfe1be4182fb7d7ff34ac2b0f1a731899dff63e93d2c0541",
                         )
                     ]
-                )
+                ),
             )
         },
         **kwargs
