@@ -5,7 +5,7 @@ from airflow.decorators import task as airflow_task
 from kubernetes import client as k8s
 
 
-def task(func: Callable, allowlist: list[str] = [], **kwargs):
+def task(func: Callable, allowlist: list[str] = ["slack.com"], **kwargs):
     @airflow_task(
         executor_config={
             "pod_override": k8s.V1Pod(
