@@ -6,12 +6,13 @@ from airflow.models import Variable
 
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
 
+from kubernetes import client as k8s
+
 
 @dag(
     start_date=datetime(2023, 8, 25),
     schedule_interval=None,
-    on_success_callback=slack_success,
-    on_failure_callback=slack_error,
+    default_args={"on_failure_callback": slack_error},
 )
 def anaplan_datahub_ansattdata():
     wGuid = Variable.get("anaplan_workspace_id")
@@ -19,7 +20,25 @@ def anaplan_datahub_ansattdata():
     username = Variable.get("anaplan_username")
     password = Variable.get("anaplan_password")
 
-    @task
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(["slack.com", "api.anaplan.com"])
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def clean(processData: dict):
         from anaplan.run_process import run_process
 
@@ -29,7 +48,32 @@ def anaplan_datahub_ansattdata():
         processData={"id": "118000000012", "name": "P10 (X) Slett HR-data-historikk"}
     )
 
-    @task
+    @task(
+        on_success_callback=slack_success,
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "api.anaplan.com",
+                                "dm09-scan.adeo.no:1521",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def transfer(
         fileData: dict,
         query: str,
