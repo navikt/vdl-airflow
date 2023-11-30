@@ -30,6 +30,32 @@ def anaplan_datahub_regnskaphierarkier():
                         "allowlist": ",".join(
                             [
                                 "slack.com",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def send_slack_notification():
+        slack_success()
+
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
                                 "api.anaplan.com",
                                 "wx23413.europe-west4.gcp.snowflakecomputing.com",
                             ]
@@ -186,17 +212,19 @@ def anaplan_datahub_regnskaphierarkier():
         },
     )
 
-    (upload_artskonti)
+    slack_notification = send_slack_notification()
 
-    (upload_kostnadssteder)
+    upload_artskonti >> slack_notification
 
-    (upload_produkter)
+    upload_kostnadssteder >> slack_notification
 
-    (upload_oppgaver)
+    upload_produkter >> slack_notification
 
-    (upload_felles)
+    upload_oppgaver >> slack_notification
 
-    (upload_statsregnskapskonti)
+    upload_felles >> slack_notification
+
+    upload_statsregnskapskonti >> slack_notification
 
 
 anaplan_datahub_regnskaphierarkier()
