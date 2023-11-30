@@ -1,20 +1,19 @@
 from datetime import datetime
 
-from airflow.decorators import dag
+from airflow.decorators import dag, task
 
 from airflow.models import Variable
 
-from custom.decorators import task
-
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
+
+from kubernetes import client as k8s
 
 
 @dag(
     start_date=datetime(2023, 8, 16),
     schedule_interval="@daily",
     catchup=False,
-    on_success_callback=slack_success,
-    on_failure_callback=slack_error,
+    default_args={"on_failure_callback": slack_error},
 )
 def anaplan_datahub_regnskapsdata():
     wGuid = Variable.get("anaplan_workspace_id")
@@ -22,7 +21,32 @@ def anaplan_datahub_regnskapsdata():
     username = Variable.get("anaplan_username")
     password = Variable.get("anaplan_password")
 
-    @task
+    @task(
+        on_success_callback=slack_success,
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "api.anaplan.com",
+                                "wx23413.europe-west4.gcp.snowflakecomputing.com",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def transfer(
         fileData: dict,
         query: str,
