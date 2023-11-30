@@ -6,6 +6,8 @@ from custom.operators.slack_operator import slack_error, slack_success
 from airflow.sensors.base import PokeReturnValue
 from airflow.exceptions import AirflowFailException
 
+from kubernetes import client as k8s
+
 
 URL = Variable.get("VDL_FAKTURA_URL")
 
@@ -18,7 +20,31 @@ URL = Variable.get("VDL_FAKTURA_URL")
     max_active_runs=1,
 )
 def run_faktura():
-    @task()
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def run_inbound_job(
         action: str = None, job: str = None, callback: str = None
     ) -> dict:
@@ -36,7 +62,34 @@ def run_faktura():
             )
         return response.json()
 
-    @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
+    @task.sensor(
+        poke_interval=60,
+        timeout=8 * 60 * 60,
+        mode="reschedule",
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
@@ -60,7 +113,31 @@ def run_faktura():
                     "Lastejobben har feilet! Sjekk loggene til podden"
                 )
 
-    @task()
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def run_elementary(action: str) -> dict:
         import requests
 
