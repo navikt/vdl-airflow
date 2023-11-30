@@ -6,6 +6,8 @@ from custom.operators.slack_operator import slack_error, slack_success
 from airflow.sensors.base import PokeReturnValue
 from airflow.exceptions import AirflowFailException
 
+from kubernetes import client as k8s
+
 
 URL = Variable.get("VDL_REGNSKAP_URL")
 
@@ -18,7 +20,31 @@ URL = Variable.get("VDL_REGNSKAP_URL")
     max_active_runs=1,
 )
 def run_regnskap():
-    @task()
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-regnskap.intern.nav.no",
+                                "vdl-regnskap.dev.intern.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def run_inbound_job(job_name: str) -> dict:
         import requests
 
@@ -29,7 +55,34 @@ def run_regnskap():
             )
         return response.json()
 
-    @task.sensor(poke_interval=60, timeout=8 * 60 * 60, mode="reschedule")
+    @task.sensor(
+        poke_interval=60,
+        timeout=8 * 60 * 60,
+        mode="reschedule",
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-regnskap.intern.nav.no",
+                                "vdl-regnskap.dev.intern.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
         import requests
 
@@ -93,7 +146,31 @@ def run_regnskap():
     #    )
     #    wait_accounts_payable = wait_for_inbound_job(accounts_payable)
 
-    @task()
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-regnskap.intern.nav.no",
+                                "vdl-regnskap.dev.intern.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def run_dbt_job(job: str) -> dict:
         import requests
 
@@ -107,6 +184,29 @@ def run_regnskap():
         timeout=2 * 60 * 60,
         mode="reschedule",
         on_failure_callback=None,
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-regnskap.intern.nav.no",
+                                "vdl-regnskap.dev.intern.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
     )
     def wait_for_dbt(job_status: dict) -> PokeReturnValue:
         import requests
@@ -147,7 +247,29 @@ def run_regnskap():
         ]
         return PokeReturnValue(is_done=True, xcom_value=summary_messages)
 
-    @task
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
     def send_slack_summary(dbt_test, dbt_run):
         dbt_test_summary = "\n".join(dbt_test)
         dbt_run_summary = "\n".join(dbt_run)
@@ -181,13 +303,7 @@ def run_regnskap():
     wait_balance_closed >> dbt_freshness
     # wait_accounts_payable >> dbt_run
 
-    (
-        dbt_freshness
-        >> wait_dbt_freshness
-        >> dbt_run
-        >> wait_dbt_run
-        >> slack_summary
-    )
+    (dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary)
 
 
 run_regnskap()
