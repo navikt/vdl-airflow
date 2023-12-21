@@ -11,7 +11,7 @@ from kubernetes import client as k8s
 
 @dag(
     start_date=datetime(2023, 8, 25),
-    schedule_interval=None,
+    schedule_interval="@daily",
     default_args={"on_failure_callback": slack_error},
 )
 def anaplan_datahub_ansattdata():
