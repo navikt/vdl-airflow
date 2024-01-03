@@ -149,8 +149,96 @@ def run_faktura():
             raise AirflowFailException("elementary har feilet")
         return response.json()
 
-    ingest = run_inbound_job(action="ingest")
-    wait_for_ingest = check_status_for_inbound_job(ingest)
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def run_test_ingest() -> dict:
+        import requests
+
+        url = f"{URL}/run"
+        print(url)
+        response: requests.Response = requests.post(url)
+        if response.status_code > 400:
+            print(response)
+            print(response.text)
+            raise AirflowFailException("noe gikk galt")
+        return response.json()
+
+    @task.sensor(
+        poke_interval=60,
+        timeout=8 * 60 * 60,
+        mode="reschedule",
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def check_status_for_test_ingest(job: dict) -> PokeReturnValue:
+        import requests
+
+        id = job.get("job_id")
+        url = f"{URL}/status?job_id={id}"
+        print(url)
+        response: requests.Response = requests.get(url=url)
+        if response.status_code > 400:
+            print(response)
+            print(response.text)
+            raise AirflowFailException(
+                "test ingest job eksisterer mest sannsynlig ikke"
+            )
+        response: dict = response.json()
+        print(response)
+        status = response.get("status")
+        if status == "finnished":
+            return PokeReturnValue(is_done=True)
+        if status == "failed":
+            raise AirflowFailException(
+                "Lastejobben har feilet! Sjekk loggene til podden"
+            )
+
+    ingest = run_test_ingest()
+    wait_for_ingest = check_status_for_test_ingest(ingest)
     freshness = run_inbound_job(action="freshness")
     wait_for_freshness = check_status_for_inbound_job(freshness)
     transform = run_inbound_job(action="transform")
