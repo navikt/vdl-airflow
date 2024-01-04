@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
 
 from airflow.models import Variable
+from airflow.sensors.external_task import ExternalTaskSensor
 
 from custom.operators.slack_operator import slack_error, slack_success, slack_info
 
@@ -113,7 +114,16 @@ def anaplan_datahub_regnskapsdata():
         },
     )
 
-    (upload)
+
+    wait_for_regnskap = ExternalTaskSensor(
+        task_id='wait_for_dinner',
+        external_dag_id='regnskap_dag',
+        start_date=datetime(2023, 2, 28),
+        execution_delta=timedelta(hours=1),
+        timeout=3600,
+    )
+
+    (wait_for_regnskap >> upload)
 
 
 anaplan_datahub_regnskapsdata()
