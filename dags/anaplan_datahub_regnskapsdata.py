@@ -115,15 +115,7 @@ def anaplan_datahub_regnskapsdata():
     )
 
 
-    wait_for_regnskap = ExternalTaskSensor(
-        task_id='wait_for_dinner',
-        external_dag_id='regnskap_dag',
-        start_date=datetime(2023, 2, 28),
-        execution_delta=timedelta(hours=1),
-        timeout=3600,
-    )
-
-    (wait_for_regnskap >> upload)
+    upload
 
 
 anaplan_datahub_regnskapsdata()
