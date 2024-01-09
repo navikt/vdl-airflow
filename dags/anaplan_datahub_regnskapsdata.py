@@ -12,7 +12,7 @@ from kubernetes import client as k8s
 
 @dag(
     start_date=datetime(2023, 8, 16),
-    schedule_interval="@daily",
+    schedule_interval="30 6 * * *",
     catchup=False,
     default_args={"on_failure_callback": slack_error},
 )
