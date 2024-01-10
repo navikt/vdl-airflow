@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/airflow-image.yaml
-      - docker/**
+      - docker/airflow/**
 
 jobs:
   build_and_push:
@@ -18,7 +18,7 @@ jobs:
       - uses: nais/docker-build-push@v0
         with:
           team: virksomhetsdatalaget
-          dockerfile: docker/Dockerfile
-          docker_context: docker
+          dockerfile: docker/airflow/Dockerfile
+          docker_context: docker/airflow
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
