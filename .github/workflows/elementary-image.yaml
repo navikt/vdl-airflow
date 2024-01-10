@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/elementary-image.yaml
-      - faktura/elementary/**
+      - docker/elementary/**
 
 jobs:
   build_and_push:
