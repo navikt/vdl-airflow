@@ -26,7 +26,7 @@ with DAG(
         dag=dag,
         task_id="elementary_report",
         commands=["./run.sh", "report"],
-        allowlist=["slack.com", "files.slack.com"]
+        allowlist=["slack.com", "files.slack.com, wx23413.europe-west4.gcp.snowflakecomputing.com"]
     )
 
     elementary_report
