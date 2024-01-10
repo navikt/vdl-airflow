@@ -18,7 +18,7 @@ jobs:
       - uses: nais/docker-build-push@v0
         with:
           team: virksomhetsdatalaget
-          dockerfile: faktura/elementary/Dockerfile
+          dockerfile: docker/elementary/Dockerfile
           docker_context: faktura/elementary
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
