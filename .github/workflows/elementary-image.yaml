@@ -19,6 +19,6 @@ jobs:
         with:
           team: virksomhetsdatalaget
           dockerfile: docker/elementary/Dockerfile
-          docker_context: faktura/elementary
+          docker_context: docker/elementary
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
