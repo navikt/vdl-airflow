@@ -20,7 +20,7 @@ def elementary_operator(
     startup_timeout_seconds: int = 360,
     retry_delay: timedelta = timedelta(seconds=120),
     nls_lang: str = "NORWEGIAN_NORWAY.AL32UTF8",
-    image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:12ca61b939b4cddead60382f1ecf68e8ecff877c95f6f9a52df070393d38316f",
+    image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:607b872b812f3cd87e8673be0029c64f01c4376be8a15ed7e26a8d406e6da4dd",
     allowlist: list = [],
     *args,
     **kwargs
