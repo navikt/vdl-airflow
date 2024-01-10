@@ -37,8 +37,8 @@ def elementary_operator(
 
     return KubernetesPodOperator(
         dag=dag,
-        cmds=["/bin/bash"]
-        arguments=commands
+        cmds=["/bin/bash"],
+        arguments=commands,
         on_failure_callback=slack_error,
         startup_timeout_seconds=startup_timeout_seconds,
         name=task_id,
