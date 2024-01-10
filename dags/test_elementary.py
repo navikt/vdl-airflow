@@ -25,7 +25,7 @@ with DAG(
     elementary_report = elementary_operator(
         dag=dag,
         task_id="elementary_report",
-        commands=["report"],
+        commands=["./run.sh", "report"],
         allowlist=["slack.com", "files.slack.com"]
     )
 

@@ -20,7 +20,7 @@ def elementary_operator(
     startup_timeout_seconds: int = 360,
     retry_delay: timedelta = timedelta(seconds=120),
     nls_lang: str = "NORWEGIAN_NORWAY.AL32UTF8",
-    image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:d0fea212534a9b7f42b883bcbeb8f7050057047308e8763e4d11c29f1d7fa83d",
+    image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:12ca61b939b4cddead60382f1ecf68e8ecff877c95f6f9a52df070393d38316f",
     allowlist: list = [],
     *args,
     **kwargs
@@ -37,7 +37,8 @@ def elementary_operator(
 
     return KubernetesPodOperator(
         dag=dag,
-        cmds=commands,
+        cmds=["/bin/bash"]
+        arguments=commands
         on_failure_callback=slack_error,
         startup_timeout_seconds=startup_timeout_seconds,
         name=task_id,
