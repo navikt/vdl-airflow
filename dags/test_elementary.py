@@ -32,7 +32,7 @@ with DAG(
     elementary_alert = elementary_operator(
         dag=dag,
         task_id="elementary_alert",
-        commands=["./run.sh", "report"],
+        commands=["./run.sh", "alert"],
         allowlist=["slack.com", "files.slack.com, wx23413.europe-west4.gcp.snowflakecomputing.com"]
     )
 
