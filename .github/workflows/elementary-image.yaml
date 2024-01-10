@@ -1,0 +1,24 @@
+name: Build Elementary Image
+
+on:
+  push:
+    paths:
+      - .github/workflows/elementary-image.yaml
+      - faktura/elementary/**
+
+jobs:
+  build_and_push:
+    name: Build and push docker container
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: nais/docker-build-push@v0
+        with:
+          team: virksomhetsdatalaget
+          dockerfile: faktura/elementary/Dockerfile
+          docker_context: faktura/elementary
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}

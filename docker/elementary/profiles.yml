@@ -1,0 +1,14 @@
+elementary:
+  target: "{{ env_var('default') }}"
+  outputs:
+    default:
+      type: "snowflake"
+      account: "wx23413.europe-west4.gcp"
+      user: "{{ env_var('DBT_USR') }}"
+      password: "{{ env_var('DBT_PWD') }}"
+      role: "faktura_transformer"
+      database: "faktura"
+      warehouse: "faktura_transforming"
+      schema: "meta"
+      threads: 2
+      client_session_keep_alive: False
