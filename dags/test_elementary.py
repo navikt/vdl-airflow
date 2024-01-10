@@ -11,7 +11,7 @@ from operators.elementary import elementary_operator
 
 
 with DAG(
-    dag_id="my_dag_name",
+    dag_id="test_elementary",
     start_date=datetime(2024, 1, 9),
     schedule=None,
     default_args={
