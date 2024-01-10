@@ -1,5 +1,6 @@
+config:
+  send_anonymous_usage_stats: False
 elementary:
-  target: "{{ env_var('default') }}"
   outputs:
     default:
       type: "snowflake"

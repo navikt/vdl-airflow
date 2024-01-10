@@ -24,7 +24,6 @@ elementary () {
     --slack-token $SLACK_TOKEN \
     --slack-channel-name $2 \
     --target-path edr_target \
-    --config-dir "." \
     --disable-samples true
 }
 
