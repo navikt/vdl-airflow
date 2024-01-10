@@ -18,7 +18,7 @@ jobs:
       - uses: nais/docker-build-push@v0
         with:
           team: virksomhetsdatalaget
-          tag: vdl-airflow-elementary:${{ github.sha }}
+          image_suffix: elementary
           dockerfile: docker/elementary/Dockerfile
           docker_context: docker/elementary
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
