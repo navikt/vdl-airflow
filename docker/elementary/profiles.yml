@@ -7,9 +7,9 @@ elementary:
       account: "wx23413.europe-west4.gcp"
       user: "{{ env_var('DBT_USR') }}"
       password: "{{ env_var('DBT_PWD') }}"
-      role: "faktura_transformer"
-      database: "faktura"
-      warehouse: "faktura_transforming"
+      role: "{{ env_var('DB_ROLE') }}"
+      database: "{{ env_var('DB') }}"
+      warehouse: "{{ env_var('DB_WH') }}"
       schema: "meta"
       threads: 2
       client_session_keep_alive: False
