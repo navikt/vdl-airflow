@@ -1,12 +1,10 @@
 from datetime import datetime
 
 from airflow.decorators import dag, task
-
 from airflow.models import Variable
-
-from custom.operators.slack_operator import slack_error, slack_success, slack_info
-
 from kubernetes import client as k8s
+
+from custom.operators.slack_operator import slack_error, slack_info, slack_success
 
 
 @dag(
@@ -81,11 +79,13 @@ def anaplan_datahub_ansattdata():
         import_hierarchy_data: dict,
         import_module_data: dict,
     ):
-        from anaplan.singleChunkUpload import transfer_data
+        import time
+
+        import oracledb
+
         from anaplan.get_data import get_data, transform_to_csv
         from anaplan.import_data import import_data
-        import oracledb
-        import time
+        from anaplan.singleChunkUpload import transfer_data
 
         creds = Variable.get("dvh_password", deserialize_json=True)
         ora_start = time.perf_counter()

@@ -2,9 +2,10 @@ from datetime import datetime
 
 from airflow.decorators import dag, task
 
-from custom.operators.slack_operator import slack_error, slack_success, slack_info
-#from custom.decorators import task
+# from custom.decorators import task
 from kubernetes import client as k8s
+
+from custom.operators.slack_operator import slack_error, slack_info, slack_success
 
 
 @dag(

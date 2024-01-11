@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
-
 from airflow.models import Variable
 from airflow.sensors.external_task import ExternalTaskSensor
-
-from custom.operators.slack_operator import slack_error, slack_success, slack_info
-
 from kubernetes import client as k8s
+
+from custom.operators.slack_operator import slack_error, slack_info, slack_success
 
 
 @dag(
@@ -54,10 +52,11 @@ def anaplan_datahub_regnskapsdata():
         import_hierarchy_data: dict,
         import_module_data: dict,
     ):
-        from anaplan.singleChunkUpload import transfer_data
         from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+
         from anaplan.get_data import get_data, transform_to_csv
         from anaplan.import_data import import_data
+        from anaplan.singleChunkUpload import transfer_data
 
         with SnowflakeHook().get_cursor() as cursor:
             data, column_names = get_data(query, cursor)
@@ -113,7 +112,6 @@ def anaplan_datahub_regnskapsdata():
             "name": "Regnskap from agg_hovedbok_posteringer_all_mnd_snowflake.csv",
         },
     )
-
 
     upload
 

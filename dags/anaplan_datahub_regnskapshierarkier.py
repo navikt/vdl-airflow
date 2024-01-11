@@ -1,13 +1,10 @@
 from datetime import datetime
 
 from airflow.decorators import dag, task
-
 from airflow.models import Variable
-
 from kubernetes import client as k8s
 
-
-from custom.operators.slack_operator import slack_error, slack_success, slack_info
+from custom.operators.slack_operator import slack_error, slack_info, slack_success
 
 
 @dag(
@@ -79,10 +76,11 @@ def anaplan_datahub_regnskaphierarkier():
         import_hierarchy_data: dict,
         import_module_data: dict,
     ):
-        from anaplan.singleChunkUpload import transfer_data
         from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+
         from anaplan.get_data import get_data, transform_to_csv
         from anaplan.import_data import import_data
+        from anaplan.singleChunkUpload import transfer_data
 
         with SnowflakeHook().get_cursor() as cursor:
             data = get_data(query, cursor)

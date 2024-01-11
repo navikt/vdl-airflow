@@ -1,13 +1,12 @@
 from datetime import datetime
 
-from airflow.models import Variable
 from airflow.decorators import dag, task
-from custom.operators.slack_operator import slack_error, slack_success
-from airflow.sensors.base import PokeReturnValue
 from airflow.exceptions import AirflowFailException
-
+from airflow.models import Variable
+from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
+from custom.operators.slack_operator import slack_error, slack_success
 
 URL = Variable.get("VDL_REGNSKAP_URL")
 
@@ -15,7 +14,7 @@ URL = Variable.get("VDL_REGNSKAP_URL")
 @dag(
     start_date=datetime(2023, 2, 28),
     schedule_interval="@daily",
-    dag_id = "regnskap_dag",
+    dag_id="regnskap_dag",
     catchup=False,
     default_args={"on_failure_callback": slack_error},
     max_active_runs=1,

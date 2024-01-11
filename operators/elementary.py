@@ -1,12 +1,13 @@
 import os
-
 from datetime import timedelta
 
-from airflow import DAG
-from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
-from custom.operators.slack_operator import slack_error
-
 import kubernetes.client as k8s
+from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
+
+from custom.operators.slack_operator import slack_error
 
 
 def elementary_operator(
@@ -25,7 +26,6 @@ def elementary_operator(
     *args,
     **kwargs
 ):
-
     env_vars = {
         "TZ": os.environ["TZ"],
         "NLS_LANG": nls_lang,
@@ -46,10 +46,13 @@ def elementary_operator(
         task_id=task_id,
         is_delete_operator_pod=delete_on_finish,
         image=image,
-        image_pull_secrets=[k8s.V1LocalObjectReference('ghcr-secret')],
+        image_pull_secrets=[k8s.V1LocalObjectReference("ghcr-secret")],
         env_vars=env_vars,
         service_account_name=os.getenv("TEAM"),
-        annotations={"sidecar.istio.io/inject": "false", "allowlist": ",".join(allowlist)},
+        annotations={
+            "sidecar.istio.io/inject": "false",
+            "allowlist": ",".join(allowlist),
+        },
         retries=retries,
         retry_delay=retry_delay,
         **kwargs

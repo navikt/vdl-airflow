@@ -14,15 +14,15 @@
 # This script uses Python 3 and assumes that you have the following modules
 # installed: requests, base64, json
 
-import requests
 import base64
-import sys
 import json
+import sys
+
+import requests
 from airflow.models import Variable
 
 
-def import_data(wGuid:str, mGuid:str, username:str, password:str, importData:dict):
-
+def import_data(wGuid: str, mGuid: str, username: str, password: str, importData: dict):
     user = "Basic " + str(
         base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
     )

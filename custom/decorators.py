@@ -1,7 +1,7 @@
 import functools
 from typing import Callable
-from airflow.decorators import task as airflow_task
 
+from airflow.decorators import task as airflow_task
 from kubernetes import client as k8s
 
 

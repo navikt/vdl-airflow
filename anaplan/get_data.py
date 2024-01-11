@@ -1,5 +1,5 @@
-from io import StringIO
 import csv
+from io import StringIO
 from sqlite3 import Cursor
 
 

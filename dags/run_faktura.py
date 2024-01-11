@@ -1,13 +1,12 @@
 from datetime import datetime
 
-from airflow.models import Variable
 from airflow.decorators import dag, task
-from custom.operators.slack_operator import slack_error, slack_success
-from airflow.sensors.base import PokeReturnValue
 from airflow.exceptions import AirflowFailException
-
+from airflow.models import Variable
+from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
+from custom.operators.slack_operator import slack_error, slack_success
 
 URL = Variable.get("VDL_FAKTURA_URL")
 
