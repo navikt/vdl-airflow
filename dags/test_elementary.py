@@ -26,14 +26,24 @@ with DAG(
         dag=dag,
         task_id="elementary_report",
         commands=["./run.sh", "report"],
-        allowlist=["slack.com", "files.slack.com, wx23413.europe-west4.gcp.snowflakecomputing.com"]
+        allowlist=["slack.com", "files.slack.com, wx23413.europe-west4.gcp.snowflakecomputing.com"],
+        extra_envs={
+            "DB": "faktura",
+            "DB_ROLE": "faktura_transformer",
+            "DB_WH": "faktura_transforming",
+        },
     )
 
     elementary_alert = elementary_operator(
         dag=dag,
         task_id="elementary_alert",
         commands=["./run.sh", "alert"],
-        allowlist=["slack.com", "files.slack.com, wx23413.europe-west4.gcp.snowflakecomputing.com"]
+        allowlist=["slack.com", "files.slack.com, wx23413.europe-west4.gcp.snowflakecomputing.com"],
+        extra_envs={
+            "DB": "faktura",
+            "DB_ROLE": "faktura_transformer",
+            "DB_WH": "faktura_transforming",
+        },
     )
 
     elementary_report
