@@ -1,0 +1,4 @@
+edr_target
+secret.json
+.venv
+dbt_packages
