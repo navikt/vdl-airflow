@@ -54,45 +54,6 @@ def run_regnskap():
                 "dbt job eksisterer mest sannsynlig ikke på podden"
             )
         return response.json()
-    
-
-
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.dev.intern.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def test_ingest(job_name: str) -> dict:
-        import requests
-
-        response: requests.Response = requests.get(url=f"{URL}/test-ingest/{job_name}")
-        if response.status_code > 400:
-            raise AirflowFailException(
-                "dbt job eksisterer mest sannsynlig ikke på podden"
-            )
-        return response.json()
-
-
 
     @task.sensor(
         poke_interval=60,
@@ -160,7 +121,9 @@ def run_regnskap():
     )
     wait_general_ledger_open = check_status_for_inbound_job(general_ledger_open)
 
-    general_ledger_budget = test_ingest("hovedbok-budsjett")
+    general_ledger_budget = run_inbound_job.ovveride(
+        task_id="start_general_ledger_budget"
+    )("general_ledger_budget")
     wait_general_ledger_budget = check_status_for_inbound_job(general_ledger_budget)
 
     balance_closed = run_inbound_job.override(task_id="start_balance_closed")(
