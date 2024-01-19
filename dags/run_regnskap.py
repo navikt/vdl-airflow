@@ -1,4 +1,5 @@
 from datetime import datetime
+from airflow import DAG
 
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
@@ -7,19 +8,19 @@ from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_error, slack_success
+from operators.elementary import elementary_operator
 
 URL = Variable.get("VDL_REGNSKAP_URL")
 
 
-@dag(
+with DAG(
     start_date=datetime(2023, 2, 28),
     schedule_interval="@daily",
     dag_id="regnskap_dag",
     catchup=False,
     default_args={"on_failure_callback": slack_error},
     max_active_runs=1,
-)
-def run_regnskap():
+) as dag:
     @task(
         executor_config={
             "pod_override": k8s.V1Pod(
@@ -283,6 +284,22 @@ def run_regnskap():
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
 
+    regnskap_report = elementary_operator(
+        dag=dag,
+        task_id="regnskap_report",
+        commands=["./run.sh", "report"],
+        allowlist=[
+            "slack.com",
+            "files.slack.com",
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+        ],
+        extra_envs={
+            "DB": "regnskap",
+            "DB_ROLE": "regnskap_transformer",
+            "DB_WH": "regnskap_transformer",
+        },
+    )
+
     dimensonal_data >> wait_dimensonal_data
     sync_check >> wait_sync_check
     general_ledger_open >> wait_general_ledger_open
@@ -303,7 +320,5 @@ def run_regnskap():
     wait_balance_closed >> dbt_freshness
     # wait_accounts_payable >> dbt_run
 
-    (dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary)
-
-
-run_regnskap()
+    dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
+    wait_dbt_run >> regnskap_report
