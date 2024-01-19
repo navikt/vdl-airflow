@@ -121,7 +121,7 @@ def run_regnskap():
     )
     wait_general_ledger_open = check_status_for_inbound_job(general_ledger_open)
 
-    general_ledger_budget = run_inbound_job.ovveride(
+    general_ledger_budget = run_inbound_job.override(
         task_id="start_general_ledger_budget"
     )("general_ledger_budget")
     wait_general_ledger_budget = check_status_for_inbound_job(general_ledger_budget)
