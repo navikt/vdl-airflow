@@ -57,7 +57,7 @@ def anaplan_datahub_ansattdata():
                             [
                                 "slack.com",
                                 "api.anaplan.com",
-                                "dm09-scan.adeo.no:1521",
+                                "dm08-scan.adeo.no:1521",
                             ]
                         )
                     }
