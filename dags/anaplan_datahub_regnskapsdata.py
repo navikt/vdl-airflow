@@ -10,7 +10,7 @@ from custom.operators.slack_operator import slack_error, slack_info, slack_succe
 
 @dag(
     start_date=datetime(2023, 8, 16),
-    schedule_interval="30 6 * * *",
+    schedule_interval="0 4 * * *",
     catchup=False,
     default_args={"on_failure_callback": slack_error},
 )
@@ -84,7 +84,7 @@ def anaplan_datahub_regnskapsdata():
               k.felles_segment_kode
           ) as pk,
           k.periode_navn,
-          -- Lagt til 6 nuller, pga. bakoverkompatibilitet 
+          -- Lagt til 6 nuller, pga. bakoverkompatibilitet
           ds.statsregnskapskonti_segment_kode_niva_2||'000000' as statsregnskapskonti_segment_kode,
           k.artskonti_segment_kode,
           k.kostnadssteder_segment_kode,
@@ -96,7 +96,7 @@ def anaplan_datahub_regnskapsdata():
           join regnskap.marts.dim_statsregnskapskonti ds on 1=1
             and ds.pk_dim_statsregnskapskonti = k.fk_dim_statsregnskapskonti
           where 1=1
-            and k.er_budsjett_postering = 0 
+            and k.er_budsjett_postering = 0
             and (
               endswith(k.periode_navn, '23') or
               endswith(k.periode_navn, '24')

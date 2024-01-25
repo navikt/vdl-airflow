@@ -9,7 +9,7 @@ from custom.operators.slack_operator import slack_error, slack_info, slack_succe
 
 @dag(
     start_date=datetime(2023, 8, 2),
-    schedule_interval="30 6 * * *",
+    schedule_interval="0 4 * * *",
     catchup=False,
     default_args={"on_failure_callback": slack_error},
 )
@@ -134,7 +134,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_produkter
             where
-                length(produkter_segment_kode) = 6 and 
+                length(produkter_segment_kode) = 6 and
                 er_budsjetterbar = 1
         """,
         import_hierarchy_data={
@@ -153,7 +153,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_oppgaver
             where
-                length(oppgaver_segment_kode) = 6 and 
+                length(oppgaver_segment_kode) = 6 and
                 er_budsjetterbar = 1
         """,
         import_hierarchy_data={
@@ -172,7 +172,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_felles
             where
-                length(felles_segment_kode) = 6 and 
+                length(felles_segment_kode) = 6 and
                 er_budsjetterbar = 1
         """,
         import_hierarchy_data={
