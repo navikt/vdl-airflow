@@ -142,10 +142,10 @@ with DAG(
     )
     wait_balance_budget = check_status_for_inbound_job(balance_budget)
 
-    accounts_payable = run_inbound_job.override(task_id="start_accounts_payable")(
-        "accounts_payable"
-    )
-    wait_accounts_payable = check_status_for_inbound_job(accounts_payable)
+    #accounts_payable = run_inbound_job.override(task_id="start_accounts_payable")(
+    #    "accounts_payable"
+    #)
+    #wait_accounts_payable = check_status_for_inbound_job(accounts_payable)
 
     snapshot_dimensonal_data = run_inbound_job.override(task_id="start_test_snapshot_dimensional_data")(
         "test_snapshot_dimensional_data"
@@ -314,7 +314,7 @@ with DAG(
     balance_open >> wait_balance_open
     balance_budget >> wait_balance_budget
     balance_closed >> wait_balance_closed
-    accounts_payable >> wait_accounts_payable
+    #payable >> wait_accounts_payable
     snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
 
     wait_dimensonal_data >> dbt_freshness
@@ -325,7 +325,7 @@ with DAG(
     wait_balance_open >> dbt_freshness
     wait_balance_budget >> dbt_freshness
     wait_balance_closed >> dbt_freshness
-    wait_accounts_payable >> dbt_freshness
+    #wait_accounts_payable >> dbt_freshness
     wait_snapshot_dimensonal_data >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
