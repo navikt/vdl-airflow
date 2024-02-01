@@ -314,7 +314,7 @@ with DAG(
     balance_open >> wait_balance_open
     balance_budget >> wait_balance_budget
     balance_closed >> wait_balance_closed
-    payable >> wait_accounts_payable
+    accounts_payable >> wait_accounts_payable
     snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
 
     wait_dimensonal_data >> dbt_freshness
