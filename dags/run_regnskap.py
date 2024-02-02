@@ -122,11 +122,6 @@ with DAG(
     )
     wait_general_ledger_open = check_status_for_inbound_job(general_ledger_open)
 
-    general_ledger_budget = run_inbound_job.override(
-        task_id="start_general_ledger_budget"
-    )("general_ledger_budget")
-    wait_general_ledger_budget = check_status_for_inbound_job(general_ledger_budget)
-
     balance_closed = run_inbound_job.override(task_id="start_balance_closed")(
         "balance_closed"
     )
@@ -136,11 +131,6 @@ with DAG(
         "balance_open"
     )
     wait_balance_open = check_status_for_inbound_job(balance_open)
-
-    balance_budget = run_inbound_job.override(task_id="start_balance_budget")(
-        "balance_budget"
-    )
-    wait_balance_budget = check_status_for_inbound_job(balance_budget)
 
     accounts_payable = run_inbound_job.override(task_id="start_accounts_payable")(
         "accounts_payable"
@@ -309,10 +299,8 @@ with DAG(
     dimensonal_data >> wait_dimensonal_data
     sync_check >> wait_sync_check
     general_ledger_open >> wait_general_ledger_open
-    general_ledger_budget >> wait_general_ledger_budget
     general_ledger_closed >> wait_general_ledger_closed
     balance_open >> wait_balance_open
-    balance_budget >> wait_balance_budget
     balance_closed >> wait_balance_closed
     accounts_payable >> wait_accounts_payable
     snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
@@ -320,10 +308,8 @@ with DAG(
     wait_dimensonal_data >> dbt_freshness
     wait_sync_check >> dbt_freshness
     wait_general_ledger_open >> dbt_freshness
-    wait_general_ledger_budget >> dbt_freshness
     wait_general_ledger_closed >> dbt_freshness
     wait_balance_open >> dbt_freshness
-    wait_balance_budget >> dbt_freshness
     wait_balance_closed >> dbt_freshness
     wait_accounts_payable >> dbt_freshness
     wait_snapshot_dimensonal_data >> dbt_freshness
