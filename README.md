@@ -36,7 +36,7 @@ git checkout dev
 Pull endringer fra `main` til `dev`
 
 ```
-git pull main
+git pull origin main
 ```
 Nå er koden in-sync med `main` og utviklingen kan starte. 
 
@@ -65,7 +65,7 @@ git checkout dev
 ```
 
 ```
-git pull main
+git pull origin main
 ```
 
 ```
