@@ -142,6 +142,15 @@ with DAG(
     )
     wait_snapshot_dimensonal_data = check_status_for_inbound_job(snapshot_dimensonal_data)
 
+    accounts_payable_open = run_inbound_job.override(
+        task_id="start_accounts_payable_open"
+    )("accounts_payable_open")
+    wait_accounts_payable_open = check_status_for_inbound_job(accounts_payable_open)
+
+    accounts_payable_closed = run_inbound_job.override(
+        task_id="start_accounts_payable_closed"
+    )("accounts_payable_closed")
+    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
 
     @task(
         executor_config={
@@ -301,11 +310,14 @@ with DAG(
     wait_snapshot_dimensonal_data >> general_ledger_closed
     wait_dimensonal_data >> balance_closed
     wait_snapshot_dimensonal_data >> balance_closed
+    wait_dimensonal_data >> accounts_payable_closed
+    wait_snapshot_dimensonal_data >> accounts_payable_closed
 
     general_ledger_closed >> wait_general_ledger_closed
     sync_check >> wait_sync_check
     general_ledger_open >> wait_general_ledger_open
     balance_open >> wait_balance_open
+    accounts_payable_open >> wait_accounts_payable_open
     balance_closed >> wait_balance_closed
     accounts_payable >> wait_accounts_payable
     snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
@@ -317,6 +329,9 @@ with DAG(
     wait_balance_closed >> dbt_freshness
     wait_accounts_payable >> dbt_freshness
     wait_snapshot_dimensonal_data >> dbt_freshness
+    wait_accounts_payable_open >> dbt_freshness
+    wait_accounts_payable_closed >> dbt_freshness
+
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
     wait_dbt_run >> regnskap_report
