@@ -297,15 +297,19 @@ with DAG(
     )
 
     dimensonal_data >> wait_dimensonal_data
+    wait_dimensonal_data >> general_ledger_closed
+    wait_snapshot_dimensonal_data >> general_ledger_closed
+    wait_dimensonal_data >> balance_closed
+    wait_snapshot_dimensonal_data >> balance_closed
+
+    general_ledger_closed >> wait_general_ledger_closed
     sync_check >> wait_sync_check
     general_ledger_open >> wait_general_ledger_open
-    general_ledger_closed >> wait_general_ledger_closed
     balance_open >> wait_balance_open
     balance_closed >> wait_balance_closed
     accounts_payable >> wait_accounts_payable
     snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
 
-    wait_dimensonal_data >> dbt_freshness
     wait_sync_check >> dbt_freshness
     wait_general_ledger_open >> dbt_freshness
     wait_general_ledger_closed >> dbt_freshness
