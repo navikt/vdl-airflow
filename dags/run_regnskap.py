@@ -321,6 +321,7 @@ with DAG(
     balance_closed >> wait_balance_closed
     accounts_payable >> wait_accounts_payable
     snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
+    accounts_payable >> wait_accounts_payable
 
     wait_sync_check >> dbt_freshness
     wait_general_ledger_open >> dbt_freshness
@@ -331,7 +332,7 @@ with DAG(
     wait_snapshot_dimensonal_data >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
     wait_accounts_payable_closed >> dbt_freshness
-
+    wait_accounts_payable >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
     wait_dbt_run >> regnskap_report
