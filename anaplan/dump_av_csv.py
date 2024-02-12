@@ -1,5 +1,5 @@
 
-from anaplan.get_data import get_data, transform_to_csv
+from get_data import get_data, transform_to_csv
 import snowflake.connector
 import os
 
@@ -19,8 +19,9 @@ with snowflake.connector.connect(**snowflake_creds).cursor() as cursor:
     where
         length(artskonti_segment_kode) = 12
     """
-    data = get_data(query, cursor)
-    csv_file = transform_to_csv(data[0], data[1])
+    result, column_names = get_data(query, cursor)
+    
+    csv_file = transform_to_csv(data=result, column_names=column_names)
 
     with open(file="dump.csv", mode="w", encoding="utf-8", newline="") as f:
-        f.write(str(csv_file))
+        f.write(csv_file.decode(encoding="utf-8"))
