@@ -155,6 +155,22 @@ def anaplan_datahub_regnskaphierarkier():
             where
                 length(oppgaver_segment_kode) = 6 and
                 er_budsjetterbar = 1
+            union all (
+                select * exclude(hierarkier__raw, segmenter__raw)
+                from regnskap.marts.dim_oppgaver
+                where
+                    length(oppgaver_segment_kode) = 6 and
+                    er_budsjetterbar = 1 and (
+                        posterbar_til_dato > '2024-01-01' or
+                        posterbar_til_dato is null
+                    )
+                except
+                select *
+                from reporting.microstrategy.dim_oppgaver
+                where
+                    length(oppgaver_segment_kode) = 6 and
+                    er_budsjetterbar = 1
+            )
         """,
         import_hierarchy_data={
             "id": "112000000047",
