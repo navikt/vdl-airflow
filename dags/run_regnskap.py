@@ -40,6 +40,7 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            resources=k8s.V1ResourceRequirements(ephemeral_storage="100Mi"),
                         )
                     ]
                 ),
@@ -78,6 +79,7 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            resources=k8s.V1ResourceRequirements(ephemeral_storage="100Mi"),
                         )
                     ]
                 ),
@@ -171,6 +173,7 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            resources=k8s.V1ResourceRequirements(ephemeral_storage="100Mi"),
                         )
                     ]
                 ),
@@ -208,6 +211,7 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            resources=k8s.V1ResourceRequirements(ephemeral_storage="100Mi"),
                         )
                     ]
                 ),
@@ -270,6 +274,7 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            resources=k8s.V1ResourceRequirements(ephemeral_storage="100Mi"),
                         )
                     ]
                 ),
