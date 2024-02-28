@@ -21,6 +21,7 @@ with DAG(
     default_args={"on_failure_callback": slack_error},
     max_active_runs=1,
 ) as dag:
+
     @task(
         executor_config={
             "pod_override": k8s.V1Pod(
@@ -40,7 +41,10 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
-                            resources=k8s.V1ResourceRequirements(requests={"ephemeral-storage": "100M"}, limits={"ephemeral-storage": "200M"}),
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
@@ -79,7 +83,10 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
-                            resources=k8s.V1ResourceRequirements(requests={"ephemeral-storage": "100M"}, limits={"ephemeral-storage": "200M"}),
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
@@ -139,10 +146,12 @@ with DAG(
     )
     wait_accounts_payable = check_status_for_inbound_job(accounts_payable)
 
-    snapshot_dimensonal_data = run_inbound_job.override(task_id="start_test_snapshot_dimensional_data")(
-        "test_snapshot_dimensional_data"
+    snapshot_dimensonal_data = run_inbound_job.override(
+        task_id="start_test_snapshot_dimensional_data"
+    )("test_snapshot_dimensional_data")
+    wait_snapshot_dimensonal_data = check_status_for_inbound_job(
+        snapshot_dimensonal_data
     )
-    wait_snapshot_dimensonal_data = check_status_for_inbound_job(snapshot_dimensonal_data)
 
     accounts_payable_open = run_inbound_job.override(
         task_id="start_accounts_payable_open"
@@ -173,7 +182,10 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
-                            resources=k8s.V1ResourceRequirements(requests={"ephemeral-storage": "100M"}, limits={"ephemeral-storage": "200M"}),
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
@@ -211,7 +223,10 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
-                            resources=k8s.V1ResourceRequirements(requests={"ephemeral-storage": "100M"}, limits={"ephemeral-storage": "200M"}),
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
@@ -274,7 +289,10 @@ with DAG(
                         k8s.V1Container(
                             name="base",
                             image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
-                            resources=k8s.V1ResourceRequirements(requests={"ephemeral-storage": "100M"}, limits={"ephemeral-storage": "200M"}),
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
