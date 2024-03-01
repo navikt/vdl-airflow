@@ -4,6 +4,7 @@ from typing import Callable
 from airflow.decorators import task as airflow_task
 from kubernetes import client as k8s
 
+CUSTOM_IMAGE="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:85e5787aaaf694379fb031954cb53a04a80fcc08934991fcb90fae65102d5fe3"
 
 def task(allowlist: list[str] = ["slack.com"]):
     @airflow_task(
@@ -16,7 +17,7 @@ def task(allowlist: list[str] = ["slack.com"]):
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            image=CUSTOM_IMAGE,
                         )
                     ]
                 ),

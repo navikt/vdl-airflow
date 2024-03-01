@@ -8,6 +8,7 @@ from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_error, slack_success
+from custom.decorators import CUSTOM_IMAGE
 from operators.elementary import elementary_operator
 
 URL = Variable.get("VDL_REGNSKAP_URL")
@@ -40,7 +41,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            image=CUSTOM_IMAGE,
                             resources=k8s.V1ResourceRequirements(
                                 requests={"ephemeral-storage": "100M"},
                                 limits={"ephemeral-storage": "200M"},
@@ -82,7 +83,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            image=CUSTOM_IMAGE,
                             resources=k8s.V1ResourceRequirements(
                                 requests={"ephemeral-storage": "100M"},
                                 limits={"ephemeral-storage": "200M"},
@@ -181,7 +182,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            image=CUSTOM_IMAGE,
                             resources=k8s.V1ResourceRequirements(
                                 requests={"ephemeral-storage": "100M"},
                                 limits={"ephemeral-storage": "200M"},
@@ -222,7 +223,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            image=CUSTOM_IMAGE,
                             resources=k8s.V1ResourceRequirements(
                                 requests={"ephemeral-storage": "100M"},
                                 limits={"ephemeral-storage": "200M"},
@@ -288,7 +289,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow@sha256:5edb4e907c93ee521f5f743c3b4346b1bae26721820a2f7e8dfbf464bf4c82ba",
+                            image=CUSTOM_IMAGE,
                             resources=k8s.V1ResourceRequirements(
                                 requests={"ephemeral-storage": "100M"},
                                 limits={"ephemeral-storage": "200M"},
