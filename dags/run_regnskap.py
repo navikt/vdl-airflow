@@ -123,7 +123,7 @@ with DAG(
     )
     wait_segment = check_status_for_inbound_job(segment)    
 
-    period_status = run_inbound_job.override(task_id="start_segment")(
+    period_status = run_inbound_job.override(task_id="start_period_status")(
         "period_status"
     )
     wait_period_status = check_status_for_inbound_job(period_status)    
