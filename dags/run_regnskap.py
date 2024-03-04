@@ -121,17 +121,17 @@ with DAG(
     segment = run_inbound_job.override(task_id="start_segment")(
         "segment"
     )
-    wait_segment = check_status_for_inbound_job(segment)    
+    wait_segment = check_status_for_inbound_job(segment)
 
     period_status = run_inbound_job.override(task_id="start_period_status")(
         "period_status"
     )
-    wait_period_status = check_status_for_inbound_job(period_status)    
+    wait_period_status = check_status_for_inbound_job(period_status)
 
     hierarchy = run_inbound_job.override(task_id="start_hierarchy")(
         "hierarchy"
     )
-    wait_hierarchy = check_status_for_inbound_job(hierarchy)    
+    wait_hierarchy = check_status_for_inbound_job(hierarchy)
 
     sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
     wait_sync_check = check_status_for_inbound_job(sync_check)
@@ -362,6 +362,7 @@ with DAG(
     wait_balance_closed >> dbt_freshness
     wait_accounts_payable >> dbt_freshness
     wait_hierarchy >> dbt_freshness
+    wait_segment >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
     wait_accounts_payable_closed >> dbt_freshness
 
