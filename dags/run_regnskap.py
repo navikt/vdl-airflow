@@ -156,10 +156,10 @@ with DAG(
     )
     wait_balance_open = check_status_for_inbound_job(balance_open)
 
-    accounts_payable = run_inbound_job.override(task_id="start_accounts_payable")(
-        "accounts_payable"
+    suppliers = run_inbound_job.override(task_id="start_suppliers")(
+        "suppliers"
     )
-    wait_accounts_payable = check_status_for_inbound_job(accounts_payable)
+    wait_suppliers = check_status_for_inbound_job(suppliers)
 
     accounts_payable_open = run_inbound_job.override(
         task_id="start_accounts_payable_open"
@@ -351,7 +351,7 @@ with DAG(
 
     accounts_payable_closed >> wait_accounts_payable_closed
     accounts_payable_open >> wait_accounts_payable_open
-    accounts_payable >> wait_accounts_payable
+    suppliers >> wait_suppliers
     segment >> wait_segment
     hierarchy >> wait_hierarchy
 
@@ -360,7 +360,7 @@ with DAG(
     wait_general_ledger_closed >> dbt_freshness
     wait_balance_open >> dbt_freshness
     wait_balance_closed >> dbt_freshness
-    wait_accounts_payable >> dbt_freshness
+    wait_suppliers >> dbt_freshness
     wait_hierarchy >> dbt_freshness
     wait_segment >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
