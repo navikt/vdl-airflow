@@ -114,10 +114,24 @@ with DAG(
                 "Lastejobben har feilet! Sjekk loggene til podden"
             )
 
-    dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
-        "dimensional_data"
+    #dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
+    #    "dimensional_data"
+    #)
+    #wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
+    segment = run_inbound_job.override(task_id="start_segment")(
+        "segment"
     )
-    wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
+    wait_segment = check_status_for_inbound_job(segment)
+
+    period_status = run_inbound_job.override(task_id="start_period_status")(
+        "period_status"
+    )
+    wait_period_status = check_status_for_inbound_job(period_status)
+
+    hierarchy = run_inbound_job.override(task_id="start_hierarchy")(
+        "hierarchy"
+    )
+    wait_hierarchy = check_status_for_inbound_job(hierarchy)
 
     sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
     wait_sync_check = check_status_for_inbound_job(sync_check)
@@ -142,17 +156,10 @@ with DAG(
     )
     wait_balance_open = check_status_for_inbound_job(balance_open)
 
-    accounts_payable = run_inbound_job.override(task_id="start_accounts_payable")(
-        "accounts_payable"
+    suppliers = run_inbound_job.override(task_id="start_suppliers")(
+        "suppliers"
     )
-    wait_accounts_payable = check_status_for_inbound_job(accounts_payable)
-
-    snapshot_dimensonal_data = run_inbound_job.override(
-        task_id="start_test_snapshot_dimensional_data"
-    )("test_snapshot_dimensional_data")
-    wait_snapshot_dimensonal_data = check_status_for_inbound_job(
-        snapshot_dimensonal_data
-    )
+    wait_suppliers = check_status_for_inbound_job(suppliers)
 
     accounts_payable_open = run_inbound_job.override(
         task_id="start_accounts_payable_open"
@@ -329,31 +336,33 @@ with DAG(
         },
     )
 
-    dimensonal_data >> wait_dimensonal_data
-    wait_dimensonal_data >> general_ledger_closed
-    wait_snapshot_dimensonal_data >> general_ledger_closed
-    wait_dimensonal_data >> balance_closed
-    wait_snapshot_dimensonal_data >> balance_closed
-    wait_dimensonal_data >> accounts_payable_closed
-    wait_snapshot_dimensonal_data >> accounts_payable_closed
+    period_status >> wait_period_status
+    wait_period_status >> general_ledger_closed
+    wait_period_status >> balance_closed
+    wait_period_status >> accounts_payable_closed
+
+    sync_check >> wait_sync_check
 
     general_ledger_closed >> wait_general_ledger_closed
-    sync_check >> wait_sync_check
     general_ledger_open >> wait_general_ledger_open
+
     balance_open >> wait_balance_open
-    accounts_payable_open >> wait_accounts_payable_open
     balance_closed >> wait_balance_closed
-    accounts_payable >> wait_accounts_payable
-    snapshot_dimensonal_data >> wait_snapshot_dimensonal_data
-    accounts_payable >> wait_accounts_payable
+
+    accounts_payable_closed >> wait_accounts_payable_closed
+    accounts_payable_open >> wait_accounts_payable_open
+    suppliers >> wait_suppliers
+    segment >> wait_segment
+    hierarchy >> wait_hierarchy
 
     wait_sync_check >> dbt_freshness
     wait_general_ledger_open >> dbt_freshness
     wait_general_ledger_closed >> dbt_freshness
     wait_balance_open >> dbt_freshness
     wait_balance_closed >> dbt_freshness
-    wait_accounts_payable >> dbt_freshness
-    wait_snapshot_dimensonal_data >> dbt_freshness
+    wait_suppliers >> dbt_freshness
+    wait_hierarchy >> dbt_freshness
+    wait_segment >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
     wait_accounts_payable_closed >> dbt_freshness
 
