@@ -157,7 +157,7 @@ def anaplan_datahub_regnskaphierarkier():
                 length(oppgaver_segment_kode) = 6 and
                 er_budsjetterbar = 1
             union all (
-                select * exclude(hierarkier__raw, segmenter__raw)
+                select * exclude(hierarkier__raw)
                 from regnskap.marts.dim_oppgaver
                 where
                     length(oppgaver_segment_kode) = 6 and
