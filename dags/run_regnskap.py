@@ -171,10 +171,11 @@ with DAG(
     )("accounts_payable_closed")
     wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
 
-    budget = run_inbound_job.override(
-        task_id="start_budget"
-    )("budget")
-    wait_budget = check_status_for_inbound_job(budget)
+#TODO: Må settes på igjen når det er klart
+#    budget = run_inbound_job.override(
+#        task_id="start_budget"
+#    )("budget")
+#    wait_budget = check_status_for_inbound_job(budget)
 
     @task(
         executor_config={
@@ -359,7 +360,8 @@ with DAG(
     suppliers >> wait_suppliers
     segment >> wait_segment
     hierarchy >> wait_hierarchy
-    budget >> wait_budget
+    #TODO: Må settes på igjen når det er klart
+    #budget >> wait_budget
 
     wait_sync_check >> dbt_freshness
     wait_general_ledger_open >> dbt_freshness
@@ -371,7 +373,8 @@ with DAG(
     wait_segment >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
     wait_accounts_payable_closed >> dbt_freshness
-    wait_budget >> dbt_freshness
+    #TODO: Må settes på igjen når det er klart
+    #wait_budget >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
     wait_dbt_run >> regnskap_report
