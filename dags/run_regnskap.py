@@ -344,7 +344,7 @@ with DAG(
     period_status >> wait_period_status
     wait_period_status >> general_ledger_closed
     wait_period_status >> balance_closed
-    wait_period_status >> accounts_payable_closed
+    # wait_period_status >> accounts_payable_closed
 
     sync_check >> wait_sync_check
 
@@ -354,7 +354,7 @@ with DAG(
     balance_open >> wait_balance_open
     balance_closed >> wait_balance_closed
 
-    accounts_payable_closed >> wait_accounts_payable_closed
+    #accounts_payable_closed >> wait_accounts_payable_closed
     accounts_payable_open >> wait_accounts_payable_open
     suppliers >> wait_suppliers
     segment >> wait_segment
@@ -370,7 +370,7 @@ with DAG(
     wait_hierarchy >> dbt_freshness
     wait_segment >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
-    wait_accounts_payable_closed >> dbt_freshness
+    #wait_accounts_payable_closed >> dbt_freshness
     wait_budget >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
