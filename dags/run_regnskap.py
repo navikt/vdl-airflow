@@ -166,10 +166,10 @@ with DAG(
     )("accounts_payable_open")
     wait_accounts_payable_open = check_status_for_inbound_job(accounts_payable_open)
 
-    accounts_payable_closed = run_inbound_job.override(
-        task_id="start_accounts_payable_closed"
-    )("accounts_payable_closed")
-    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
+    #accounts_payable_closed = run_inbound_job.override(
+    #    task_id="start_accounts_payable_closed"
+    #)("accounts_payable_closed")
+    #wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
 
     budget = run_inbound_job.override(
         task_id="start_budget"
