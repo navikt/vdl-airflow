@@ -12,7 +12,7 @@ from custom.decorators import CUSTOM_IMAGE
     start_date=datetime(2023, 8, 2),
     schedule_interval="0 4 * * *",
     catchup=False,
-    default_args={"on_failure_callback": slack_error},
+    default_args={"on_failure_callback": slack_error, "retries": 3},
 )
 def anaplan_datahub_regnskaphierarkier():
     wGuid = Variable.get("anaplan_workspace_id")

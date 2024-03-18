@@ -19,7 +19,7 @@ with DAG(
     schedule_interval="@daily",
     dag_id="regnskap_dag",
     catchup=False,
-    default_args={"on_failure_callback": slack_error},
+    default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
 ) as dag:
 
@@ -58,7 +58,7 @@ with DAG(
         response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
         if response.status_code > 400:
             raise AirflowFailException(
-                "dbt job eksisterer mest sannsynlig ikke på podden"
+                "inboundjobb eksisterer mest sannsynlig ikke på podden"
             )
         return response.json()
 
@@ -102,7 +102,7 @@ with DAG(
         response: requests.Response = requests.get(url=f"{URL}/inbound/status/{id}")
         if response.status_code > 400:
             raise AirflowFailException(
-                "inbound job eksisterer mest sannsynlig ikke på podden"
+                "inboundjobb eksisterer mest sannsynlig ikke på podden"
             )
         response: dict = response.json()
         print(response)
