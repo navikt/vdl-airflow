@@ -15,7 +15,7 @@ URL = Variable.get("VDL_REGNSKAP_URL")
 
 with DAG(
     start_date=datetime(2023, 3, 18),
-    schedule_interval="0 20 * * *",
+    schedule_interval="0 19 * * *",
     dag_id="regnskap__ap_dag",
     catchup=False,
     default_args={"on_failure_callback": slack_error, "retries": 3},
