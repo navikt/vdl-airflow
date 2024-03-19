@@ -166,10 +166,10 @@ with DAG(
     )("accounts_payable_open")
     wait_accounts_payable_open = check_status_for_inbound_job(accounts_payable_open)
 
-    accounts_payable_closed = run_inbound_job.override(
-        task_id="start_accounts_payable_closed"
-    )("accounts_payable_closed")
-    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
+    #accounts_payable_closed = run_inbound_job.override(
+    #    task_id="start_accounts_payable_closed"
+    #)("accounts_payable_closed")
+    #wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
 
     budget = run_inbound_job.override(
         task_id="start_budget"
@@ -354,7 +354,7 @@ with DAG(
     balance_open >> wait_balance_open
     balance_closed >> wait_balance_closed
 
-    accounts_payable_closed >> wait_accounts_payable_closed
+    #accounts_payable_closed >> wait_accounts_payable_closed
     accounts_payable_open >> wait_accounts_payable_open
     suppliers >> wait_suppliers
     segment >> wait_segment
@@ -370,7 +370,7 @@ with DAG(
     wait_hierarchy >> dbt_freshness
     wait_segment >> dbt_freshness
     wait_accounts_payable_open >> dbt_freshness
-    wait_accounts_payable_closed >> dbt_freshness
+    #wait_accounts_payable_closed >> dbt_freshness
     wait_budget >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
