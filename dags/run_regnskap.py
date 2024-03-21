@@ -110,8 +110,9 @@ with DAG(
         if job_status == "done":
             return PokeReturnValue(is_done=True)
         if job_status == "error":
+            error_message = response["job_result"]["error_message"]
             raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
+                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
     #dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
@@ -258,8 +259,9 @@ with DAG(
         print(response)
         job_status = response.get("status")
         if job_status == "error":
+            error_message = response["job_result"]["error_message"]
             raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
+                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
         if job_status != "done":
             return PokeReturnValue(is_done=False)
