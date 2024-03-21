@@ -32,7 +32,7 @@ with DAG(
                             [
                                 "slack.com",
                                 "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.dev.intern.nav.no",
+                                "vdl-regnskap.intern.dev.nav.no",
                             ]
                         )
                     }
@@ -74,7 +74,7 @@ with DAG(
                             [
                                 "slack.com",
                                 "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.dev.intern.nav.no",
+                                "vdl-regnskap.intern.dev.nav.no",
                             ]
                         )
                     }
@@ -185,7 +185,7 @@ with DAG(
                             [
                                 "slack.com",
                                 "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.dev.intern.nav.no",
+                                "vdl-regnskap.intern.dev.nav.no",
                             ]
                         )
                     }
@@ -226,7 +226,7 @@ with DAG(
                             [
                                 "slack.com",
                                 "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.dev.intern.nav.no",
+                                "vdl-regnskap.intern.dev.nav.no",
                             ]
                         )
                     }
