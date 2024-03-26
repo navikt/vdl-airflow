@@ -15,8 +15,8 @@ URL = Variable.get("VDL_REGNSKAP_URL")
 
 with DAG(
     start_date=datetime(2023, 3, 18),
-    schedule_interval="0 19 * * *",
-    dag_id="regnskap__ap_dag",
+    schedule_interval=None,
+    dag_id="regnskap__ar_init",
     catchup=False,
     default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
@@ -113,9 +113,14 @@ with DAG(
                 "Lastejobben har feilet! Sjekk loggene til podden"
             )
 
-    accounts_payable_closed = run_inbound_job.override(
-        task_id="start_accounts_payable_closed"
-    )("accounts_payable_closed")
-    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
+    accounts_receivable_open = run_inbound_job.override(
+        task_id="start_accounts_receivable__open"
+    )("accounts_receivable_open")
+    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_receivable_open)
 
-    accounts_payable_closed >> wait_accounts_payable_closed
+    accounts_receivable_closed = run_inbound_job.override(
+        task_id="start_accounts_receivable__closed"
+    )("accounts_receivable_closed")
+    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_receivable_closed)
+
+    accounts_receivable_closed >> wait_accounts_payable_closed
