@@ -118,6 +118,11 @@ with DAG(
     )("accounts_receivable_open")
     wait_accounts_payable_closed = check_status_for_inbound_job(accounts_receivable_open)
 
+    customers = run_inbound_job.override(
+        task_id="start_customers"
+    )("customers")
+    wait_customers = check_status_for_inbound_job(customers)
+
     accounts_receivable_closed = run_inbound_job.override(
         task_id="start_accounts_receivable__closed"
     )("accounts_receivable_closed")
