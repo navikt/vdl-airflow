@@ -182,11 +182,16 @@ with DAG(
         task_id="start_accounts_receivable_closed"
     )("accounts_receivable_closed")
     wait_accounts_receivable_closed = check_status_for_inbound_job(accounts_receivable_closed)
-    
+
     budget = run_inbound_job.override(
         task_id="start_budget"
     )("budget")
     wait_budget = check_status_for_inbound_job(budget)
+
+    customers = run_inbound_job.override(
+        task_id="start_customers"
+    )("customers")
+    wait_customers = check_status_for_inbound_job(customers)
 
     @task(
         executor_config={
@@ -369,13 +374,16 @@ with DAG(
     balance_closed >> wait_balance_closed
 
     accounts_payable_closed >> wait_accounts_payable_closed
-    accounts_payable_closed >> wait_accounts_receivable_closed
     accounts_payable_open >> wait_accounts_payable_open
+
+    accounts_payable_closed >> wait_accounts_receivable_closed
     accounts_receivable_open >> wait_accounts_receivable_open
+
     suppliers >> wait_suppliers
     segment >> wait_segment
     hierarchy >> wait_hierarchy
     budget >> wait_budget
+    customers >> wait_customers
 
     wait_sync_check >> dbt_freshness
     wait_general_ledger_open >> dbt_freshness
@@ -390,6 +398,7 @@ with DAG(
     wait_accounts_receivable_open >> dbt_freshness
     wait_accounts_receivable_closed >> dbt_freshness
     wait_budget >> dbt_freshness
+    wait_customers >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
     wait_dbt_run >> regnskap_report
