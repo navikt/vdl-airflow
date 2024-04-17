@@ -297,7 +297,7 @@ with DAG(
     invoice >> wait_invoice
 
     sync_check >> wait_sync_check
-
+    wait_sync_check >> faktura_elementary_report
 
 
     #wait_sync_check >> dbt_freshness
@@ -305,3 +305,4 @@ with DAG(
 
     #dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
     #wait_dbt_run >> faktura_elementary_report_report
+
