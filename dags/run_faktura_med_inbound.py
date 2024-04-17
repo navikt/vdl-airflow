@@ -282,7 +282,7 @@ with DAG(
 
     faktura_elementary_report = elementary_operator(
         dag=dag,
-        task_id="faktura_elementary_report",
+        task_id="elementary_report",
         commands=["./run.sh", "report"],
         allowlist=[
             "slack.com",
@@ -297,7 +297,7 @@ with DAG(
     )
 
     invoice >> wait_invoice
-    wait_invoice >> faktura_elementary_report
+    #wait_invoice >> faktura_elementary_report
 
     #sync_check >> wait_sync_check
 
