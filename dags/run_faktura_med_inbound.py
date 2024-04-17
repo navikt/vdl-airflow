@@ -55,6 +55,8 @@ with DAG(
     def run_inbound_job(job_name: str) -> dict:
         import requests
 
+        print(job_name)
+
         response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
         if response.status_code > 400:
             raise AirflowFailException(
@@ -123,8 +125,8 @@ with DAG(
 
     
 
-    sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
-    wait_sync_check = check_status_for_inbound_job(sync_check)
+    #sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
+    #wait_sync_check = check_status_for_inbound_job(sync_check)
 
     
 
@@ -295,9 +297,9 @@ with DAG(
     )
 
     invoice >> wait_invoice
+    wait_invoice >> faktura_elementary_report
 
-    sync_check >> wait_sync_check
-    wait_sync_check >> faktura_elementary_report
+    #sync_check >> wait_sync_check
 
 
     #wait_sync_check >> dbt_freshness
