@@ -236,9 +236,7 @@ def run_faktura_v2():
             raise AirflowFailException(
                 "Lastejobben har feilet! Sjekk loggene til podden"
             )
-
-    inbound = run_test_inbound()
-    wait_for_inbound = check_status_for_test_inbound(inbound)
+        
 
     invoice = run_test_inbound.override(task_id="start_invoice")(
         "invoice"
@@ -268,10 +266,14 @@ def run_faktura_v2():
     send_report_to_slack = run_elementary(action="report")
 
     (
-        invoice >> wait_invoice
-        wait_invoice >> invoice_ko
-        wait_invoice_ko >> invoice_poheader
-        wait_invoice_poheader >> invoice_polines
+        invoice 
+        >> wait_invoice
+        >> invoice_ko
+        >> wait_invoice_ko 
+        >> invoice_poheader
+        >> wait_invoice_poheader 
+        >> invoice_polines
+        >> wait_invoice_polines
         >> freshness
         >> wait_for_freshness
         >> transform
