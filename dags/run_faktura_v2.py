@@ -179,12 +179,13 @@ def run_faktura_v2():
 
         url = f"{URL}/inbound/run/{job_name}"
         print(url)
-        response: requests.Response = requests.post(url)
+        response: requests.Response = requests.get(url)
         if response.status_code > 400:
             print(response)
             print(response.text)
             raise AirflowFailException("noe gikk galt")
         return response.json()
+
 
     @task.sensor(
         poke_interval=60,
