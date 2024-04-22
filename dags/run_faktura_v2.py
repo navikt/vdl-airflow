@@ -238,7 +238,7 @@ def run_faktura_v2():
             )
         
 
-    invoice = run_test_inbound.override(task_id="start_invoice")(
+    invoice = run_test_inbound(
         "invoice"
     )
     wait_invoice = check_status_for_test_inbound(invoice)
