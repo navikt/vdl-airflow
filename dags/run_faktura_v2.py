@@ -239,6 +239,27 @@ def run_faktura_v2():
 
     inbound = run_test_inbound()
     wait_for_inbound = check_status_for_test_inbound(inbound)
+
+    invoice = run_test_inbound.override(task_id="start_invoice")(
+        "invoice"
+    )
+    wait_invoice = check_status_for_test_inbound(invoice)
+
+    invoice_ko = run_test_inbound.override(task_id="start_invoice_ko")(
+        "invoice_ko"
+    )
+    wait_invoice_ko = check_status_for_test_inbound(invoice_ko)
+
+    invoice_poheader = run_test_inbound.override(task_id="start_invoice_poheader")(
+        "invoice_poheader"
+    )
+    wait_invoice_poheader = check_status_for_test_inbound(invoice_poheader)
+
+    invoice_polines = run_test_inbound.override(task_id="start_invoice_polines")(
+        "invoice_polines"
+    )
+    wait_invoice_polines = check_status_for_test_inbound(invoice_polines)
+
     freshness = run_inbound_job(action="freshness")
     wait_for_freshness = check_status_for_inbound_job(freshness)
     transform = run_inbound_job(action="transform")
@@ -247,8 +268,10 @@ def run_faktura_v2():
     send_report_to_slack = run_elementary(action="report")
 
     (
-        inbound
-        >> wait_for_inbound
+        invoice >> wait_invoice
+        wait_invoice >> invoice_ko
+        wait_invoice_ko >> invoice_poheader
+        wait_invoice_poheader >> invoice_polines
         >> freshness
         >> wait_for_freshness
         >> transform
