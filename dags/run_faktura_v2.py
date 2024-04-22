@@ -19,7 +19,7 @@ URL = Variable.get("VDL_FAKTURA_URL")
     default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
 )
-def run_faktura():
+def run_faktura_v2():
     @task(
         executor_config={
             "pod_override": k8s.V1Pod(
@@ -258,4 +258,4 @@ def run_faktura():
     )
 
 
-run_faktura()
+run_faktura_v2()
