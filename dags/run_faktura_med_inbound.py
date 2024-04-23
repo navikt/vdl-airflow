@@ -17,7 +17,7 @@ with DAG(
     start_date=datetime(2023, 2, 28),
     #schedule_interval="@daily",
     #schedule_interval="0 3 * * *",  # Hver dag klokken 03:00 UTC
-    schedule_interval = "1 2 * * * ", # Hver dag klokken 12:00 UTC
+    schedule_interval = "0 12 * * * ", # Hver dag klokken 12:00 UTC
     dag_id="faktura_dag_inbound",
     catchup=False,
     default_args={"on_failure_callback": slack_error, "retries": 3},
