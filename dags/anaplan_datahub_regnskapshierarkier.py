@@ -189,8 +189,7 @@ def anaplan_datahub_regnskaphierarkier():
             select *
             from reporting.microstrategy.dim_felles
             where
-                length(felles_segment_kode) = 6 and
-                er_budsjetterbar = 1
+                length(felles_segment_kode) = 6
         """,
         import_hierarchy_data={
             "id": "112000000049",
