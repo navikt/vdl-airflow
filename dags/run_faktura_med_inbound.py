@@ -288,6 +288,22 @@ with DAG(
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
 
+    faktura_alert = elementary_operator(
+        dag=dag,
+        task_id="faktura_alert",
+        commands=["./run.sh", "alert"],
+        allowlist=[
+            "slack.com",
+            "files.slack.com",
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+        ],
+        extra_envs={
+            "DB": "faktura",
+            "DB_ROLE": "faktura_transformer",
+            "DB_WH": "faktura_transformer",
+        },
+    )
+
     faktura_report = elementary_operator(
         dag=dag,
         task_id="faktura_report",
@@ -317,5 +333,5 @@ with DAG(
     wait_invoice_polines >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
-    wait_dbt_run >> faktura_report
+    wait_dbt_run >> faktura_alert >> faktura_report
 
