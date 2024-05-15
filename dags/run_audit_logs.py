@@ -8,12 +8,12 @@ from kubernetes import client as k8s
 from custom.operators.slack_operator import slack_error
 from custom.decorators import CUSTOM_IMAGE
 
-URL = Variable.get("VDL_FAKTURA_URL")
+URL = Variable.get("VDL_LOGGDATA_URL")
 
 
 @dag(
     start_date=datetime(2024, 4, 16),
-    schedule_interval="*/30 * * * *",  # Hver halvtime
+    schedule_interval="0 2 * * *",  # Hver natt
     catchup=False,
     default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
@@ -27,8 +27,7 @@ def run_audit_logs():
                         "allowlist": ",".join(
                             [
                                 "slack.com",
-                                "vdl-faktura.intern.nav.no",
-                                "vdl-faktura.intern.dev.nav.no"
+                                "vdl-loggdata.intern.nav.no",
                             ]
                         )
                     }
@@ -44,19 +43,29 @@ def run_audit_logs():
             )
         },
     )
-    def run_audit_logs_job():
+    
+    def run_inbound_job(job_name: str) -> dict:
         import requests
 
-        url = f"{URL}/audit_logs"
-        print(url)
-        response: requests.Response = requests.post(url)
-        if response.status_code > 400:
-            print(response)
-            print(response.text)
-            raise AirflowFailException("Noe gikk galt")
-    
-    audit_logs = run_audit_logs_job()
+        print(job_name)
 
-    audit_logs
+        response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
+        if response.status_code > 400:
+            raise AirflowFailException(
+                "inboundjobb eksisterer mest sannsynlig ikke på podden"
+            )
+        return response.json()
+    
+    eyeshare = run_inbound_job.override(task_id="start_eyeshare")(
+        "eyeshare"
+    )
+
+    anaplan = run_inbound_job.override(task_id="start_anaplan")(
+        "anaplan"
+    )
+
+    eyeshare
+    
+    anaplan
 
 run_audit_logs()
