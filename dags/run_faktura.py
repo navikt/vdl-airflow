@@ -1,4 +1,5 @@
 from datetime import datetime
+from airflow import DAG
 
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
@@ -8,18 +9,20 @@ from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_error, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from operators.elementary import elementary_operator
 
 URL = Variable.get("VDL_FAKTURA_URL")
 
-
-@dag(
-    start_date=datetime(2023, 11, 1, 6),
+with DAG(
+    start_date=datetime(2023, 2, 28),
+    #schedule_interval="@daily",
     schedule_interval="0 3 * * *",  # Hver dag klokken 03:00 UTC
+    dag_id="run_faktura",
     catchup=False,
     default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
-)
-def run_faktura():
+) as dag:
+
     @task(
         executor_config={
             "pod_override": k8s.V1Pod(
@@ -39,26 +42,25 @@ def run_faktura():
                         k8s.V1Container(
                             name="base",
                             image=CUSTOM_IMAGE,
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
             )
         },
     )
-    def run_inbound_job(
-        action: str = None, job: str = None, callback: str = None
-    ) -> dict:
+    def run_inbound_job(job_name: str) -> dict:
         import requests
 
-        # url = f"{URL}/run_job/?action={action}&job={job}&callback={callback}"
-        url = f"{URL}/run_job/?action={action}"
-        print(url)
-        response: requests.Response = requests.get(url)
+        print(job_name)
+
+        response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
         if response.status_code > 400:
-            print(response)
-            print(response.text)
             raise AirflowFailException(
-                "dbt job eksisterer mest sannsynlig ikke på podden"
+                "inboundjobb eksisterer mest sannsynlig ikke på podden"
             )
         return response.json()
 
@@ -84,6 +86,10 @@ def run_faktura():
                         k8s.V1Container(
                             name="base",
                             image=CUSTOM_IMAGE,
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
                         )
                     ]
                 ),
@@ -94,168 +100,238 @@ def run_faktura():
         import requests
 
         id = job_id.get("job_id")
-        url = f"{URL}/job_results?job_id={id}"
-        print(url)
-        response: requests.Response = requests.get(url=url)
+
+        response: requests.Response = requests.get(url=f"{URL}/inbound/status/{id}")
         if response.status_code > 400:
-            print(response)
-            print(response.text)
             raise AirflowFailException(
-                "inbound job eksisterer mest sannsynlig ikke på podden"
-            )
-        response: list[dict] = response.json()
-        print(response)
-        for res in response:
-            if res.get("success") == "True":
-                return PokeReturnValue(is_done=True)
-            else:
-                raise AirflowFailException(
-                    "Lastejobben har feilet! Sjekk loggene til podden"
-                )
-
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-faktura.intern.nav.no",
-                                "vdl-faktura.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def run_elementary(action: str) -> dict:
-        import requests
-
-        url = f"{URL}/elementary/{action}"
-        response: requests.Response = requests.get(url)
-        if response.status_code > 400:
-            print(response)
-            print(response.text)
-            raise AirflowFailException("elementary har feilet")
-        return response.json()
-
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-faktura.intern.nav.no",
-                                "vdl-faktura.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def run_test_ingest() -> dict:
-        import requests
-
-        url = f"{URL}/run"
-        print(url)
-        response: requests.Response = requests.post(url)
-        if response.status_code > 400:
-            print(response)
-            print(response.text)
-            raise AirflowFailException("noe gikk galt")
-        return response.json()
-
-    @task.sensor(
-        poke_interval=60,
-        timeout=8 * 60 * 60,
-        mode="reschedule",
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-faktura.intern.nav.no",
-                                "vdl-faktura.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def check_status_for_test_ingest(job: dict) -> PokeReturnValue:
-        import requests
-
-        id = job.get("job_id")
-        url = f"{URL}/status?job_id={id}"
-        print(url)
-        response: requests.Response = requests.get(url=url)
-        if response.status_code > 400:
-            print(response)
-            print(response.text)
-            raise AirflowFailException(
-                "test ingest job eksisterer mest sannsynlig ikke"
+                "inboundjobb eksisterer mest sannsynlig ikke på podden"
             )
         response: dict = response.json()
         print(response)
-        status = response.get("status")
-        if status == "finnished":
+        job_status = response.get("status")
+        if job_status == "done":
             return PokeReturnValue(is_done=True)
-        if status == "failed":
+        if job_status == "error":
+            error_message = response["job_result"]["error_message"]
             raise AirflowFailException(
-                "Lastejobben har feilet! Sjekk loggene til podden"
+                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
-    ingest = run_test_ingest()
-    wait_for_ingest = check_status_for_test_ingest(ingest)
-    freshness = run_inbound_job(action="freshness")
-    wait_for_freshness = check_status_for_inbound_job(freshness)
-    transform = run_inbound_job(action="transform")
-    wait_for_transform = check_status_for_inbound_job(transform)
-    send_alert_to_slack = run_elementary(action="alert")
-    send_report_to_slack = run_elementary(action="report")
 
-    (
-        ingest
-        >> wait_for_ingest
-        >> freshness
-        >> wait_for_freshness
-        >> transform
-        >> wait_for_transform
-        >> send_alert_to_slack
-        >> send_report_to_slack
+    invoice = run_inbound_job.override(task_id="start_invoice")(
+        "invoice"
+    )
+    wait_invoice = check_status_for_inbound_job(invoice)
+
+    invoice_ko = run_inbound_job.override(task_id="start_invoice_ko")(
+        "invoice_ko"
+    )
+    wait_invoice_ko = check_status_for_inbound_job(invoice_ko)
+
+    invoice_poheader = run_inbound_job.override(task_id="start_invoice_poheader")(
+        "invoice_poheader"
+    )
+    wait_invoice_poheader = check_status_for_inbound_job(invoice_poheader)
+
+    invoice_polines = run_inbound_job.override(task_id="start_invoice_polines")(
+            "invoice_polines"
+        )
+    wait_invoice_polines = check_status_for_inbound_job(invoice_polines)
+
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image=CUSTOM_IMAGE,
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def run_dbt_job(job: str) -> dict:
+        import requests
+
+        return requests.get(url=f"{URL}/dbt/{job}").json()
+
+    dbt_freshness = run_dbt_job.override(task_id="start_dbt_freshness")("freshness")
+    dbt_run = run_dbt_job.override(task_id="start_dbt_run")("build")
+
+    @task.sensor(
+        poke_interval=60,
+        timeout=2 * 60 * 60,
+        mode="reschedule",
+        on_failure_callback=None,
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                                "vdl-faktura.intern.nav.no",
+                                "vdl-faktura.intern.dev.nav.no",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image=CUSTOM_IMAGE,
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def wait_for_dbt(job_status: dict) -> PokeReturnValue:
+        import requests
+
+        id = job_status.get("job_id")
+        try:
+            response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
+        except Exception:
+            slack_error()
+            raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
+        print(response)
+        job_status = response.get("status")
+        if job_status == "error":
+            error_message = response["job_result"]["error_message"]
+            raise AirflowFailException(
+                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
+            )
+        if job_status != "done":
+            return PokeReturnValue(is_done=False)
+
+        job_result = response.get("job_result")
+        if job_result["dbt_run_result"]["exception"]:
+            slack_error(message=job_result["dbt_run_result"]["exception"])
+            raise AirflowFailException(job_result["dbt_run_result"]["exception"])
+
+        if not job_result["dbt_run_result"]["success"]:
+            dbt_error_messages = [
+                result["msg"]
+                for result in job_result["dbt_log"]
+                if result["level"] in ["warning", "error"]
+            ]
+            error_message = "\n".join(dbt_error_messages)
+            slack_error(message=f"```\n{error_message}\n```")
+            raise AirflowFailException(error_message)
+        summary_messages = [
+            result["msg"]
+            for result in job_result["dbt_log"]
+            if result["code"] == "E047"
+        ]
+        return PokeReturnValue(is_done=True, xcom_value=summary_messages)
+
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image=CUSTOM_IMAGE,
+                            resources=k8s.V1ResourceRequirements(
+                                requests={"ephemeral-storage": "100M"},
+                                limits={"ephemeral-storage": "200M"},
+                            ),
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def send_slack_summary(dbt_test, dbt_run):
+        dbt_test_summary = "\n".join(dbt_test)
+        dbt_run_summary = "\n".join(dbt_run)
+        summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
+        slack_success(message=f"Resultat fra kjøringen:\n{summary}")
+
+    wait_dbt_freshness = wait_for_dbt.override(
+        task_id="check_status_for_dbt_freshness"
+    )(dbt_freshness)
+    wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run")(dbt_run)
+
+    slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
+
+    faktura_alert = elementary_operator(
+        dag=dag,
+        task_id="faktura_alert",
+        commands=["./run.sh", "alert"],
+        allowlist=[
+            "slack.com",
+            "files.slack.com",
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+        ],
+        extra_envs={
+            "DB": "faktura",
+            "DB_ROLE": "faktura_transformer",
+            "DB_WH": "faktura_transformer",
+        },
     )
 
+    faktura_report = elementary_operator(
+        dag=dag,
+        task_id="faktura_report",
+        commands=["./run.sh", "report"],
+        allowlist=[
+            "slack.com",
+            "files.slack.com",
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+        ],
+        extra_envs={
+            "DB": "faktura",
+            "DB_ROLE": "faktura_transformer",
+            "DB_WH": "faktura_transformer",
+        },
+    )
 
-run_faktura()
+        
+
+    invoice >> wait_invoice
+    wait_invoice >> invoice_ko
+    wait_invoice_ko >> invoice_poheader
+    wait_invoice_poheader >> invoice_polines
+
+    wait_invoice >> dbt_freshness
+    wait_invoice_ko >> dbt_freshness
+    wait_invoice_poheader >> dbt_freshness
+    wait_invoice_polines >> dbt_freshness
+
+    dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
+    wait_dbt_run >> faktura_alert >> faktura_report
+
