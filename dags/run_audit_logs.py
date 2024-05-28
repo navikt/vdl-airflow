@@ -225,7 +225,7 @@ def run_audit_logs():
         summary_messages = [
             result["msg"]
             for result in job_result["dbt_log"]
-            if result["code"] == "E047"
+            if result["code"] in["E047", "Q007"]
         ]
         return PokeReturnValue(is_done=True, xcom_value=summary_messages)
 
@@ -258,7 +258,7 @@ def run_audit_logs():
     )
     def send_slack_summary(dbt_test):
         dbt_test_summary = "\n".join(dbt_test)
-        summary = f"dbt test:\n```\n{dbt_test_summary}"
+        summary = f"dbt test:\n```\n{dbt_test_summary}\n```"
         slack_success(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_freshness = wait_for_dbt.override(
@@ -268,9 +268,7 @@ def run_audit_logs():
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_test)
 
-
     eyeshare >> wait_eyeshare
-    
     anaplan >> wait_anaplan
 
     wait_eyeshare >> dbt_freshness
