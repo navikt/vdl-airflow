@@ -388,7 +388,7 @@ with DAG(
     segment >> wait_segment
     hierarchy >> wait_hierarchy
     budget >> wait_budget
-    prognosis >> wait_prognosis
+    #prognosis >> wait_prognosis
     customers >> wait_customers
 
     wait_sync_check >> dbt_freshness
@@ -404,7 +404,7 @@ with DAG(
     wait_accounts_receivable_open >> dbt_freshness
     wait_accounts_receivable_closed >> dbt_freshness
     wait_budget >> dbt_freshness
-    wait_prognosis >> dbt_freshness
+    #wait_prognosis >> dbt_freshness
     wait_customers >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
