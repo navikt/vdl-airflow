@@ -188,10 +188,10 @@ with DAG(
     )("budget")
     wait_budget = check_status_for_inbound_job(budget)
 
-    prognosis = run_inbound_job.override(
-        task_id="start_prognosis"
-    )("prognosis")
-    wait_prognosis = check_status_for_inbound_job(prognosis)
+    #prognosis = run_inbound_job.override(
+    #    task_id="start_prognosis"
+    #)("prognosis")
+    #wait_prognosis = check_status_for_inbound_job(prognosis)
 
     customers = run_inbound_job.override(
         task_id="start_customers"
