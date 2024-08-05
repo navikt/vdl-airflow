@@ -11,4 +11,6 @@ RUN exec /bin/bash -c "chmod +x run.sh"
 # ref: https://elementary-community.slack.com/archives/C02CTC89LAX/p1700738842128249
 RUN dbt --log-format json deps --project-dir /usr/local/lib/python3.10/site-packages/elementary/monitor/dbt_project
 
+ENV DO_NOT_TRACK=1
+
 ENTRYPOINT []
