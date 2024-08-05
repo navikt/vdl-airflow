@@ -1,4 +1,4 @@
-FROM ghcr.io/elementary-data/elementary:v0.13.2
+FROM ghcr.io/elementary-data/elementary@sha256:95e1027e09e8e5737ad2eeaa0f1f309bb9278ab414092d514318fc218ea9e2be
 
 RUN exec /bin/bash -c "apt update && apt install -y jq curl"
 
