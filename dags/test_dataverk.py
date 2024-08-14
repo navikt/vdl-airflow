@@ -19,6 +19,11 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
             "SNOW_USR": Variable.get("SNOW_USR"),
             "SNOW_PWD": Variable.get("SNOW_PWD"),
         },
+        allowlist=[
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+            "ocsp.snowflakecomputing.com",
+            "nav-test.mainmanager.no",
+        ],
     )
 
     t1
