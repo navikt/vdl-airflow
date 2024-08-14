@@ -9,6 +9,6 @@ with DAG('test_dataverk', start_date=days_ago(1), schedule_interval=None) as dag
                          repo="navikt/vdl-eiendom",
                          branch="teste-dataverk-operators",
                          script_path="test_airflow.py",
-                         image='europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:61452715902229557015c216bc456a7efeee4610f4d9aeaceabc7df929825e06')
+                         image='europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:44c78212a71489b3dca3f9399246f3466e37665fcb327b0114f73ae9d54953f6')
     
     t1
