@@ -1,1 +1,1 @@
-FROM gcr.io/distroless/python3-debian12@sha256:078ef2498f450dddbabf7c46f889016824c8c032f84edd2017cd135a2b4bae91 as final
+FROM python:3.11-slim-bookworm@sha256:fc39d2e68b554c3f0a5cb8a776280c0b3d73b4c04b83dbade835e2a171ca27ef AS base
