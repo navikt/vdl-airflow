@@ -10,7 +10,7 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
         repo="navikt/vdl-eiendom",
         branch="teste-dataverk-operators",
         script_path="test_airflow.py",
-        image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:e3ea3898de084a1800915d40b2adde6ea53bdb6b996aa91763b0e13122f1ffae",
+        image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:53a6b87eef22bfa7518dc3cabb8ac1389836a201de5f1518ecea7da51add221a",
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
             "MAINMANAGER_API_USERNAME": Variable.get("MAINMANAGER_API_USERNAME"),
