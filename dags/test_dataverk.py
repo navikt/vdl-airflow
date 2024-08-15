@@ -4,6 +4,13 @@ from airflow.utils.dates import days_ago
 from dataverk_airflow import python_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
+SNOW_ALLOWLIST = [
+    "wx23413.europe-west4.gcp.snowflakecomputing.com",
+    "ocsp.snowflakecomputing.com",
+    "ocsp.digicert.com:80",
+    "o.pki.goog:80",
+    "ocsp.pki.goo:80",
+]
 
 with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag:
     t1 = python_operator(
@@ -22,10 +29,9 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
             "SNOW_PWD": Variable.get("SNOW_PWD"),
         },
         allowlist=[
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-            "ocsp.snowflakecomputing.com",
             "nav-test.mainmanager.no",
-        ],
+        ]
+        + SNOW_ALLOWLIST,
     )
 
     ora_test = python_operator(
@@ -44,10 +50,9 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
             "DVH_DSN": Variable.get("DVH_DSN"),
         },
         allowlist=[
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-            "ocsp.snowflakecomputing.com",
             "dm08-scan.adeo.no:1521",
-        ],
+        ]
+        + SNOW_ALLOWLIST,
     )
 
     t1
