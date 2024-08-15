@@ -3,6 +3,8 @@ from airflow.models import Variable
 from airflow.utils.dates import days_ago
 from dataverk_airflow import python_operator
 
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
+
 with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag:
     t1 = python_operator(
         dag=dag,
@@ -10,7 +12,7 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
         repo="navikt/vdl-eiendom",
         branch="teste-dataverk-operators",
         script_path="test_airflow.py",
-        image="europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:53a6b87eef22bfa7518dc3cabb8ac1389836a201de5f1518ecea7da51add221a",
+        image=INBOUND_IMAGE,
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
             "MAINMANAGER_API_USERNAME": Variable.get("MAINMANAGER_API_USERNAME"),
@@ -26,4 +28,27 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
         ],
     )
 
+    ora_test = python_operator(
+        dag=dag,
+        name="ora_test",
+        repo="navikt/vdl-eiendom",
+        branch="teste-dataverk-operators",
+        script_path="test_airflow_oracle.py",
+        image=INBOUND_IMAGE,
+        extra_envs={
+            "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
+            "SNOW_USR": Variable.get("SNOW_USR"),
+            "SNOW_PWD": Variable.get("SNOW_PWD"),
+            "DVH_USR": Variable.get("DVH_USR"),
+            "DVH_PWD": Variable.get("DVH_PWD"),
+            "DVH_DSN": Variable.get("DVH_DSN"),
+        },
+        allowlist=[
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+            "ocsp.snowflakecomputing.com",
+            "dm08-scan.adeo.no:1521",
+        ],
+    )
+
     t1
+    ora_test
