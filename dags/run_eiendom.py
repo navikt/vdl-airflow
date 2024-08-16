@@ -1,7 +1,12 @@
 from airflow import DAG
+from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.utils.dates import days_ago
 from dataverk_airflow import python_operator
+from kubernetes import client as k8s
+
+from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_success
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
 SNOW_ALLOWLIST = [
@@ -133,3 +138,74 @@ with DAG(
 
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
+
+    @task(
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(
+                    annotations={
+                        "allowlist": ",".join(
+                            [
+                                "slack.com",
+                            ]
+                        )
+                    }
+                ),
+                spec=k8s.V1PodSpec(
+                    containers=[
+                        k8s.V1Container(
+                            name="base",
+                            image=CUSTOM_IMAGE,
+                        )
+                    ]
+                ),
+            )
+        },
+    )
+    def send_slack_notification():
+        slack_success()
+
+    notify_slack_success = send_slack_notification()
+
+    # DAG
+    dvh_eiendom__brukersted2lok >> notify_slack_success
+    dvh_eiendom__eiendom_aarverk >> notify_slack_success
+    dvh_eiendom__eiendom_aarverk_paa_lokasjon >> notify_slack_success
+    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato >> notify_slack_success
+    dvh_eiendom__eiendom_faktakorreksjon >> notify_slack_success
+    dvh_eiendom__eiendom_matrikkel >> notify_slack_success
+    dvh_eiendom__eiendom_matrikkelkorreksjon >> notify_slack_success
+    dvh_eiendom__eiendom_matrikkel_veiadresse >> notify_slack_success
+    dvh_eiendom__lyd_bygg >> notify_slack_success
+    dvh_eiendom__lyd_lok_komp >> notify_slack_success
+    dvh_eiendom__lyd_lok >> notify_slack_success
+    dvh_eiendom__lyd_address >> notify_slack_success
+    dvh_eiendom__lyd_postadr >> notify_slack_success
+    dvh_eiendom__lyd_kommune >> notify_slack_success
+    dvh_eiendom__lyd_county >> notify_slack_success
+    dvh_eiendom__lyd_land >> notify_slack_success
+    dvh_eiendom__dim_okonomi_aktivitet >> notify_slack_success
+    dvh_eiendom__fak_eiendom_avtale >> notify_slack_success
+    dvh_eiendom__dim_lokasjon >> notify_slack_success
+    dvh_eiendom__lyd_loc_dt >> notify_slack_success
+    dvh_eiendom__lyd_agreement >> notify_slack_success
+    dvh_eiendom__org >> notify_slack_success
+    dvh_eiendom__hr_aarverk >> notify_slack_success
+    dvh_eiendom__lyd_agreementitem >> notify_slack_success
+    dvh_eiendom__lyd_amount >> notify_slack_success
+    dvh_eiendom__lyd_avtaltyp >> notify_slack_success
+    dvh_eiendom__lyd_dicipline >> notify_slack_success
+    dvh_eiendom__lyd_doku_tab >> notify_slack_success
+    dvh_eiendom__lyd_folder >> notify_slack_success
+    dvh_eiendom__lyd_metatable >> notify_slack_success
+    dvh_eiendom__lyd_orghierk >> notify_slack_success
+    dvh_eiendom__lyd_price >> notify_slack_success
+    dvh_eiendom__lyd_pricetype >> notify_slack_success
+    dvh_eiendom__lyd_userdefinedfielddef >> notify_slack_success
+    dvh_eiendom__lyd_userdefinedfields >> notify_slack_success
+    dvh_eiendom__lyd_userdefinedfieldswide >> notify_slack_success
+    dvh_eiendom__lyd_utl_stat >> notify_slack_success
+    dvh_eiendom__eiendom_kor2024 >> notify_slack_success
+
+    mainmanager__dim_adresse >> notify_slack_success
+    mainmanager__dim_bygg >> notify_slack_success
