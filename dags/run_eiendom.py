@@ -100,8 +100,8 @@ with DAG(
     dvh_eiendom__fak_eiendom_avtale = last_fra_dvh_eiendom(
         "dvh_eiendom__fak_eiendom_avtale"
     )
-    dvh_eiendom__kilder_for_dim_lokasjon = last_fra_dvh_eiendom(
-        "dvh_eiendom__kilder_for_dim_lokasjon"
+    dvh_eiendom__dim_lokasjon = last_fra_dvh_eiendom(
+        "dvh_eiendom__dim_lokasjon"
     )
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
