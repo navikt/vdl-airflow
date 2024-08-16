@@ -10,6 +10,7 @@ SNOW_ALLOWLIST = [
     "ocsp.digicert.com:80",
     "o.pki.goog:80",
     "ocsp.pki.goo:80",
+    "storage.googleapis.com"
 ]
 
 with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag:
