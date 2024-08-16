@@ -18,7 +18,7 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
         name="hello_world",
         repo="navikt/vdl-eiendom",
         branch="teste-dataverk-operators",
-        script_path="test_airflow.py",
+        script_path="ingest/run.py mainmanager__dim_bygg",
         image=INBOUND_IMAGE,
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
@@ -39,7 +39,7 @@ with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag
         name="ora_test",
         repo="navikt/vdl-eiendom",
         branch="teste-dataverk-operators",
-        script_path="test_airflow_oracle.py",
+        script_path="ingest/run.py dvh_eiendom__brukersted2lok",
         image=INBOUND_IMAGE,
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
