@@ -13,7 +13,7 @@ SNOW_ALLOWLIST = [
     "storage.googleapis.com",
 ]
 
-with DAG("test_dataverk", start_date=days_ago(1), schedule_interval=None) as dag:
+with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
     t1 = python_operator(
         dag=dag,
         name="hello_world",
