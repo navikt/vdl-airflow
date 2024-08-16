@@ -131,5 +131,5 @@ with DAG(
     dvh_eiendom__lyd_utl_stat = last_fra_dvh_eiendom("dvh_eiendom__lyd_utl_stat")
     dvh_eiendom__eiendom_kor2024 = last_fra_dvh_eiendom("dvh_eiendom__eiendom_kor2024")
 
-    mainmanager__dim_adresse = last_fra_dvh_eiendom("mainmanager__dim_adresse")
-    mainmanager__dim_bygg = last_fra_dvh_eiendom("mainmanager__dim_bygg")
+    mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
+    mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
