@@ -62,16 +62,30 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
     )
 
 
-with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
+with DAG(
+    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1
+) as dag:
 
     dvh_eiendom__brukersted2lok = last_fra_dvh_eiendom("dvh_eiendom__brukersted2lok")
     dvh_eiendom__eiendom_aarverk = last_fra_dvh_eiendom("dvh_eiendom__eiendom_aarverk")
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__eiendom_aarverk_paa_lokasjon")
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato = last_fra_dvh_eiendom("dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato")
-    dvh_eiendom__eiendom_faktakorreksjon = last_fra_dvh_eiendom("dvh_eiendom__eiendom_faktakorreksjon")
-    dvh_eiendom__eiendom_matrikkel = last_fra_dvh_eiendom("dvh_eiendom__eiendom_matrikkel")
-    dvh_eiendom__eiendom_matrikkelkorreksjon = last_fra_dvh_eiendom("dvh_eiendom__eiendom_matrikkelkorreksjon")
-    dvh_eiendom__eiendom_matrikkel_veiadresse = last_fra_dvh_eiendom("dvh_eiendom__eiendom_matrikkel_veiadresse")
+    dvh_eiendom__eiendom_aarverk_paa_lokasjon = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_aarverk_paa_lokasjon"
+    )
+    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato"
+    )
+    dvh_eiendom__eiendom_faktakorreksjon = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_faktakorreksjon"
+    )
+    dvh_eiendom__eiendom_matrikkel = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_matrikkel"
+    )
+    dvh_eiendom__eiendom_matrikkelkorreksjon = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_matrikkelkorreksjon"
+    )
+    dvh_eiendom__eiendom_matrikkel_veiadresse = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_matrikkel_veiadresse"
+    )
     dvh_eiendom__lyd_bygg = last_fra_dvh_eiendom("dvh_eiendom__lyd_bygg")
     dvh_eiendom__lyd_lok_komp = last_fra_dvh_eiendom("dvh_eiendom__lyd_lok_komp")
     dvh_eiendom__lyd_lok = last_fra_dvh_eiendom("dvh_eiendom__lyd_lok")
@@ -80,14 +94,22 @@ with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
     dvh_eiendom__lyd_kommune = last_fra_dvh_eiendom("dvh_eiendom__lyd_kommune")
     dvh_eiendom__lyd_county = last_fra_dvh_eiendom("dvh_eiendom__lyd_county")
     dvh_eiendom__lyd_land = last_fra_dvh_eiendom("dvh_eiendom__lyd_land")
-    dvh_eiendom__dim_okonomi_aktivitet = last_fra_dvh_eiendom("dvh_eiendom__dim_okonomi_aktivitet")
-    dvh_eiendom__fak_eiendom_avtale = last_fra_dvh_eiendom("dvh_eiendom__fak_eiendom_avtale")
-    dvh_eiendom__kilder_for_dim_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__kilder_for_dim_lokasjon")
+    dvh_eiendom__dim_okonomi_aktivitet = last_fra_dvh_eiendom(
+        "dvh_eiendom__dim_okonomi_aktivitet"
+    )
+    dvh_eiendom__fak_eiendom_avtale = last_fra_dvh_eiendom(
+        "dvh_eiendom__fak_eiendom_avtale"
+    )
+    dvh_eiendom__kilder_for_dim_lokasjon = last_fra_dvh_eiendom(
+        "dvh_eiendom__kilder_for_dim_lokasjon"
+    )
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
     dvh_eiendom__org = last_fra_dvh_eiendom("dvh_eiendom__org")
     dvh_eiendom__hr_aarverk = last_fra_dvh_eiendom("dvh_eiendom__hr_aarverk")
-    dvh_eiendom__lyd_agreementitem = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreementitem")
+    dvh_eiendom__lyd_agreementitem = last_fra_dvh_eiendom(
+        "dvh_eiendom__lyd_agreementitem"
+    )
     dvh_eiendom__lyd_amount = last_fra_dvh_eiendom("dvh_eiendom__lyd_amount")
     dvh_eiendom__lyd_avtaltyp = last_fra_dvh_eiendom("dvh_eiendom__lyd_avtaltyp")
     dvh_eiendom__lyd_dicipline = last_fra_dvh_eiendom("dvh_eiendom__lyd_dicipline")
@@ -97,9 +119,15 @@ with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
     dvh_eiendom__lyd_orghierk = last_fra_dvh_eiendom("dvh_eiendom__lyd_orghierk")
     dvh_eiendom__lyd_price = last_fra_dvh_eiendom("dvh_eiendom__lyd_price")
     dvh_eiendom__lyd_pricetype = last_fra_dvh_eiendom("dvh_eiendom__lyd_pricetype")
-    dvh_eiendom__lyd_userdefinedfielddef = last_fra_dvh_eiendom("dvh_eiendom__lyd_userdefinedfielddef")
-    dvh_eiendom__lyd_userdefinedfields = last_fra_dvh_eiendom("dvh_eiendom__lyd_userdefinedfields")
-    dvh_eiendom__lyd_userdefinedfieldswide = last_fra_dvh_eiendom("dvh_eiendom__lyd_userdefinedfieldswide")
+    dvh_eiendom__lyd_userdefinedfielddef = last_fra_dvh_eiendom(
+        "dvh_eiendom__lyd_userdefinedfielddef"
+    )
+    dvh_eiendom__lyd_userdefinedfields = last_fra_dvh_eiendom(
+        "dvh_eiendom__lyd_userdefinedfields"
+    )
+    dvh_eiendom__lyd_userdefinedfieldswide = last_fra_dvh_eiendom(
+        "dvh_eiendom__lyd_userdefinedfieldswide"
+    )
     dvh_eiendom__lyd_utl_stat = last_fra_dvh_eiendom("dvh_eiendom__lyd_utl_stat")
     dvh_eiendom__eiendom_kor2024 = last_fra_dvh_eiendom("dvh_eiendom__eiendom_kor2024")
 
