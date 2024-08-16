@@ -13,13 +13,13 @@ SNOW_ALLOWLIST = [
     "storage.googleapis.com",
 ]
 
-with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
-    t1 = python_operator(
+def last_fra_mainmanager(inbound_job_name: str):
+    return python_operator(
         dag=dag,
-        name="hello_world",
+        name=inbound_job_name,
         repo="navikt/vdl-eiendom",
         branch="teste-dataverk-operators",
-        script_path="ingest/run.py mainmanager__dim_bygg",
+        script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
@@ -35,6 +35,11 @@ with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
         ]
         + SNOW_ALLOWLIST,
     )
+
+with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
+    mm_dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
+
+    mm_dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
     ora_test = python_operator(
         dag=dag,
@@ -58,5 +63,6 @@ with DAG("run_eiendom", start_date=days_ago(1), schedule_interval=None) as dag:
         + SNOW_ALLOWLIST,
     )
 
-    t1
+    mm_dim_adresse
+    mm_dim_bygg
     ora_test
