@@ -74,7 +74,7 @@ def slack_success(dag, message=None, channel: str = None, emoji=":information_so
     return SlackAPIPostOperator(
         task_id="slack-message",
         channel=channel,
-        text=message,
+        text=info_message,
         slack_conn_id="slack_connection",
         executor_config={
             "pod_override": k8s.V1Pod(
