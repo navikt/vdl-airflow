@@ -17,7 +17,7 @@ from custom.operators.slack_operator import (
 @dag(
     start_date=datetime(2023, 2, 14),
     schedule_interval=None,
-    on_success_callback=slack_success_old,
+    on_success_callback=test_slack,
     on_failure_callback=slack_error,
     default_args={
         "executor_config": {
