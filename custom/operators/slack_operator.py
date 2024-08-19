@@ -49,7 +49,7 @@ def __slack_message(
         slack_conn_id="slack_connection",
     ).execute()
 
-def test_slack():
+def test_slack(context):
     SlackAPIPostOperator(
         task_id="slack-message",
         channel="#virksomhetsdatalaget-info-test",
@@ -60,4 +60,4 @@ def test_slack():
                 metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
             )
         }
-    ).execute()
+    ).execute(context)
