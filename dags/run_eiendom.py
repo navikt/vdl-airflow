@@ -144,12 +144,13 @@ with DAG(
 
     notify_slack_success = SlackAPIPostOperator(
         task_id="slack-message",
+        dag=dag
         channel="#virksomhetsdatalaget-info-test",
         text="testmelding",
         slack_conn_id="slack_connection",
         executor_config={
             "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "hooks.slack.com"})
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
             )
         }
     )
