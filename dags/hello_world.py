@@ -12,7 +12,7 @@ from custom.operators.slack_operator import slack_error, slack_info, slack_succe
     start_date=datetime(2023, 2, 14),
     schedule_interval=None,
     on_success_callback=test_slack,
-    on_failure_callback=slack_error,
+    on_failure_callback=test_slack,
     default_args={
         "executor_config": {
             "pod_override": k8s.V1Pod(
