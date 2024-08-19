@@ -4,7 +4,6 @@ from airflow.models import Variable
 from airflow.utils.dates import days_ago
 
 from kubernetes import client as k8s
-from custom.decorators import CUSTOM_IMAGE
 
 
 
@@ -152,14 +151,6 @@ with DAG(
                             ]
                         )
                     }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                        )
-                    ]
                 ),
             )
         },
