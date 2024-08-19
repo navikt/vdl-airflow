@@ -144,7 +144,7 @@ with DAG(
 
     notify_slack_success = SlackAPIPostOperator(
         task_id="slack-message",
-        dag=dag
+        dag=dag,
         channel="#virksomhetsdatalaget-info-test",
         text="testmelding",
         slack_conn_id="slack_connection",
