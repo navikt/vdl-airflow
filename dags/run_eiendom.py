@@ -7,6 +7,8 @@ from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 
+from custom.operators.slack_operator import test_slack
+
 
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
@@ -73,7 +75,7 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
 
 
 with DAG(
-    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1
+    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1, on_success_callback=test_slack
 ) as dag:
 
     dvh_eiendom__brukersted2lok = last_fra_dvh_eiendom("dvh_eiendom__brukersted2lok")

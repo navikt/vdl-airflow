@@ -48,3 +48,16 @@ def __slack_message(
         text=message,
         slack_conn_id="slack_connection",
     ).execute()
+
+def test_slack():
+    SlackAPIPostOperator(
+        task_id="slack-message",
+        channel="#virksomhetsdatalaget-info-test",
+        text="testmelding fra slack_operator",
+        slack_conn_id="slack_connection",
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
+            )
+        }
+    ).execute()
