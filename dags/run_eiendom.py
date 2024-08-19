@@ -1,15 +1,13 @@
 import os
+
+from kubernetes import client as k8s
+
 from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.models import Variable
-from airflow.utils.dates import days_ago
-
-from kubernetes import client as k8s
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
-
+from airflow.utils.dates import days_ago
 from custom.operators.slack_operator import slack_success, test_slack
-
-
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
 SNOW_ALLOWLIST = [
@@ -24,6 +22,7 @@ SNOW_ALLOWLIST = [
 
 def last_fra_mainmanager(inbound_job_name: str):
     from dataverk_airflow import python_operator
+
     return python_operator(
         dag=dag,
         name=inbound_job_name,
@@ -50,6 +49,7 @@ def last_fra_mainmanager(inbound_job_name: str):
 
 def last_fra_dvh_eiendom(inbound_job_name: str):
     from dataverk_airflow import python_operator
+
     return python_operator(
         dag=dag,
         name=inbound_job_name,
@@ -144,7 +144,7 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
-    notify_slack_success = slack_success()
+    notify_slack_success = slack_success(dag=dag)
 
     # DAG
     dvh_eiendom__brukersted2lok >> notify_slack_success

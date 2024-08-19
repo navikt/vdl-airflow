@@ -1,10 +1,11 @@
 import os
 from typing import Optional
 
+from kubernetes import client as k8s
+
 from airflow.models import Variable
 from airflow.operators.python import get_current_context
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
-from kubernetes import client as k8s
 
 
 def slack_info(message: str, channel: str = None):
@@ -64,14 +65,10 @@ def test_slack(context):
     ).execute(context)
 
 
-def slack_success(
-    context=None, message=None, channel: str = None, emoji=":information_source:"
-):
+def slack_success(dag, message=None, channel: str = None, emoji=":information_source:"):
     if channel is None:
         channel = Variable.get("slack_info_channel")
-    if context is None:
-        context = get_current_context()
-    info_message = f"Airflow DAG: {context['dag'].dag_id} har kjørt ferdig."
+    info_message = f"Airflow DAG: {dag.dag_id} har kjørt ferdig."
     if message:
         info_message = f"{info_message}\n\n{message}"
     return SlackAPIPostOperator(
