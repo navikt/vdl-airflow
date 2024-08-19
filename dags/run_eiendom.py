@@ -1,9 +1,11 @@
+import os
 from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.utils.dates import days_ago
 
 from kubernetes import client as k8s
+from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 
 
 
@@ -140,26 +142,19 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
-    @task(
+    notify_slack_success = SlackWebhookOperator(
+        http_conn_id=None,
+        task_id="slack-message",
+        webhook_token=os.environ["SLACK_TOKEN"],
+        message="start min-dag",
+        channel="#virksomhetsdatalaget-info-test",
+        link_names=True,
         executor_config={
             "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                            ]
-                        )
-                    }
-                ),
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "hooks.slack.com"})
             )
-        },
+        }
     )
-    def send_slack_notification():
-        from custom.operators.slack_operator import slack_success
-        slack_success()
-
-    notify_slack_success = send_slack_notification()
 
     # DAG
     dvh_eiendom__brukersted2lok >> notify_slack_success
