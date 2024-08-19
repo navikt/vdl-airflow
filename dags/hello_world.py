@@ -5,13 +5,13 @@ from airflow.decorators import dag, task
 # from custom.decorators import task
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_info, slack_success
+from custom.operators.slack_operator import slack_error, slack_info, slack_success, test_slack
 
 
 @dag(
     start_date=datetime(2023, 2, 14),
     schedule_interval=None,
-    on_success_callback=slack_success,
+    on_success_callback=test_slack,
     on_failure_callback=slack_error,
     default_args={
         "executor_config": {
