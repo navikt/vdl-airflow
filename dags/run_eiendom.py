@@ -5,7 +5,7 @@ from airflow.models import Variable
 from airflow.utils.dates import days_ago
 
 from kubernetes import client as k8s
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 
 
 
@@ -142,13 +142,11 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
-    notify_slack_success = SlackWebhookOperator(
-        slack_webhook_conn_id=None,
+    notify_slack_success = SlackAPIPostOperator(
         task_id="slack-message",
-        webhook_token=os.environ["SLACK_TOKEN"],
-        message="start min-dag",
         channel="#virksomhetsdatalaget-info-test",
-        link_names=True,
+        text="testmelding",
+        slack_conn_id="slack_connection",
         executor_config={
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(annotations={"allowlist": "hooks.slack.com"})
