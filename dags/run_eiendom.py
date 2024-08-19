@@ -2,11 +2,11 @@ from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.utils.dates import days_ago
-from dataverk_airflow import python_operator
-from kubernetes import client as k8s
 
+from kubernetes import client as k8s
 from custom.decorators import CUSTOM_IMAGE
-from custom.operators.slack_operator import slack_success
+
+
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
 SNOW_ALLOWLIST = [
@@ -20,6 +20,7 @@ SNOW_ALLOWLIST = [
 
 
 def last_fra_mainmanager(inbound_job_name: str):
+    from dataverk_airflow import python_operator
     return python_operator(
         dag=dag,
         name=inbound_job_name,
@@ -45,6 +46,7 @@ def last_fra_mainmanager(inbound_job_name: str):
 
 
 def last_fra_dvh_eiendom(inbound_job_name: str):
+    from dataverk_airflow import python_operator
     return python_operator(
         dag=dag,
         name=inbound_job_name,
@@ -163,6 +165,7 @@ with DAG(
         },
     )
     def send_slack_notification():
+        from custom.operators.slack_operator import slack_success
         slack_success()
 
     notify_slack_success = send_slack_notification()
