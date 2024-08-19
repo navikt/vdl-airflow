@@ -1,14 +1,14 @@
 from datetime import datetime
-from airflow import DAG
 
+from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
 from airflow.models import Variable
 from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_error, slack_success_old
 from operators.elementary import elementary_operator
 
 URL = Variable.get("VDL_REGNSKAP_URL")
@@ -115,13 +115,11 @@ with DAG(
                 f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
-    #dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
+    # dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
     #    "dimensional_data"
-    #)
-    #wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
-    segment = run_inbound_job.override(task_id="start_segment")(
-        "segment"
-    )
+    # )
+    # wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
+    segment = run_inbound_job.override(task_id="start_segment")("segment")
     wait_segment = check_status_for_inbound_job(segment)
 
     period_status = run_inbound_job.override(task_id="start_period_status")(
@@ -129,9 +127,7 @@ with DAG(
     )
     wait_period_status = check_status_for_inbound_job(period_status)
 
-    hierarchy = run_inbound_job.override(task_id="start_hierarchy")(
-        "hierarchy"
-    )
+    hierarchy = run_inbound_job.override(task_id="start_hierarchy")("hierarchy")
     wait_hierarchy = check_status_for_inbound_job(hierarchy)
 
     sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
@@ -157,9 +153,7 @@ with DAG(
     )
     wait_balance_open = check_status_for_inbound_job(balance_open)
 
-    suppliers = run_inbound_job.override(task_id="start_suppliers")(
-        "suppliers"
-    )
+    suppliers = run_inbound_job.override(task_id="start_suppliers")("suppliers")
     wait_suppliers = check_status_for_inbound_job(suppliers)
 
     accounts_payable_open = run_inbound_job.override(
@@ -172,30 +166,27 @@ with DAG(
     )("accounts_payable_closed")
     wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
 
-
     accounts_receivable_open = run_inbound_job.override(
         task_id="start_accounts_receivable_open"
     )("accounts_receivable_open")
-    wait_accounts_receivable_open = check_status_for_inbound_job(accounts_receivable_open)
+    wait_accounts_receivable_open = check_status_for_inbound_job(
+        accounts_receivable_open
+    )
 
     accounts_receivable_closed = run_inbound_job.override(
         task_id="start_accounts_receivable_closed"
     )("accounts_receivable_closed")
-    wait_accounts_receivable_closed = check_status_for_inbound_job(accounts_receivable_closed)
+    wait_accounts_receivable_closed = check_status_for_inbound_job(
+        accounts_receivable_closed
+    )
 
-    budget = run_inbound_job.override(
-        task_id="start_budget"
-    )("budget")
+    budget = run_inbound_job.override(task_id="start_budget")("budget")
     wait_budget = check_status_for_inbound_job(budget)
 
-    prognosis = run_inbound_job.override(
-        task_id="start_prognosis"
-    )("prognosis")
+    prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
     wait_prognosis = check_status_for_inbound_job(prognosis)
 
-    customers = run_inbound_job.override(
-        task_id="start_customers"
-    )("customers")
+    customers = run_inbound_job.override(task_id="start_customers")("customers")
     wait_customers = check_status_for_inbound_job(customers)
 
     @task(
@@ -339,7 +330,7 @@ with DAG(
         dbt_test_summary = "\n".join(dbt_test)
         dbt_run_summary = "\n".join(dbt_run)
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
-        slack_success(message=f"Resultat fra kjøringen:\n{summary}")
+        slack_success_old(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_freshness = wait_for_dbt.override(
         task_id="check_status_for_dbt_freshness"

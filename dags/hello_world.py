@@ -5,7 +5,12 @@ from airflow.decorators import dag, task
 # from custom.decorators import task
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_info, slack_success, test_slack
+from custom.operators.slack_operator import (
+    slack_error,
+    slack_info,
+    slack_success_old,
+    test_slack,
+)
 
 
 @dag(

@@ -6,8 +6,8 @@ from airflow.models import Variable
 from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_error, slack_success_old
 
 URL = Variable.get("VDL_LOGGDATA_URL")
 
@@ -44,7 +44,6 @@ def run_audit_logs():
             )
         },
     )
-    
     def run_inbound_job(job_name: str) -> dict:
         import requests
 
@@ -56,7 +55,7 @@ def run_audit_logs():
                 "inboundjobb eksisterer mest sannsynlig ikke på podden"
             )
         return response.json()
-    
+
     @task.sensor(
         poke_interval=60,
         timeout=8 * 60 * 60,
@@ -109,14 +108,10 @@ def run_audit_logs():
                 f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
-    eyeshare = run_inbound_job.override(task_id="start_eyeshare")(
-        "eyeshare"
-    )
+    eyeshare = run_inbound_job.override(task_id="start_eyeshare")("eyeshare")
     wait_eyeshare = check_status_for_inbound_job(eyeshare)
 
-    anaplan = run_inbound_job.override(task_id="start_anaplan")(
-        "anaplan"
-    )
+    anaplan = run_inbound_job.override(task_id="start_anaplan")("anaplan")
     wait_anaplan = check_status_for_inbound_job(anaplan)
 
     @task(
@@ -225,7 +220,7 @@ def run_audit_logs():
         summary_messages = [
             result["msg"]
             for result in job_result["dbt_log"]
-            if result["code"] in["E047", "Q007"]
+            if result["code"] in ["E047", "Q007"]
         ]
         return PokeReturnValue(is_done=True, xcom_value=summary_messages)
 
@@ -259,7 +254,7 @@ def run_audit_logs():
     def send_slack_summary(dbt_test):
         dbt_test_summary = "\n".join(dbt_test)
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```"
-        slack_success(message=f"Resultat fra kjøringen:\n{summary}")
+        slack_success_old(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_freshness = wait_for_dbt.override(
         task_id="check_status_for_dbt_freshness"
@@ -275,5 +270,6 @@ def run_audit_logs():
     wait_anaplan >> dbt_freshness
 
     dbt_freshness >> wait_dbt_freshness >> dbt_test >> wait_dbt_test >> slack_summary
+
 
 run_audit_logs()

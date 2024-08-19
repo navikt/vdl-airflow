@@ -4,8 +4,8 @@ from airflow.decorators import dag, task
 from airflow.models import Variable
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_info, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_error, slack_info, slack_success_old
 
 
 @dag(
@@ -44,7 +44,7 @@ def anaplan_datahub_regnskaphierarkier():
         },
     )
     def send_slack_notification():
-        slack_success()
+        slack_success_old()
 
     @task(
         executor_config={

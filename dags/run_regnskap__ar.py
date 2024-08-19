@@ -1,14 +1,14 @@
 from datetime import datetime
-from airflow import DAG
 
+from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
 from airflow.models import Variable
 from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_error, slack_success_old
 from operators.elementary import elementary_operator
 
 URL = Variable.get("VDL_REGNSKAP_URL")
@@ -116,16 +116,18 @@ with DAG(
     accounts_receivable_open = run_inbound_job.override(
         task_id="start_accounts_receivable__open"
     )("accounts_receivable_open")
-    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_receivable_open)
+    wait_accounts_payable_closed = check_status_for_inbound_job(
+        accounts_receivable_open
+    )
 
-    customers = run_inbound_job.override(
-        task_id="start_customers"
-    )("customers")
+    customers = run_inbound_job.override(task_id="start_customers")("customers")
     wait_customers = check_status_for_inbound_job(customers)
 
     accounts_receivable_closed = run_inbound_job.override(
         task_id="start_accounts_receivable__closed"
     )("accounts_receivable_closed")
-    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_receivable_closed)
+    wait_accounts_payable_closed = check_status_for_inbound_job(
+        accounts_receivable_closed
+    )
 
     accounts_receivable_closed >> wait_accounts_payable_closed

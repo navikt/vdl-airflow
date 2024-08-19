@@ -1,21 +1,21 @@
 from datetime import datetime
-from airflow import DAG
 
+from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
 from airflow.models import Variable
 from airflow.sensors.base import PokeReturnValue
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_error, slack_success_old
 from operators.elementary import elementary_operator
 
 URL = Variable.get("VDL_FAKTURA_URL")
 
 with DAG(
     start_date=datetime(2023, 2, 28),
-    #schedule_interval="@daily",
+    # schedule_interval="@daily",
     schedule_interval="0 3 * * *",  # Hver dag klokken 03:00 UTC
     dag_id="run_faktura",
     catchup=False,
@@ -117,15 +117,10 @@ with DAG(
                 f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
-
-    invoice = run_inbound_job.override(task_id="start_invoice")(
-        "invoice"
-    )
+    invoice = run_inbound_job.override(task_id="start_invoice")("invoice")
     wait_invoice = check_status_for_inbound_job(invoice)
 
-    invoice_ko = run_inbound_job.override(task_id="start_invoice_ko")(
-        "invoice_ko"
-    )
+    invoice_ko = run_inbound_job.override(task_id="start_invoice_ko")("invoice_ko")
     wait_invoice_ko = check_status_for_inbound_job(invoice_ko)
 
     invoice_poheader = run_inbound_job.override(task_id="start_invoice_poheader")(
@@ -134,8 +129,8 @@ with DAG(
     wait_invoice_poheader = check_status_for_inbound_job(invoice_poheader)
 
     invoice_polines = run_inbound_job.override(task_id="start_invoice_polines")(
-            "invoice_polines"
-        )
+        "invoice_polines"
+    )
     wait_invoice_polines = check_status_for_inbound_job(invoice_polines)
 
     @task(
@@ -279,7 +274,7 @@ with DAG(
         dbt_test_summary = "\n".join(dbt_test)
         dbt_run_summary = "\n".join(dbt_run)
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
-        slack_success(message=f"Resultat fra kjøringen:\n{summary}")
+        slack_success_old(message=f"Resultat fra kjøringen:\n{summary}")
 
     wait_dbt_freshness = wait_for_dbt.override(
         task_id="check_status_for_dbt_freshness"
@@ -320,8 +315,6 @@ with DAG(
         },
     )
 
-        
-
     invoice >> wait_invoice
     wait_invoice >> invoice_ko
     wait_invoice_ko >> invoice_poheader
@@ -334,4 +327,3 @@ with DAG(
 
     dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
     wait_dbt_run >> faktura_alert >> faktura_report
-

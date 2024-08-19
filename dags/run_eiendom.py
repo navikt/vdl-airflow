@@ -7,7 +7,7 @@ from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 
-from custom.operators.slack_operator import test_slack
+from custom.operators.slack_operator import slack_success, test_slack
 
 
 
@@ -75,7 +75,7 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
 
 
 with DAG(
-    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1, on_success_callback=test_slack
+    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1
 ) as dag:
 
     dvh_eiendom__brukersted2lok = last_fra_dvh_eiendom("dvh_eiendom__brukersted2lok")
@@ -144,18 +144,7 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
-    notify_slack_success = SlackAPIPostOperator(
-        task_id="slack-message",
-        dag=dag,
-        channel="#virksomhetsdatalaget-info-test",
-        text="testmelding",
-        slack_conn_id="slack_connection",
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
-            )
-        }
-    )
+    notify_slack_success = slack_success()
 
     # DAG
     dvh_eiendom__brukersted2lok >> notify_slack_success

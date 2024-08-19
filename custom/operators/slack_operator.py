@@ -12,7 +12,7 @@ def slack_info(message: str, channel: str = None):
     __slack_message(message=message, channel=channel)
 
 
-def slack_success(
+def slack_success_old(
     context=None, message=None, channel: str = None, emoji=":information_source:"
 ):
     if channel is None:
@@ -49,6 +49,7 @@ def __slack_message(
         slack_conn_id="slack_connection",
     ).execute()
 
+
 def test_slack(context):
     SlackAPIPostOperator(
         task_id="slack-message",
@@ -59,5 +60,28 @@ def test_slack(context):
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
             )
-        }
+        },
     ).execute(context)
+
+
+def slack_success(
+    context=None, message=None, channel: str = None, emoji=":information_source:"
+):
+    if channel is None:
+        channel = Variable.get("slack_info_channel")
+    if context is None:
+        context = get_current_context()
+    info_message = f"Airflow DAG: {context['dag'].dag_id} har kjørt ferdig."
+    if message:
+        info_message = f"{info_message}\n\n{message}"
+    return SlackAPIPostOperator(
+        task_id="slack-message",
+        channel=channel,
+        text=message,
+        slack_conn_id="slack_connection",
+        executor_config={
+            "pod_override": k8s.V1Pod(
+                metadata=k8s.V1ObjectMeta(annotations={"allowlist": "slack.com"})
+            )
+        },
+    )

@@ -5,8 +5,8 @@ from airflow.models import Variable
 from airflow.sensors.external_task import ExternalTaskSensor
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_error, slack_info, slack_success
 from custom.decorators import CUSTOM_IMAGE
+from custom.operators.slack_operator import slack_error, slack_info, slack_success_old
 
 
 @dag(
@@ -22,7 +22,7 @@ def anaplan_datahub_regnskapsdata():
     password = Variable.get("anaplan_password")
 
     @task(
-        on_success_callback=slack_success,
+        on_success_callback=slack_success_old,
         executor_config={
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(
