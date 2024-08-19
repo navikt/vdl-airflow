@@ -143,7 +143,7 @@ with DAG(
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
     notify_slack_success = SlackWebhookOperator(
-        http_conn_id=None,
+        slack_webhook_conn_id=None,
         task_id="slack-message",
         webhook_token=os.environ["SLACK_TOKEN"],
         message="start min-dag",
