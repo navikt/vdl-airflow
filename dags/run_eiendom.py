@@ -81,7 +81,7 @@ def run_dbt_job(job_name: str):
         name=job_name,
         repo="navikt/vdl-eiendom",
         working_dir="dbt",
-        cmds=["dbt build"],
+        cmds=["dbt deps", "dbt build"],
         image=DBT_IMAGE,
         extra_envs={
             "EIENDOM_DB": Variable.get("EIENDOM_DB"),
