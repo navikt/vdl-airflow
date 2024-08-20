@@ -1,15 +1,16 @@
 import os
 
-from kubernetes import client as k8s
-
 from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.providers.slack.operators.slack import SlackAPIPostOperator
 from airflow.utils.dates import days_ago
+from kubernetes import client as k8s
+
 from custom.operators.slack_operator import slack_success, test_slack
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
+DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
     "ocsp.snowflakecomputing.com",
@@ -27,7 +28,6 @@ def last_fra_mainmanager(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch="teste-dataverk-operators",
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -54,7 +54,6 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch="teste-dataverk-operators",
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -70,6 +69,29 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
             "dm08-scan.adeo.no:1521",
         ]
         + SNOW_ALLOWLIST,
+        slack_channel=Variable.get("slack_error_channel"),
+    )
+
+
+def run_dbt_job(job_name: str):
+    from dataverk_airflow import kubernetes_operator
+
+    return kubernetes_operator(
+        dag=dag,
+        name=job_name,
+        repo="navikt/vdl-eiendom",
+        working_dir="dbt",
+        cmds=["build"],
+        image=DBT_IMAGE,
+        extra_envs={
+            "EIENDOM_DB": Variable.get("EIENDOM_DB"),
+            "SRV_USR": Variable.get("SRV_USR"),
+            "SRV_PWD": Variable.get("SRV_PWD"),
+            "SNOW_USR": Variable.get("SNOW_USR"),
+            "SNOW_PWD": Variable.get("SNOW_PWD"),
+            "RUN_ID": "{{ run_id }}",
+        },
+        allowlist=SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
@@ -144,47 +166,51 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
 
+    dbt_run = run_dbt_job("dbt_build")
+
     notify_slack_success = slack_success(dag=dag)
 
     # DAG
-    dvh_eiendom__brukersted2lok >> notify_slack_success
-    dvh_eiendom__eiendom_aarverk >> notify_slack_success
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon >> notify_slack_success
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato >> notify_slack_success
-    dvh_eiendom__eiendom_faktakorreksjon >> notify_slack_success
-    dvh_eiendom__eiendom_matrikkel >> notify_slack_success
-    dvh_eiendom__eiendom_matrikkelkorreksjon >> notify_slack_success
-    dvh_eiendom__eiendom_matrikkel_veiadresse >> notify_slack_success
-    dvh_eiendom__lyd_bygg >> notify_slack_success
-    dvh_eiendom__lyd_lok_komp >> notify_slack_success
-    dvh_eiendom__lyd_lok >> notify_slack_success
-    dvh_eiendom__lyd_address >> notify_slack_success
-    dvh_eiendom__lyd_postadr >> notify_slack_success
-    dvh_eiendom__lyd_kommune >> notify_slack_success
-    dvh_eiendom__lyd_county >> notify_slack_success
-    dvh_eiendom__lyd_land >> notify_slack_success
-    dvh_eiendom__dim_okonomi_aktivitet >> notify_slack_success
-    dvh_eiendom__fak_eiendom_avtale >> notify_slack_success
-    dvh_eiendom__dim_lokasjon >> notify_slack_success
-    dvh_eiendom__lyd_loc_dt >> notify_slack_success
-    dvh_eiendom__lyd_agreement >> notify_slack_success
-    dvh_eiendom__org >> notify_slack_success
-    dvh_eiendom__hr_aarverk >> notify_slack_success
-    dvh_eiendom__lyd_agreementitem >> notify_slack_success
-    dvh_eiendom__lyd_amount >> notify_slack_success
-    dvh_eiendom__lyd_avtaltyp >> notify_slack_success
-    dvh_eiendom__lyd_dicipline >> notify_slack_success
-    dvh_eiendom__lyd_doku_tab >> notify_slack_success
-    dvh_eiendom__lyd_folder >> notify_slack_success
-    dvh_eiendom__lyd_metatable >> notify_slack_success
-    dvh_eiendom__lyd_orghierk >> notify_slack_success
-    dvh_eiendom__lyd_price >> notify_slack_success
-    dvh_eiendom__lyd_pricetype >> notify_slack_success
-    dvh_eiendom__lyd_userdefinedfielddef >> notify_slack_success
-    dvh_eiendom__lyd_userdefinedfields >> notify_slack_success
-    dvh_eiendom__lyd_userdefinedfieldswide >> notify_slack_success
-    dvh_eiendom__lyd_utl_stat >> notify_slack_success
-    dvh_eiendom__eiendom_kor2024 >> notify_slack_success
+    dvh_eiendom__brukersted2lok >> dbt_run
+    dvh_eiendom__eiendom_aarverk >> dbt_run
+    dvh_eiendom__eiendom_aarverk_paa_lokasjon >> dbt_run
+    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato >> dbt_run
+    dvh_eiendom__eiendom_faktakorreksjon >> dbt_run
+    dvh_eiendom__eiendom_matrikkel >> dbt_run
+    dvh_eiendom__eiendom_matrikkelkorreksjon >> dbt_run
+    dvh_eiendom__eiendom_matrikkel_veiadresse >> dbt_run
+    dvh_eiendom__lyd_bygg >> dbt_run
+    dvh_eiendom__lyd_lok_komp >> dbt_run
+    dvh_eiendom__lyd_lok >> dbt_run
+    dvh_eiendom__lyd_address >> dbt_run
+    dvh_eiendom__lyd_postadr >> dbt_run
+    dvh_eiendom__lyd_kommune >> dbt_run
+    dvh_eiendom__lyd_county >> dbt_run
+    dvh_eiendom__lyd_land >> dbt_run
+    dvh_eiendom__dim_okonomi_aktivitet >> dbt_run
+    dvh_eiendom__fak_eiendom_avtale >> dbt_run
+    dvh_eiendom__dim_lokasjon >> dbt_run
+    dvh_eiendom__lyd_loc_dt >> dbt_run
+    dvh_eiendom__lyd_agreement >> dbt_run
+    dvh_eiendom__org >> dbt_run
+    dvh_eiendom__hr_aarverk >> dbt_run
+    dvh_eiendom__lyd_agreementitem >> dbt_run
+    dvh_eiendom__lyd_amount >> dbt_run
+    dvh_eiendom__lyd_avtaltyp >> dbt_run
+    dvh_eiendom__lyd_dicipline >> dbt_run
+    dvh_eiendom__lyd_doku_tab >> dbt_run
+    dvh_eiendom__lyd_folder >> dbt_run
+    dvh_eiendom__lyd_metatable >> dbt_run
+    dvh_eiendom__lyd_orghierk >> dbt_run
+    dvh_eiendom__lyd_price >> dbt_run
+    dvh_eiendom__lyd_pricetype >> dbt_run
+    dvh_eiendom__lyd_userdefinedfielddef >> dbt_run
+    dvh_eiendom__lyd_userdefinedfields >> dbt_run
+    dvh_eiendom__lyd_userdefinedfieldswide >> dbt_run
+    dvh_eiendom__lyd_utl_stat >> dbt_run
+    dvh_eiendom__eiendom_kor2024 >> dbt_run
 
-    mainmanager__dim_adresse >> notify_slack_success
-    mainmanager__dim_bygg >> notify_slack_success
+    mainmanager__dim_adresse >> dbt_run
+    mainmanager__dim_bygg >> dbt_run
+
+    dbt_run >> notify_slack_success
