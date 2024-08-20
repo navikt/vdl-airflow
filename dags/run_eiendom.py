@@ -91,7 +91,10 @@ def run_dbt_job(job_name: str):
             "SNOW_PWD": Variable.get("SNOW_PWD"),
             "RUN_ID": "{{ run_id }}",
         },
-        allowlist=SNOW_ALLOWLIST,
+        allowlist=[
+            "hub.getdbt.com",
+        ]
+        + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
