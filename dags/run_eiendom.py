@@ -140,8 +140,8 @@ with DAG(
     dvh_eiendom__dim_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__dim_lokasjon")
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
-    dvh_eiendom__org = last_fra_dvh_eiendom("dvh_eiendom__org")
-    dvh_eiendom__hr_aarverk = last_fra_dvh_eiendom("dvh_eiendom__hr_aarverk")
+    dvh_eiendom__dim_org = last_fra_dvh_eiendom("dvh_eiendom__dim_org")
+    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom("dvh_eiendom__hrres_stillinger_eiendom")
     dvh_eiendom__lyd_agreementitem = last_fra_dvh_eiendom(
         "dvh_eiendom__lyd_agreementitem"
     )
@@ -195,9 +195,8 @@ with DAG(
     dvh_eiendom__dim_lokasjon >> dbt_run
     dvh_eiendom__lyd_loc_dt >> dbt_run
     dvh_eiendom__lyd_agreement >> dbt_run
-    # TODO: Finne riktig tabell disse skal hentes fra i datavarehuset og oppdatere i vdl-eiendom
-    # dvh_eiendom__org >> dbt_run
-    # dvh_eiendom__hr_aarverk >> dbt_run
+    dvh_eiendom__dim_org >> dbt_run
+    dvh_eiendom__hrres_stillinger_eiendom >> dbt_run
     dvh_eiendom__lyd_agreementitem >> dbt_run
     dvh_eiendom__lyd_amount >> dbt_run
     dvh_eiendom__lyd_avtaltyp >> dbt_run
