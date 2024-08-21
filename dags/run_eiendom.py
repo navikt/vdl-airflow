@@ -195,8 +195,9 @@ with DAG(
     dvh_eiendom__dim_lokasjon >> dbt_run
     dvh_eiendom__lyd_loc_dt >> dbt_run
     dvh_eiendom__lyd_agreement >> dbt_run
-    dvh_eiendom__org >> dbt_run
-    dvh_eiendom__hr_aarverk >> dbt_run
+    # TODO: Finne riktig tabell disse skal hentes fra i datavarehuset og oppdatere i vdl-eiendom
+    # dvh_eiendom__org >> dbt_run
+    # dvh_eiendom__hr_aarverk >> dbt_run
     dvh_eiendom__lyd_agreementitem >> dbt_run
     dvh_eiendom__lyd_amount >> dbt_run
     dvh_eiendom__lyd_avtaltyp >> dbt_run
