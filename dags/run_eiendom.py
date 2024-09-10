@@ -28,6 +28,7 @@ def last_fra_mainmanager(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
+        branch="laste-orgstrukt",
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -54,6 +55,7 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
+        branch="laste-orgstrukt",
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -141,7 +143,12 @@ with DAG(
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
     dvh_eiendom__dim_org = last_fra_dvh_eiendom("dvh_eiendom__dim_org")
-    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom("dvh_eiendom__hrres_stillinger_eiendom")
+    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom(
+        "dvh_eiendom__hrres_stillinger_eiendom"
+    )
+    dvh_eiendom__hrorg_orgstrukt_eiendom = last_fra_dvh_eiendom(
+        "dvh_eiendom__hrorg_orgstrukt_eiendom"
+    )
     dvh_eiendom__lyd_agreementitem = last_fra_dvh_eiendom(
         "dvh_eiendom__lyd_agreementitem"
     )
@@ -197,6 +204,7 @@ with DAG(
     dvh_eiendom__lyd_agreement >> dbt_run
     dvh_eiendom__dim_org >> dbt_run
     dvh_eiendom__hrres_stillinger_eiendom >> dbt_run
+    dvh_eiendom__hrorg_orgstrukt_eiendom >> dbt_run
     dvh_eiendom__lyd_agreementitem >> dbt_run
     dvh_eiendom__lyd_amount >> dbt_run
     dvh_eiendom__lyd_avtaltyp >> dbt_run
