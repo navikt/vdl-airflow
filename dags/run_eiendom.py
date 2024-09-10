@@ -28,7 +28,6 @@ def last_fra_mainmanager(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch="laste-orgstrukt",
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -55,7 +54,6 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch="laste-orgstrukt",
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
