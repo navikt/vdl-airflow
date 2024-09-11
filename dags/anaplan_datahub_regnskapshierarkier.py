@@ -97,8 +97,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_artskonti
-            where
-                length(artskonti_segment_kode) = 12
         """,
         import_hierarchy_data={
             "id": "112000000041",
@@ -115,9 +113,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_kostnadssteder
-            where
-                length(kostnadssteder_segment_kode) = 6 and
-                er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000043",
@@ -134,9 +129,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_produkter
-            where
-                length(produkter_segment_kode) = 6 and
-                er_budsjetterbar = 1
         """,
         import_hierarchy_data={
             "id": "112000000045",
@@ -153,25 +145,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_oppgaver
-            where
-                length(oppgaver_segment_kode) = 6 and
-                er_budsjetterbar = 1
-            union all (
-                select * exclude(hierarkier__raw)
-                from regnskap.marts.dim_oppgaver
-                where
-                    length(oppgaver_segment_kode) = 6 and
-                    er_budsjetterbar = 1 and (
-                        posterbar_til_dato > '2024-01-01' or
-                        posterbar_til_dato is null
-                    )
-                except
-                select *
-                from reporting.microstrategy.dim_oppgaver
-                where
-                    length(oppgaver_segment_kode) = 6 and
-                    er_budsjetterbar = 1
-            )
         """,
         import_hierarchy_data={
             "id": "112000000047",
@@ -188,8 +161,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_felles
-            where
-                length(felles_segment_kode) = 6
         """,
         import_hierarchy_data={
             "id": "112000000049",
@@ -211,10 +182,6 @@ def anaplan_datahub_regnskaphierarkier():
         query="""
             select *
             from reporting.microstrategy.dim_statsregnskapskonti
-            where
-                endswith(statsregnskapskonti_segment_kode, '000000') and
-                length(statsregnskapskonti_segment_kode) = 12 and
-                er_budsjetterbar=1
         """,
         import_hierarchy_data={
             "id": "112000000051",
