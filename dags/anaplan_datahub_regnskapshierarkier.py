@@ -127,7 +127,7 @@ def anaplan_datahub_regnskaphierarkier():
     upload_produkter = transfer.override(task_id="transfer_produkter")(
         fileData={"id": "113000000031", "name": "dim_produkter_snowflake.csv"},
         query="""
-            select * exclude(produkter_sequence)
+            select *
             from reporting.microstrategy.dim_produkter
         """,
         import_hierarchy_data={
