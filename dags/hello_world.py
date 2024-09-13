@@ -29,10 +29,6 @@ from custom.operators.slack_operator import (
                         k8s.V1Container(
                             name="base",
                             image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
                         )
                     ]
                 ),
