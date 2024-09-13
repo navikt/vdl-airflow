@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 
 # from custom.decorators import task
@@ -40,7 +41,7 @@ from custom.operators.slack_operator import (
     },
 )
 def hello_world():
-    @task()
+    @task(outlets=[Dataset("hello_world")])
     def send_slack_message():
         slack_info(message="Hello, World!")
 
