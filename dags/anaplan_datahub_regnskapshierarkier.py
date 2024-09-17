@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 from airflow.models import Variable
 from kubernetes import client as k8s
@@ -10,7 +11,8 @@ from custom.operators.slack_operator import slack_error, slack_info, slack_succe
 
 @dag(
     start_date=datetime(2023, 8, 2),
-    schedule_interval="0 4 * * *",
+    schedule_interval=None,
+    schedule=[Dataset("regnskap_dataset")],
     catchup=False,
     default_args={"on_failure_callback": slack_error, "retries": 3},
 )

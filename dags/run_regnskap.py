@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from airflow import DAG
+from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
 from airflow.models import Variable
@@ -231,6 +232,7 @@ with DAG(
         timeout=2 * 60 * 60,
         mode="reschedule",
         on_failure_callback=None,
+        outlets=[Dataset("regnskap_dataset")],
         executor_config={
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(
