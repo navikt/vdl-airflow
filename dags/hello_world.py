@@ -2,6 +2,7 @@ from datetime import datetime
 
 from airflow.datasets import Dataset
 from airflow.decorators import dag, task
+from airflow.exceptions import AirflowFailException
 
 # from custom.decorators import task
 from kubernetes import client as k8s
@@ -36,14 +37,16 @@ from custom.operators.slack_operator import (
         },
     },
 )
+@task.sensor(poke_interval=10, 
+                 timeout=2 * 60 * 60, outlets=[Dataset("hello_world")])
 def hello_world():
-    @task(outlets=[Dataset("hello_world")])
-    def send_slack_message():
-        slack_info(message="Hello, World!")
-
-    slack_message = send_slack_message()
-
-    slack_message
+    send = True   
+    if send:
+            slack_info(message="Hello, World!")
+    else:
+        raise AirflowFailException(
+                "This task raised an Exception"
+            )
 
 
 hello_world()
