@@ -37,17 +37,19 @@ from custom.operators.slack_operator import (
         },
     },
 )
-@task.sensor(poke_interval=10, 
-                 timeout=2 * 60 * 60, outlets=[Dataset("hello_world")])
 def hello_world():
-    send = True   
-    if send:
-            slack_info(message="Hello, World!")
-    else:
-        raise AirflowFailException(
+    @task.sensor(poke_interval=10, 
+                 timeout=2 * 60 * 60, 
+                 outlets=[Dataset("hello_world")])
+    def send_slack_message():
+        send = True   
+        if send:
+                slack_info(message="Hello, World!")
+        else:
+            raise AirflowFailException(
                 "This task raised an Exception"
             )
-
+    send_slack_message()
 
 hello_world()
 
