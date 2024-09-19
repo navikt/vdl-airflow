@@ -3,6 +3,7 @@ from datetime import datetime
 from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
+from airflow.sensors.base import PokeReturnValue
 
 # from custom.decorators import task
 from kubernetes import client as k8s
@@ -42,9 +43,10 @@ def hello_world():
                  timeout=2 * 60 * 60, 
                  outlets=[Dataset("hello_world")])
     def send_slack_message():
-        send = False  
+        send = True  
         if send:
                 slack_info(message="Hello, World!")
+                return PokeReturnValue(is_done=True)
         else:
             raise AirflowFailException(
                 "This task raised an Exception"
