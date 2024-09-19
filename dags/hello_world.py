@@ -42,7 +42,7 @@ def hello_world():
                  timeout=2 * 60 * 60, 
                  outlets=[Dataset("hello_world")])
     def send_slack_message():
-        send = True   
+        send = False  
         if send:
                 slack_info(message="Hello, World!")
         else:
