@@ -40,18 +40,21 @@ from custom.operators.slack_operator import (
 )
 def hello_world():
     @task.sensor(poke_interval=10, 
-                 timeout=2 * 60 * 60, 
-                 outlets=[Dataset("hello_world")])
-    def send_slack_message():
-        send = False  
-        if send:
-                slack_info(message="Hello, World!")
-                return PokeReturnValue(is_done=True)
+                 timeout=2 * 60 * 60)
+    def send_slack_message(send: str): 
+        if send=="True":
+            slack_info(message="Hello, World!")
+            return PokeReturnValue(is_done=True)
+        if send=="False":
+            return PokeReturnValue(is_done=True)
         else:
             raise AirflowFailException(
-                "This task raised an Exception"
-            )
-    send_slack_message()
+                "This task raised an Exception")
+    send_message = send_slack_message.override(task_id="send_slack_message", outlets=[Dataset("hello_world")])("True")
+    dont_send_message = send_slack_message.override(task_id="dont_send_slack_message")("False")
+
+    send_message
+    dont_send_message
 
 hello_world()
 
