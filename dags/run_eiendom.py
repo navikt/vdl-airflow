@@ -173,6 +173,7 @@ with DAG(
 
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
+    mainmanager__dim_lokasjon = last_fra_mainmanager("mainmanager__dim_lokasjon")
 
     dbt_run = run_dbt_job("dbt_build")
 
@@ -221,5 +222,6 @@ with DAG(
 
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
+    mainmanager__dim_lokasjon >> dbt_run
 
     dbt_run >> notify_slack_success
