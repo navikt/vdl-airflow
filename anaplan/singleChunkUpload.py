@@ -49,7 +49,7 @@ def transfer_data(
         data=(dataFile),
     )
 
-    # Send post call to mark ulpoad as complete
+    # Send post call to mark ulpoad as complete # NB: fungerer ikke!!
     # url = f"https://api.anaplan.com/2/0/workspaces/{wGuid}/models/{mGuid}/files/{fileID}/complete"
     # taskComplete = requests.post(
     #    url,
@@ -64,42 +64,3 @@ def transfer_data(
             "There was an issue with your file upload: " + str(fileUpload.status_code)
         )
         raise Exception("Noe gikk galt...")
-
-
-if __name__ == "__main__":
-
-    from import_data import import_data
-
-    wGuid = "8a868cd985f53e7701860542f59e276e"
-    mGuid = "54E5A1B9C12D4816B2D1876CFD9D7C84"
-    username = os.environ["ANAPLAN_USR"]
-    password = os.environ["ANAPLAN_PWD"]
-    fileData = {
-        "id": "113000000035",
-        "name": "agg_hovedbok_posteringer_all_mnd_snowflake.csv",
-    }
-
-    with open("testfil-regnskap.csv", "r") as f:
-        testfile = f.read().encode("UTF-8")
-
-    transfer_data(
-        wGuid=wGuid,
-        mGuid=mGuid,
-        username=username,
-        password=password,
-        fileData=fileData,
-        data=testfile,
-    )
-
-    import_hierarchy_data = {
-        "id": "112000000053",
-        "name": "Regnskap Flat from agg_hovedbok_posteringer_all_mnd_snowflak",
-    }
-
-    import_module_data = {
-        "id": "112000000054",
-        "name": "Regnskap from agg_hovedbok_posteringer_all_mnd_snowflake.csv",
-    }
-
-    import_data(wGuid, mGuid, username, password, import_hierarchy_data)
-    import_data(wGuid, mGuid, username, password, import_module_data)
