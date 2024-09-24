@@ -232,7 +232,6 @@ with DAG(
         timeout=2 * 60 * 60,
         mode="reschedule",
         on_failure_callback=None,
-        outlets=[Dataset("regnskap_dataset")],
         executor_config={
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(
@@ -337,7 +336,7 @@ with DAG(
     wait_dbt_freshness = wait_for_dbt.override(
         task_id="check_status_for_dbt_freshness"
     )(dbt_freshness)
-    wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run")(dbt_run)
+    wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run", outlets=[Dataset("hello_world")])(dbt_run)
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
 
