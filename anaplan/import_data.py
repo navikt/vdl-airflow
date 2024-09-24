@@ -59,11 +59,8 @@ def import_data(wGuid: str, mGuid: str, username: str, password: str, importData
     )
 
     # Check if dump file contains any errors
-    # checkDump = requests.get(
-    #    url=f"{base_url}/workspaces/{wGuid}/models/{mGuid}/imports/{importID}/tasks/{taskID}/dump",
-    #    headers=import_header,
-    #    data=json.dumps({"localeName": "en_US"}),
-    # )
-
-    # if checkDump.ok == False:
-    #    print("No errors found")
+    checkDump = requests.get(
+        url=f"{base_url}/workspaces/{wGuid}/models/{mGuid}/imports/{importID}/tasks/{taskID}/dump",
+        headers=import_header,
+        data=json.dumps({"localeName": "en_US"}),
+    )
