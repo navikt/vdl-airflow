@@ -176,6 +176,10 @@ with DAG(
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
     mainmanager__dim_lokasjon = last_fra_mainmanager("mainmanager__dim_lokasjon")
 
+    dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
+        "dvh_kodeverk__org_enhet_til_node"
+    )
+
     dbt_run = run_dbt_job("dbt_build")
 
     notify_slack_success = slack_success(dag=dag)
@@ -225,5 +229,7 @@ with DAG(
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
     mainmanager__dim_lokasjon >> dbt_run
+
+    dvh_kodeverk__org_enhet_til_node >> dbt_run
 
     dbt_run >> notify_slack_success
