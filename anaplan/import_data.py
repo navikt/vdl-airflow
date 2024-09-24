@@ -1,46 +1,69 @@
-# This script runs your selected import. Run 'importStatus.py' to retrieve
-# the task metadata for the import task.
-
-# This script assumes you know your workspaceGuid, modelGuid, and import
-# metadata.
-# If you do not have this information, please run 'getWorkspaces.py',
-# 'getModels.py', and 'getImports.py' and retrieve this information from the
-# resulting json files.
-
-# If you are using certificate authentication, this script assumes you have
-# converted your Anaplan certificate to PEM format, and that you know the
-# Anaplan account email associated with that certificate.
+# This script runs your selected import.
 
 # This script uses Python 3 and assumes that you have the following modules
-# installed: requests, base64, json
+# installed: requests, json
 
-import base64
 import json
-import sys
 
 import requests
-from airflow.models import Variable
+from auth import get_auth_response, get_header
+
+base_url = "https://api.anaplan.com/2/0"
 
 
 def import_data(wGuid: str, mGuid: str, username: str, password: str, importData: dict):
-    user = "Basic " + str(
-        base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
-    )
 
-    url = (
-        f"https://api.anaplan.com/1/3/workspaces/{wGuid}/models/{mGuid}/"
-        + f'imports/{importData["id"]}/tasks'
-    )
+    auth_response = get_auth_response(username=username, password=password)
+    import_header = get_header(auth_response=auth_response)
 
-    postHeaders = {"Authorization": user, "Content-Type": "application/json"}
+    importID = importData["id"]
 
-    # Runs an import request, and returns task metadata to 'postImport.json'
-    print(url)
+    # Run an import post request
     postImport = requests.post(
-        url, headers=postHeaders, data=json.dumps({"localeName": "en_US"})
+        url=f"{base_url}/workspaces/{wGuid}/models/{mGuid}/imports/{importID}/tasks",
+        headers=import_header,
+        data=json.dumps({"localeName": "en_US"}),
     )
 
-    print(postImport.status_code)
-    print(postImport.text.encode("utf-8"))
-    if postImport.status_code != 200:
-        raise Exception("Noe gikk galt")
+    if postImport.ok:
+        print("Import request successful.")
+    else:
+        print(
+            "There was an issue with your import request: "
+            + str(postImport.status_code)
+        )
+        raise Exception("Noe gikk galt...")
+
+    # Check status of import action
+    taskID = postImport.json()["task"]["taskId"]
+    getImportStatus = requests.get(
+        url=f"{base_url}/workspaces/{wGuid}/models/{mGuid}/imports/{importID}/tasks/{taskID}",
+        headers=import_header,
+        data=json.dumps({"localeName": "en_US"}),
+    )
+
+    if getImportStatus.ok:
+        print("Import status successful.")
+    else:
+        print(
+            "There was an issue with the import status: "
+            + str(getImportStatus.status_code)
+        )
+        raise Exception("Noe gikk galt...")
+
+    # Get metadata for import action
+    getImportMeta = requests.get(
+        url=f"{base_url}/workspaces/{wGuid}/models/{mGuid}/imports/{importID}",
+        headers=import_header,
+        data=json.dumps({"localeName": "en_US"}),
+    )
+
+    # Check if dump file contains any errors
+    # checkDump = requests.get(
+    #    url=f"{base_url}/workspaces/{wGuid}/models/{mGuid}/imports/{importID}/tasks/{taskID}/dump",
+    #    headers=import_header,
+    #    data=json.dumps({"localeName": "en_US"}),
+    # )
+
+    # if checkDump.ok == False:
+    #    print("No errors found")
