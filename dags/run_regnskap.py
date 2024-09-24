@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from airflow import DAG
+from airflow.datasets import Dataset
 from airflow.decorators import dag, task
 from airflow.exceptions import AirflowFailException
 from airflow.models import Variable
@@ -335,7 +336,7 @@ with DAG(
     wait_dbt_freshness = wait_for_dbt.override(
         task_id="check_status_for_dbt_freshness"
     )(dbt_freshness)
-    wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run")(dbt_run)
+    wait_dbt_run = wait_for_dbt.override(task_id="check_status_for_dbt_run", outlets=[Dataset("regnskap_dataset")])(dbt_run)
 
     slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
 
