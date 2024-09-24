@@ -1,4 +1,5 @@
 # This script uploads a file in a single chunk.
+# Information on the Anaplan API v2 can be found here: https://help.anaplan.com/perform-an-import-action-5ef6eaab-72d9-43de-91b3-3f4dcc4711e2
 
 # This script uses Python 3 and assumes that you have the following modules
 # installed: requests, os, json
