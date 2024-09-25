@@ -7,7 +7,7 @@
 import json
 
 import requests
-from auth import get_auth_response, get_header
+from anaplan.auth import get_auth_response, get_header
 
 base_url = "https://api.anaplan.com/2/0"
 

@@ -4,11 +4,10 @@
 # This script uses Python 3 and assumes that you have the following modules
 # installed: requests, os, json
 
-import json
-import os
 
 import requests
-from auth import get_auth_response, get_header
+
+from anaplan.auth import get_auth_response, get_header
 
 base_url = "https://api.anaplan.com/2/0"
 
