@@ -175,6 +175,10 @@ with DAG(
     )
     dvh_eiendom__lyd_utl_stat = last_fra_dvh_eiendom("dvh_eiendom__lyd_utl_stat")
     dvh_eiendom__eiendom_kor2024 = last_fra_dvh_eiendom("dvh_eiendom__eiendom_kor2024")
+    dvh_eiendom__eiendom_statenslokaler_json = last_fra_dvh_eiendom("dvh_eiendom__eiendom_statenslokaler_json")
+    dvh_eiendom__statlok_leieforhold = last_fra_dvh_eiendom("dvh_eiendom__statlok_leieforhold")
+    dvh_eiendom__statlok_leieobjekt = last_fra_dvh_eiendom("dvh_eiendom__statlok_leieobjekt")
+    dvh_eiendom__statlok_lokale = last_fra_dvh_eiendom("dvh_eiendom__statlok_lokale")
 
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
@@ -229,6 +233,10 @@ with DAG(
     dvh_eiendom__lyd_userdefinedfieldswide >> dbt_run
     dvh_eiendom__lyd_utl_stat >> dbt_run
     dvh_eiendom__eiendom_kor2024 >> dbt_run
+    dvh_eiendom__eiendom_statenslokaler_json >> dbt_run
+    dvh_eiendom__statlok_leieforhold >> dbt_run
+    dvh_eiendom__statlok_leieobjekt >> dbt_run
+    dvh_eiendom__statlok_lokale >> dbt_run
 
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
