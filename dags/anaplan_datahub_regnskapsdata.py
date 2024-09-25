@@ -33,6 +33,7 @@ def anaplan_datahub_regnskapsdata():
                             [
                                 "slack.com",
                                 "api.anaplan.com",
+                                "auth.anaplan.com",
                                 "wx23413.europe-west4.gcp.snowflakecomputing.com",
                             ]
                         )
