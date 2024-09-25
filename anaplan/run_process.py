@@ -19,30 +19,27 @@ import json
 import sys
 
 import requests
-from airflow.models import Variable
+
+from anaplan.auth import get_auth_response, get_header
 
 
 def run_process(
     wGuid: str, mGuid: str, username: str, password: str, processData: dict
 ):
-    user = "Basic " + str(
-        base64.b64encode((f"{username}:{password}").encode("utf-8")).decode("utf-8")
-    )
+    auth_response = get_auth_response(username=username, password=password)
+    import_header = get_header(auth_response=auth_response)
 
-    url = (
-        f"https://api.anaplan.com/1/3/workspaces/{wGuid}/models/{mGuid}/"
-        + f'processes/{processData["id"]}/tasks'
-    )
-
-    postHeaders = {"Authorization": user, "Content-Type": "application/json"}
+    processesID = processData["id"]
+    url = f"https://api.anaplan.com/2/0/workspaces/{wGuid}/models/{mGuid}/processes/{processesID}/tasks"
 
     # Runs an import request, and returns task metadata to 'postImport.json'
     print(url)
     postImport = requests.post(
-        url, headers=postHeaders, data=json.dumps({"localeName": "en_US"})
+        url, headers=import_header, data=json.dumps({"localeName": "en_US"})
     )
 
     print(postImport.status_code)
     print(postImport.text.encode("utf-8"))
     if postImport.status_code != 200:
+        raise Exception("Noe gikk galt")
         raise Exception("Noe gikk galt")
