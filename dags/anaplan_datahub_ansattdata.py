@@ -25,7 +25,7 @@ def anaplan_datahub_ansattdata():
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(
                     annotations={
-                        "allowlist": ",".join(["slack.com", "api.anaplan.com"])
+                        "allowlist": ",".join(["slack.com", "api.anaplan.com", "auth.anaplan.com"])
                     }
                 ),
                 spec=k8s.V1PodSpec(
@@ -58,6 +58,7 @@ def anaplan_datahub_ansattdata():
                             [
                                 "slack.com",
                                 "api.anaplan.com",
+                                "auth.anaplan.com",
                                 "dm08-scan.adeo.no:1521",
                             ]
                         )
