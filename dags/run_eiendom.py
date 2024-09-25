@@ -9,7 +9,7 @@ from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
 
-INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:5e62cb6d43653cb072dbeaff5b3632c0c8b0f62599b3fe170fc504bd881307aa"
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:87fa26de608dedad7c31dd5af184d38fbd3345a3c8ef40ca0db41e2e382f1064"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
@@ -19,6 +19,7 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
+BRANCH = Variable.get("EIENDOM_BRANCH")
 
 
 def last_fra_mainmanager(inbound_job_name: str):
@@ -28,6 +29,7 @@ def last_fra_mainmanager(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
+        branch=BRANCH,
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -54,6 +56,7 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
+        branch=BRANCH,
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
@@ -80,6 +83,7 @@ def run_dbt_job(job_name: str):
         dag=dag,
         name=job_name,
         repo="navikt/vdl-eiendom",
+        branch=BRANCH,
         working_dir="dbt",
         cmds=["dbt deps", "dbt build"],
         image=DBT_IMAGE,
