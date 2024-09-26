@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-inbound[snowflake,oracle] @ git+https://github.com/navikt/inbound@2da5f05a1d3f735fcfb54de4e48e57117b1d2ff9
-=======
-inbound[snowflake,oracle] @ git+https://github.com/navikt/inbound@d6f6075e929aec658b5d95a3add9cef1a5ee6eb4
->>>>>>> test-inb
+inbound[snowflake,oracle] @ git+https://github.com/navikt/inbound@v0.2.1
