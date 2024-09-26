@@ -9,7 +9,7 @@ from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
 
-INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:87fa26de608dedad7c31dd5af184d38fbd3345a3c8ef40ca0db41e2e382f1064"
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:7721e3e6f6a1f9d0ceff92116e153408c5ebf2097d682a8e4863220af430f272"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
