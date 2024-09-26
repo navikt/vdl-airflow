@@ -1,1 +1,1 @@
-inbound[snowflake,oracle] @ git+https://github.com/navikt/inbound@v0.2.0
+inbound[snowflake,oracle] @ git+https://github.com/navikt/inbound@2da5f05a1d3f735fcfb54de4e48e57117b1d2ff9
