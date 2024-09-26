@@ -144,8 +144,6 @@ with DAG(
     dvh_eiendom__dim_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__dim_lokasjon")
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
-    dvh_eiendom__dim_org = last_fra_dvh_eiendom("dvh_eiendom__dim_org")
-    dvh_eiendom__dim_geografi = last_fra_dvh_eiendom("dvh_eiendom__dim_geografi")
     dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom(
         "dvh_eiendom__hrres_stillinger_eiendom"
     )
@@ -175,9 +173,15 @@ with DAG(
     )
     dvh_eiendom__lyd_utl_stat = last_fra_dvh_eiendom("dvh_eiendom__lyd_utl_stat")
     dvh_eiendom__eiendom_kor2024 = last_fra_dvh_eiendom("dvh_eiendom__eiendom_kor2024")
-    dvh_eiendom__eiendom_statenslokaler_json = last_fra_dvh_eiendom("dvh_eiendom__eiendom_statenslokaler_json")
-    dvh_eiendom__statlok_leieforhold = last_fra_dvh_eiendom("dvh_eiendom__statlok_leieforhold")
-    dvh_eiendom__statlok_leieobjekt = last_fra_dvh_eiendom("dvh_eiendom__statlok_leieobjekt")
+    dvh_eiendom__eiendom_statenslokaler_json = last_fra_dvh_eiendom(
+        "dvh_eiendom__eiendom_statenslokaler_json"
+    )
+    dvh_eiendom__statlok_leieforhold = last_fra_dvh_eiendom(
+        "dvh_eiendom__statlok_leieforhold"
+    )
+    dvh_eiendom__statlok_leieobjekt = last_fra_dvh_eiendom(
+        "dvh_eiendom__statlok_leieobjekt"
+    )
     dvh_eiendom__statlok_lokale = last_fra_dvh_eiendom("dvh_eiendom__statlok_lokale")
 
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
@@ -187,6 +191,9 @@ with DAG(
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
         "dvh_kodeverk__org_enhet_til_node"
     )
+    dvh_kodeverk__dim_org = last_fra_dvh_eiendom("dvh_kodeverk__dim_org")
+    dvh_kodeverk__dim_geografi = last_fra_dvh_eiendom("dvh_kodeverk__dim_geografi")
+    dvh_kodeverk__dim_virksomhet = last_fra_dvh_eiendom("dvh_kodeverk__dim_virksomhet")
 
     dbt_run = run_dbt_job("dbt_build")
 
@@ -214,8 +221,6 @@ with DAG(
     dvh_eiendom__dim_lokasjon >> dbt_run
     dvh_eiendom__lyd_loc_dt >> dbt_run
     dvh_eiendom__lyd_agreement >> dbt_run
-    dvh_eiendom__dim_org >> dbt_run
-    dvh_eiendom__dim_geografi >> dbt_run
     dvh_eiendom__hrres_stillinger_eiendom >> dbt_run
     dvh_eiendom__hrorg_orgstrukt_eiendom >> dbt_run
     dvh_eiendom__lyd_agreementitem >> dbt_run
@@ -243,5 +248,8 @@ with DAG(
     mainmanager__dim_lokasjon >> dbt_run
 
     dvh_kodeverk__org_enhet_til_node >> dbt_run
+    dvh_kodeverk__dim_org >> dbt_run
+    dvh_kodeverk__dim_geografi >> dbt_run
+    dvh_kodeverk__dim_virksomhet >> dbt_run
 
     dbt_run >> notify_slack_success
