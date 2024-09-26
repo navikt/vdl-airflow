@@ -14,7 +14,7 @@
 
 ### Før utvikling
 
-All utvikling skjer i egne brancher hvor man merger endringene fra utviklingsbranchen til miljøet man ønsker koden (`dev` eller `main`). En typisk arbeidsflyt vill derfor se slik ut:
+All utvikling skjer i egne brancher hvor man merger endringene fra utviklingsbranchen til miljøet man ønsker å kjøre koden (`dev` eller `main`). En typisk arbeidsflyt vill derfor se slik ut:
 
 ```mermaid
 gitGraph
