@@ -187,6 +187,7 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
     mainmanager__dim_lokasjon = last_fra_mainmanager("mainmanager__dim_lokasjon")
+    mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
 
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
         "dvh_kodeverk__org_enhet_til_node"
@@ -246,6 +247,7 @@ with DAG(
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
     mainmanager__dim_lokasjon >> dbt_run
+    mainmanager__oversettelser >> dbt_run
 
     dvh_kodeverk__org_enhet_til_node >> dbt_run
     dvh_kodeverk__dim_org >> dbt_run
