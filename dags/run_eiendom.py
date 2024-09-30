@@ -9,7 +9,7 @@ from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
 
-INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-inbound@sha256:7721e3e6f6a1f9d0ceff92116e153408c5ebf2097d682a8e4863220af430f272"
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:8a6c9e3dc18ea89e9ef51bd703a4e3e67033127e97b77d50bc63dac6cd208dc6"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
@@ -187,6 +187,7 @@ with DAG(
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
     mainmanager__dim_lokasjon = last_fra_mainmanager("mainmanager__dim_lokasjon")
+    mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
 
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
         "dvh_kodeverk__org_enhet_til_node"
@@ -246,6 +247,7 @@ with DAG(
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
     mainmanager__dim_lokasjon >> dbt_run
+    mainmanager__oversettelser >> dbt_run
 
     dvh_kodeverk__org_enhet_til_node >> dbt_run
     dvh_kodeverk__dim_org >> dbt_run
