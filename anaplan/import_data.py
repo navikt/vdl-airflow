@@ -7,6 +7,7 @@
 import json
 
 import requests
+
 from anaplan.auth import get_auth_response, get_header
 
 base_url = "https://api.anaplan.com/2/0"
@@ -58,6 +59,7 @@ def import_data(wGuid: str, mGuid: str, username: str, password: str, importData
         headers=import_header,
         data=json.dumps({"localeName": "en_US"}),
     )
+    print(f"Get imported metadata: {getImportMeta.json()}")
 
     # Check if dump file contains any errors
     checkDump = requests.get(
@@ -65,3 +67,4 @@ def import_data(wGuid: str, mGuid: str, username: str, password: str, importData
         headers=import_header,
         data=json.dumps({"localeName": "en_US"}),
     )
+    print(f"Check error dump: {checkDump.json()}")
