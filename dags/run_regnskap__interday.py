@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from airflow import DAG
 from airflow.decorators import dag, task
@@ -47,9 +48,10 @@ def run_dbt_job(job_name: str):
 
 with DAG(
     "run_regnskap__interday",
-    start_date=days_ago(1),
+    start_date=datetime(2024, 10, 23),
     schedule_interval="0-59/10 4-19 * * *",
     max_active_runs=1,
+    catchup=False,
 ) as dag:
     dbt_run = run_dbt_job("update_data")
 
