@@ -27,10 +27,10 @@ def run_dbt_job(job_name: str):
     return kubernetes_operator(
         dag=dag,
         name=job_name,
-        repo="navikt/vdl-regnskap",
+        repo="navikt/vdl-regnskapsdata",
         branch=BRANCH,
         working_dir="dbt",
-        cmds=["dbt deps"],
+        cmds=["dbt deps", "dbt build -s intermediates.bilag+ intermediates.reskontro+"],
         image=DBT_IMAGE,
         extra_envs={
             "REGNSKAP_DB": Variable.get("REGNSKAP_DB"),
