@@ -30,7 +30,7 @@ def run_dbt_job(job_name: str):
         repo="navikt/vdl-regnskap",
         branch=BRANCH,
         working_dir="dbt",
-        cmds=["dbt deps", "dbt build -s intermediates.bilag+ intermediates.reskontro+"],
+        cmds=["dbt deps"],
         image=DBT_IMAGE,
         extra_envs={
             "REGNSKAP_DB": Variable.get("REGNSKAP_DB"),
