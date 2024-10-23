@@ -18,7 +18,7 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = "batch_loaded".upper()
+BRANCH = "batch_loaded"
 
 
 def run_dbt_job(job_name: str):
