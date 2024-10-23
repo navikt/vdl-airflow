@@ -203,6 +203,7 @@ with DAG(
     dvh_kodeverk__dim_org = last_fra_dvh_eiendom("dvh_kodeverk__dim_org")
     dvh_kodeverk__dim_geografi = last_fra_dvh_eiendom("dvh_kodeverk__dim_geografi")
     dvh_kodeverk__dim_virksomhet = last_fra_dvh_eiendom("dvh_kodeverk__dim_virksomhet")
+    dvh_hr__hragg_aarsverk = last_fra_dvh_eiendom("dvh_hr__hragg_aarsverk")
 
     dbt_run = run_dbt_job("dbt_build")
 
@@ -265,5 +266,7 @@ with DAG(
     dvh_kodeverk__dim_org >> dbt_run
     dvh_kodeverk__dim_geografi >> dbt_run
     dvh_kodeverk__dim_virksomhet >> dbt_run
+
+    dvh_hr__hragg_aarsverk >> dbt_run
 
     dbt_run >> notify_slack_success
