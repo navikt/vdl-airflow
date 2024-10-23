@@ -46,7 +46,7 @@ def run_dbt_job(job_name: str):
 
 
 with DAG(
-    "run_regnskap",
+    "run_regnskap__interday",
     start_date=days_ago(1),
     schedule_interval="0-59/10 4-19 * * *",
     max_active_runs=1,
