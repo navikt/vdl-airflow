@@ -19,7 +19,7 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = "batch_loaded"
+BRANCH = Variable.get("REGNSKAP_BRANCH")
 
 
 def run_dbt_job(job_name: str):
