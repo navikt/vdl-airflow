@@ -1,8 +1,5 @@
 import os
-<<<<<<< HEAD
-=======
 from datetime import datetime
->>>>>>> regnskap-interday
 
 from airflow import DAG
 from airflow.decorators import dag, task
