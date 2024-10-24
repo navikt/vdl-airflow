@@ -1,4 +1,8 @@
 import os
+<<<<<<< HEAD
+=======
+from datetime import datetime
+>>>>>>> regnskap-interday
 
 from airflow import DAG
 from airflow.decorators import dag, task
@@ -18,7 +22,8 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = "batch_loaded"
+
+BRANCH = Variable.get("REGNSKAP_BRANCH")
 
 
 def run_dbt_job(job_name: str):
@@ -42,14 +47,16 @@ def run_dbt_job(job_name: str):
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
+        retries=0,
     )
 
 
 with DAG(
     "run_regnskap__interday",
-    start_date=days_ago(1),
+    start_date=datetime(2024, 10, 23),
     schedule_interval="0-59/10 4-19 * * *",
     max_active_runs=1,
+    catchup=False,
 ) as dag:
     dbt_run = run_dbt_job("update_data")
 
