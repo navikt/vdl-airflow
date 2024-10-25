@@ -79,34 +79,34 @@ def anaplan_datahub_regnskapsdata():
         query="""
             select
                 md5(
-                    k.periode_navn
+                    k.periodenavn
                     || ds.statsregnskapskonti_segment_kode_niva_2
                     || '000000'
-                    || k.artskonti_segment_kode
-                    || k.kostnadssteder_segment_kode
-                    || k.produkter_segment_kode
-                    || k.oppgaver_segment_kode
-                    || k.felles_segment_kode
+                    || k.artskonto
+                    || k.kostnadssted
+                    || k.produkt
+                    || k.oppgave
+                    || k.felles
                 ) as pk,
-                k.periode_navn,
+                k.periodenavn as periode_navn,
                 -- Lagt til 6 nuller, pga. bakoverkompatibilitet
                 ds.statsregnskapskonti_segment_kode_niva_2
                 || '000000' as statsregnskapskonti_segment_kode,
-                k.artskonti_segment_kode,
-                k.kostnadssteder_segment_kode,
-                k.produkter_segment_kode,
-                k.oppgaver_segment_kode,
-                k.felles_segment_kode,
+                k.artskonto as artskonti_segment_kode,
+                k.kostnadssted as kostnadssteder_segment_kode,
+                k.produkt as produkter_segment_kode,
+                k.oppgave as oppgaver_segment_kode,
+                k.felles as felles_segment_kode,
                 sum(netto_nok) as sum_netto_nok
-            from regnskap.marts.fak_kontanthovedbok_posteringer_v0 k
+            from regnskap.marts.fak_kontanthovedbok_posteringer_v1 k
             join
                 regnskap.marts.dim_statsregnskapskonti ds
                 on 1 = 1
                 and ds.pk_dim_statsregnskapskonti = k.fk_dim_statsregnskapskonti
             where
                 1 = 1
-                and k.er_budsjett_postering = 0
-                and (endswith(k.periode_navn, '23') or endswith(k.periode_navn, '24'))
+                and k.er_budsjettpostering = 0
+                and (endswith(k.periodenavn, '23') or endswith(k.periodenavn, '24'))
             group by all
         """,
         import_hierarchy_data={
