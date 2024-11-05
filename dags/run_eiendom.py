@@ -9,7 +9,7 @@ from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
 
-INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:0958446dd9c28960d3dd9b1478e94b77bce03ef39cb1f8f3debafae27c30e12a"
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:b8c997e95bcda8acfe0425d3dc8404ca63967ff7efa8614bbb7d9cc6787d31a7"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
@@ -43,6 +43,7 @@ def last_fra_mainmanager(inbound_job_name: str):
         },
         allowlist=[
             "nav-test.mainmanager.no",
+            "nav.mainmanager.no",
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
@@ -186,15 +187,27 @@ with DAG(
 
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
-    mainmanager__dim_lokasjon = last_fra_mainmanager("mainmanager__dim_lokasjon")
+    mainmanager__dim_eiendom = last_fra_mainmanager("mainmanager__dim_eiendom")
+    mainmanager__dim_eiendomstype = last_fra_mainmanager(
+        "mainmanager__dim_eiendomstype"
+    )
+    mainmanager__dim_grunneiendom = last_fra_mainmanager(
+        "mainmanager__dim_grunneiendom"
+    )
     mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
     mainmanager__fak_hovedleiekontrakt = last_fra_mainmanager(
         "mainmanager__fak_hovedleiekontrakt"
     )
     mainmanager__dim_framleie1 = last_fra_mainmanager("mainmanager__dim_framleie1")
     mainmanager__dim_framleie2 = last_fra_mainmanager("mainmanager__dim_framleie2")
-    mainmanager__dim_avtaleposter = last_fra_mainmanager(
-        "mainmanager__dim_avtaleposter"
+    mainmanager__fak_avtalepost_hoved = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_hoved"
+    )
+    mainmanager__fak_avtalepost_fremleie1 = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_fremleie1"
+    )
+    mainmanager__fak_avtalepost_fremleie2 = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_fremleie2"
     )
 
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
@@ -255,12 +268,17 @@ with DAG(
 
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
-    mainmanager__dim_lokasjon >> dbt_run
+    mainmanager__dim_eiendom >> dbt_run
+    mainmanager__dim_eiendomstype >> dbt_run
+    mainmanager__dim_grunneiendom >> dbt_run
     mainmanager__oversettelser >> dbt_run
     mainmanager__fak_hovedleiekontrakt >> dbt_run
     mainmanager__dim_framleie1 >> dbt_run
     mainmanager__dim_framleie2 >> dbt_run
-    mainmanager__dim_avtaleposter >> dbt_run
+    mainmanager__fak_avtalepost_hoved >> dbt_run
+    # Ikke implementert i MainManager enda
+    # mainmanager__fak_avtalepost_fremleie1 >> dbt_run
+    # mainmanager__fak_avtalepost_fremleie2 >> dbt_run
 
     dvh_kodeverk__org_enhet_til_node >> dbt_run
     dvh_kodeverk__dim_org >> dbt_run
