@@ -203,12 +203,12 @@ with DAG(
     mainmanager__fak_avtalepost_hoved = last_fra_mainmanager(
         "mainmanager__fak_avtalepost_hoved"
     )
-    mainmanager__fak_avtalepost_fremleie1 = last_fra_mainmanager(
-        "mainmanager__fak_avtalepost_fremleie1"
-    )
-    mainmanager__fak_avtalepost_fremleie2 = last_fra_mainmanager(
-        "mainmanager__fak_avtalepost_fremleie2"
-    )
+    # mainmanager__fak_avtalepost_fremleie1 = last_fra_mainmanager(
+    #     "mainmanager__fak_avtalepost_fremleie1"
+    # )
+    # mainmanager__fak_avtalepost_fremleie2 = last_fra_mainmanager(
+    #     "mainmanager__fak_avtalepost_fremleie2"
+    # )
 
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
         "dvh_kodeverk__org_enhet_til_node"
