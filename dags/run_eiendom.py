@@ -43,6 +43,7 @@ def last_fra_mainmanager(inbound_job_name: str):
         },
         allowlist=[
             "nav-test.mainmanager.no",
+            "nav.mainmanager.no",
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
