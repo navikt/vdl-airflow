@@ -187,15 +187,27 @@ with DAG(
 
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
-    mainmanager__dim_lokasjon = last_fra_mainmanager("mainmanager__dim_lokasjon")
+    mainmanager__dim_eiendom = last_fra_mainmanager("mainmanager__dim_eiendom")
+    mainmanager__dim_eiendomstype = last_fra_mainmanager(
+        "mainmanager__dim_eiendomstype"
+    )
+    mainmanager__dim_grunneiendom = last_fra_mainmanager(
+        "mainmanager__dim_grunneiendom"
+    )
     mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
     mainmanager__fak_hovedleiekontrakt = last_fra_mainmanager(
         "mainmanager__fak_hovedleiekontrakt"
     )
     mainmanager__dim_framleie1 = last_fra_mainmanager("mainmanager__dim_framleie1")
     mainmanager__dim_framleie2 = last_fra_mainmanager("mainmanager__dim_framleie2")
-    mainmanager__dim_avtaleposter = last_fra_mainmanager(
-        "mainmanager__dim_avtaleposter"
+    mainmanager__fak_avtalepost_hoved = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_hoved"
+    )
+    mainmanager__fak_avtalepost_fremleie1 = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_fremleie1"
+    )
+    mainmanager__fak_avtalepost_fremleie2 = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_fremleie2"
     )
 
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
@@ -255,12 +267,17 @@ with DAG(
 
     mainmanager__dim_adresse >> dbt_run
     mainmanager__dim_bygg >> dbt_run
-    mainmanager__dim_lokasjon >> dbt_run
+    mainmanager__dim_eiendom >> dbt_run
+    mainmanager__dim_eiendomstype >> dbt_run
+    mainmanager__dim_grunneiendom >> dbt_run
     mainmanager__oversettelser >> dbt_run
     mainmanager__fak_hovedleiekontrakt >> dbt_run
     mainmanager__dim_framleie1 >> dbt_run
     mainmanager__dim_framleie2 >> dbt_run
-    mainmanager__dim_avtaleposter >> dbt_run
+    mainmanager__fak_avtalepost_hoved >> dbt_run
+    # Ikke implementert i MainManager enda
+    # mainmanager__fak_avtalepost_fremleie1 >> dbt_run
+    # mainmanager__fak_avtalepost_fremleie2 >> dbt_run
 
     dvh_kodeverk__org_enhet_til_node >> dbt_run
     dvh_kodeverk__dim_org >> dbt_run
