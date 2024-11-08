@@ -3,7 +3,7 @@ import os
 from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.models import Variable
-from airflow.providers.slack.operators.slack import SlackAPIPostOperator
+from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 
@@ -185,6 +185,7 @@ with DAG(
     )
     dvh_eiendom__statlok_lokale = last_fra_dvh_eiendom("dvh_eiendom__statlok_lokale")
 
+    mainmanager__grouping = EmptyOperator(task_id="mainmanager__grouping")
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
     mainmanager__dim_eiendom = last_fra_mainmanager("mainmanager__dim_eiendom")
@@ -267,17 +268,17 @@ with DAG(
     dvh_eiendom__statlok_leieobjekt >> dbt_run
     dvh_eiendom__statlok_lokale >> dbt_run
 
-    mainmanager__dim_adresse >> dbt_run
-    mainmanager__dim_bygg >> dbt_run
-    mainmanager__dim_eiendom >> dbt_run
-    mainmanager__dim_eiendomstype >> dbt_run
-    mainmanager__dim_grunneiendom >> dbt_run
-    mainmanager__oversettelser >> dbt_run
-    mainmanager__fak_hovedleiekontrakt >> dbt_run
-    mainmanager__dim_framleie1 >> dbt_run
-    mainmanager__dim_framleie2 >> dbt_run
-    mainmanager__fak_arealtall >> dbt_run
-    mainmanager__fak_avtalepost_hoved >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_adresse >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_bygg >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_run
+    mainmanager__grouping >> mainmanager__oversettelser >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_hovedleiekontrakt >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_framleie1 >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_framleie2 >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_arealtall >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_avtalepost_hoved >> dbt_run
     # Ikke implementert i MainManager enda
     # mainmanager__fak_avtalepost_fremleie1 >> dbt_run
     # mainmanager__fak_avtalepost_fremleie2 >> dbt_run
