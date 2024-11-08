@@ -20,7 +20,7 @@ SNOW_ALLOWLIST = [
     "storage.googleapis.com",
 ]
 
-BRANCH = Variable.get("REGNSKAP_BRANCH")
+BRANCH = Variable.get("REPORTING_BRANCH")
 
 
 def run_dbt_job(job_name: str):
