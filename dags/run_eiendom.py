@@ -200,6 +200,7 @@ with DAG(
     )
     mainmanager__dim_framleie1 = last_fra_mainmanager("mainmanager__dim_framleie1")
     mainmanager__dim_framleie2 = last_fra_mainmanager("mainmanager__dim_framleie2")
+    mainmanager__fak_arealtall = last_fra_mainmanager("mainmanager__fak_arealtall")
     mainmanager__fak_avtalepost_hoved = last_fra_mainmanager(
         "mainmanager__fak_avtalepost_hoved"
     )
@@ -275,6 +276,7 @@ with DAG(
     mainmanager__fak_hovedleiekontrakt >> dbt_run
     mainmanager__dim_framleie1 >> dbt_run
     mainmanager__dim_framleie2 >> dbt_run
+    mainmanager__fak_arealtall >> dbt_run
     mainmanager__fak_avtalepost_hoved >> dbt_run
     # Ikke implementert i MainManager enda
     # mainmanager__fak_avtalepost_fremleie1 >> dbt_run
