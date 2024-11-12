@@ -52,7 +52,7 @@ def run_dbt_job(job_name: str):
 
 
 with DAG(
-    "run_reporting",
+    "run_tilgangsstyring",
     start_date=datetime(2024, 10, 23),
     schedule_interval="0 3 * * *",
     max_active_runs=1,
