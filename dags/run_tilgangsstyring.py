@@ -38,7 +38,7 @@ def run_dbt_job(job_name: str):
         ],
         image=DBT_IMAGE,
         extra_envs={
-            "REPORTING_DB": Variable.get("tilgangsstyring_db"),
+            "TILGANGSSTYRING_DB": Variable.get("tilgangsstyring_db"),
             "DBT_USR": Variable.get("dbt_tilgangssstyring_user"),
             "DBT_PWD": Variable.get("dbt_tilgangssstyring_password"),
         },
