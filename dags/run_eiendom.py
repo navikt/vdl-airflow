@@ -3,13 +3,13 @@ import os
 from airflow import DAG
 from airflow.decorators import dag, task
 from airflow.models import Variable
-from airflow.providers.slack.operators.slack import SlackAPIPostOperator
+from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
 
-INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:b8c997e95bcda8acfe0425d3dc8404ca63967ff7efa8614bbb7d9cc6787d31a7"
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
@@ -185,6 +185,7 @@ with DAG(
     )
     dvh_eiendom__statlok_lokale = last_fra_dvh_eiendom("dvh_eiendom__statlok_lokale")
 
+    mainmanager__grouping = EmptyOperator(task_id="mainmanager__grouping")
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
     mainmanager__dim_bygg = last_fra_mainmanager("mainmanager__dim_bygg")
     mainmanager__dim_eiendom = last_fra_mainmanager("mainmanager__dim_eiendom")
@@ -267,17 +268,17 @@ with DAG(
     dvh_eiendom__statlok_leieobjekt >> dbt_run
     dvh_eiendom__statlok_lokale >> dbt_run
 
-    mainmanager__dim_adresse >> dbt_run
-    mainmanager__dim_bygg >> dbt_run
-    mainmanager__dim_eiendom >> dbt_run
-    mainmanager__dim_eiendomstype >> dbt_run
-    mainmanager__dim_grunneiendom >> dbt_run
-    mainmanager__oversettelser >> dbt_run
-    mainmanager__fak_hovedleiekontrakt >> dbt_run
-    mainmanager__dim_framleie1 >> dbt_run
-    mainmanager__dim_framleie2 >> dbt_run
-    mainmanager__fak_arealtall >> dbt_run
-    mainmanager__fak_avtalepost_hoved >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_adresse >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_bygg >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_run
+    mainmanager__grouping >> mainmanager__oversettelser >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_hovedleiekontrakt >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_framleie1 >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_framleie2 >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_arealtall >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_avtalepost_hoved >> dbt_run
     # Ikke implementert i MainManager enda
     # mainmanager__fak_avtalepost_fremleie1 >> dbt_run
     # mainmanager__fak_avtalepost_fremleie2 >> dbt_run
