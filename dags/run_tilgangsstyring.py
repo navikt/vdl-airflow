@@ -29,7 +29,7 @@ def run_dbt_job(job_name: str):
     return kubernetes_operator(
         dag=dag,
         name=job_name,
-        repo="navikt/vdl-reporting",
+        repo="navikt/vdl-tilgangsstyring",
         branch=BRANCH,
         working_dir="dbt",
         cmds=[
