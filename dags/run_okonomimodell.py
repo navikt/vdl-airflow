@@ -40,8 +40,8 @@ def run_dbt_job(job_name: str):
         image=DBT_IMAGE,
         extra_envs={
             "OKONOMIMODELL_DB": Variable.get("OKONOMIMODELL_DB"),
-            "DBT_USR": Variable.get("SRV_OKONOMIMODELL_USR"),
-            "DBT_PWD": Variable.get("SRV_OKONOMIMODELL_PWD"),
+            "DBT_USR": Variable.get("SRV_OKONOMIMODELL_USER"),
+            "DBT_PWD": Variable.get("SRV_OKONOMIMODELL_PASSWORD"),
         },
         allowlist=[
             "hub.getdbt.com",
