@@ -40,7 +40,7 @@ def run_dbt_job(job_name: str):
             "FAKTURA_DB": Variable.get("FAKTURA_DB"),
             "DBT_USR": Variable.get("SRV_FAKTURA_USR"),
             "SNOWFLAKE_FAKTURA_TRANSFORMER_PASSWORD": Variable.get(
-                "SRV_FAKTURA_PASSWORD"
+                "SRV_FAKTURA_PASSWORD "
             ),
         },
         allowlist=[
