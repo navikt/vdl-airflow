@@ -61,7 +61,5 @@ with DAG(
 ) as dag:
     dbt_run = run_dbt_job("update_data")
 
-    notify_slack_success = slack_success(dag=dag)
-
     # DAG
-    dbt_run >> notify_slack_success
+    dbt_run 
