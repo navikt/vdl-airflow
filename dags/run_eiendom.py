@@ -196,6 +196,7 @@ with DAG(
         "mainmanager__dim_grunneiendom"
     )
     mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
+    mainmanager__artikler = last_fra_mainmanager("mainmanager__artikler")
     mainmanager__fak_hovedleiekontrakt = last_fra_mainmanager(
         "mainmanager__fak_hovedleiekontrakt"
     )
@@ -205,12 +206,12 @@ with DAG(
     mainmanager__fak_avtalepost_hoved = last_fra_mainmanager(
         "mainmanager__fak_avtalepost_hoved"
     )
-    # mainmanager__fak_avtalepost_fremleie1 = last_fra_mainmanager(
-    #     "mainmanager__fak_avtalepost_fremleie1"
-    # )
-    # mainmanager__fak_avtalepost_fremleie2 = last_fra_mainmanager(
-    #     "mainmanager__fak_avtalepost_fremleie2"
-    # )
+    mainmanager__fak_avtalepost_fremleie1 = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_fremleie1"
+    )
+    mainmanager__fak_avtalepost_fremleie2 = last_fra_mainmanager(
+        "mainmanager__fak_avtalepost_fremleie2"
+    )
 
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
         "dvh_kodeverk__org_enhet_til_node"
@@ -274,14 +275,14 @@ with DAG(
     mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_run
     mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_run
     mainmanager__grouping >> mainmanager__oversettelser >> dbt_run
+    mainmanager__grouping >> mainmanager__artikler >> dbt_run
     mainmanager__grouping >> mainmanager__fak_hovedleiekontrakt >> dbt_run
     mainmanager__grouping >> mainmanager__dim_framleie1 >> dbt_run
     mainmanager__grouping >> mainmanager__dim_framleie2 >> dbt_run
     mainmanager__grouping >> mainmanager__fak_arealtall >> dbt_run
     mainmanager__grouping >> mainmanager__fak_avtalepost_hoved >> dbt_run
-    # Ikke implementert i MainManager enda
-    # mainmanager__fak_avtalepost_fremleie1 >> dbt_run
-    # mainmanager__fak_avtalepost_fremleie2 >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie1 >> dbt_run
+    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie2 >> dbt_run
 
     dvh_kodeverk__org_enhet_til_node >> dbt_run
     dvh_kodeverk__dim_org >> dbt_run
