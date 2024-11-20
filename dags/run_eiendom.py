@@ -114,8 +114,8 @@ def elementary(command: str):
         allowlist=["slack.com", "files.slack.com"] + SNOW_ALLOWLIST,
         extra_envs={
             "DB": Variable.get("eiendom_db"),
-            "DB_ROLE": "eiendom_transfomer",
-            "DB_WH": "eiendom_transfomer",
+            "DB_ROLE": "eiendom_transformer",
+            "DB_WH": "eiendom_transformer",
             "DBT_USR": Variable.get("srv_snowflake_user"),
             "DBT_PWD": Variable.get("srv_snowflake_password"),
             "SLACK_TOKEN": Variable.get("slack_token"),
