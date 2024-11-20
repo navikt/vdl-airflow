@@ -8,6 +8,7 @@ from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
+from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
@@ -101,6 +102,20 @@ def run_dbt_job(job_name: str):
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
+    )
+
+
+def elementary(command: str):
+    return elementary_operator(
+        dag=dag,
+        task_id=f"elementary_{command}",
+        commands=["./run.sh", command],
+        allowlist=["slack.com", "files.slack.com"] + SNOW_ALLOWLIST,
+        extra_envs={
+            "DB": Variable.get("EIENDOM_DB"),
+            "DB_ROLE": "eiendom_transfomer",
+            "DB_WH": "eiendom_transfomer",
+        },
     )
 
 
@@ -225,6 +240,8 @@ with DAG(
 
     notify_slack_success = slack_success(dag=dag)
 
+    elementary__report = elementary("report")
+
     # DAG
     dvh_eiendom__brukersted2lok >> dbt_run
     dvh_eiendom__eiendom_aarverk >> dbt_run
@@ -292,3 +309,4 @@ with DAG(
     dvh_hr__hragg_aarsverk >> dbt_run
 
     dbt_run >> notify_slack_success
+    dbt_run >> elementary__report
