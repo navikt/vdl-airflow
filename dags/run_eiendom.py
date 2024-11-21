@@ -12,7 +12,7 @@ from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
-ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:0976cb012d9c438daf28fc90f90d06e018ad58a030bfb4026da471182c038e37"
+ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:e6e2b5e0c87509893bd3c93b07c2abd47d712e8136a01e4e6421e4dd769c6545"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
     "ocsp.snowflakecomputing.com",
