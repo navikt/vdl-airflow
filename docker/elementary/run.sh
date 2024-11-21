@@ -20,7 +20,7 @@ fi
 if [ $1 = "dbt_docs" ]; then
   edr report
   curl -X PUT \
-    -F index.html=@elementary_report.html \
+    -F index.html=@edr_target/elementary_report.html \
     https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
 fi
 
