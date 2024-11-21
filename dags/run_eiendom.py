@@ -124,7 +124,10 @@ def elementary(command: str):
 
 
 with DAG(
-    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1
+    "run_eiendom",
+    start_date=days_ago(1),
+    schedule_interval="0 4 * * *",  # Hver dag klokken 04:00 UTC
+    max_active_runs=1,
 ) as dag:
 
     mainmanager__grouping = EmptyOperator(task_id="mainmanager__grouping")
