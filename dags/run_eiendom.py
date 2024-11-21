@@ -111,7 +111,8 @@ def elementary(command: str):
         dag=dag,
         task_id=f"elementary_{command}",
         commands=[command],
-        allowlist=["slack.com", "files.slack.com"] + SNOW_ALLOWLIST,
+        allowlist=["slack.com", "files.slack.com", Variable.get("dbt_docs_url")]
+        + SNOW_ALLOWLIST,
         extra_envs={
             "DB": Variable.get("eiendom_db"),
             "DB_ROLE": "eiendom_transformer",
