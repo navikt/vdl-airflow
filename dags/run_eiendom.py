@@ -12,7 +12,7 @@ from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
-ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:d15500dde4353c7007ba2daeb3555ace81995f9b607ee1e83f2dfe91e115e964"
+ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:eae098d3183dd13094dccd29cbc3f16fcca9023f83ba51f693c5cd56ee234076"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
     "ocsp.snowflakecomputing.com",
@@ -111,7 +111,8 @@ def elementary(command: str):
         dag=dag,
         task_id=f"elementary_{command}",
         commands=[command],
-        allowlist=["slack.com", "files.slack.com"] + SNOW_ALLOWLIST,
+        allowlist=["slack.com", "files.slack.com", Variable.get("dbt_docs_url")]
+        + SNOW_ALLOWLIST,
         extra_envs={
             "DB": Variable.get("eiendom_db"),
             "DB_ROLE": "eiendom_transformer",
@@ -131,83 +132,6 @@ def elementary(command: str):
 with DAG(
     "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1
 ) as dag:
-
-    dvh_eiendom__brukersted2lok = last_fra_dvh_eiendom("dvh_eiendom__brukersted2lok")
-    dvh_eiendom__eiendom_aarverk = last_fra_dvh_eiendom("dvh_eiendom__eiendom_aarverk")
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_aarverk_paa_lokasjon"
-    )
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato"
-    )
-    dvh_eiendom__eiendom_faktakorreksjon = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_faktakorreksjon"
-    )
-    dvh_eiendom__eiendom_matrikkel = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_matrikkel"
-    )
-    dvh_eiendom__eiendom_matrikkelkorreksjon = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_matrikkelkorreksjon"
-    )
-    dvh_eiendom__eiendom_matrikkel_veiadresse = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_matrikkel_veiadresse"
-    )
-    dvh_eiendom__lyd_bygg = last_fra_dvh_eiendom("dvh_eiendom__lyd_bygg")
-    dvh_eiendom__lyd_lok_komp = last_fra_dvh_eiendom("dvh_eiendom__lyd_lok_komp")
-    dvh_eiendom__lyd_lok = last_fra_dvh_eiendom("dvh_eiendom__lyd_lok")
-    dvh_eiendom__lyd_address = last_fra_dvh_eiendom("dvh_eiendom__lyd_address")
-    dvh_eiendom__lyd_postadr = last_fra_dvh_eiendom("dvh_eiendom__lyd_postadr")
-    dvh_eiendom__lyd_kommune = last_fra_dvh_eiendom("dvh_eiendom__lyd_kommune")
-    dvh_eiendom__lyd_county = last_fra_dvh_eiendom("dvh_eiendom__lyd_county")
-    dvh_eiendom__lyd_land = last_fra_dvh_eiendom("dvh_eiendom__lyd_land")
-    dvh_eiendom__dim_okonomi_aktivitet = last_fra_dvh_eiendom(
-        "dvh_eiendom__dim_okonomi_aktivitet"
-    )
-    dvh_eiendom__fak_eiendom_avtale = last_fra_dvh_eiendom(
-        "dvh_eiendom__fak_eiendom_avtale"
-    )
-    dvh_eiendom__dim_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__dim_lokasjon")
-    dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
-    dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
-    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom(
-        "dvh_eiendom__hrres_stillinger_eiendom"
-    )
-    dvh_eiendom__hrorg_orgstrukt_eiendom = last_fra_dvh_eiendom(
-        "dvh_eiendom__hrorg_orgstrukt_eiendom"
-    )
-    dvh_eiendom__lyd_agreementitem = last_fra_dvh_eiendom(
-        "dvh_eiendom__lyd_agreementitem"
-    )
-    dvh_eiendom__lyd_amount = last_fra_dvh_eiendom("dvh_eiendom__lyd_amount")
-    dvh_eiendom__lyd_avtaltyp = last_fra_dvh_eiendom("dvh_eiendom__lyd_avtaltyp")
-    dvh_eiendom__lyd_dicipline = last_fra_dvh_eiendom("dvh_eiendom__lyd_dicipline")
-    dvh_eiendom__lyd_doku_tab = last_fra_dvh_eiendom("dvh_eiendom__lyd_doku_tab")
-    dvh_eiendom__lyd_folder = last_fra_dvh_eiendom("dvh_eiendom__lyd_folder")
-    dvh_eiendom__lyd_metatable = last_fra_dvh_eiendom("dvh_eiendom__lyd_metatable")
-    dvh_eiendom__lyd_orghierk = last_fra_dvh_eiendom("dvh_eiendom__lyd_orghierk")
-    dvh_eiendom__lyd_price = last_fra_dvh_eiendom("dvh_eiendom__lyd_price")
-    dvh_eiendom__lyd_pricetype = last_fra_dvh_eiendom("dvh_eiendom__lyd_pricetype")
-    dvh_eiendom__lyd_userdefinedfielddef = last_fra_dvh_eiendom(
-        "dvh_eiendom__lyd_userdefinedfielddef"
-    )
-    dvh_eiendom__lyd_userdefinedfields = last_fra_dvh_eiendom(
-        "dvh_eiendom__lyd_userdefinedfields"
-    )
-    dvh_eiendom__lyd_userdefinedfieldswide = last_fra_dvh_eiendom(
-        "dvh_eiendom__lyd_userdefinedfieldswide"
-    )
-    dvh_eiendom__lyd_utl_stat = last_fra_dvh_eiendom("dvh_eiendom__lyd_utl_stat")
-    dvh_eiendom__eiendom_kor2024 = last_fra_dvh_eiendom("dvh_eiendom__eiendom_kor2024")
-    dvh_eiendom__eiendom_statenslokaler_json = last_fra_dvh_eiendom(
-        "dvh_eiendom__eiendom_statenslokaler_json"
-    )
-    dvh_eiendom__statlok_leieforhold = last_fra_dvh_eiendom(
-        "dvh_eiendom__statlok_leieforhold"
-    )
-    dvh_eiendom__statlok_leieobjekt = last_fra_dvh_eiendom(
-        "dvh_eiendom__statlok_leieobjekt"
-    )
-    dvh_eiendom__statlok_lokale = last_fra_dvh_eiendom("dvh_eiendom__statlok_lokale")
 
     mainmanager__grouping = EmptyOperator(task_id="mainmanager__grouping")
     mainmanager__dim_adresse = last_fra_mainmanager("mainmanager__dim_adresse")
@@ -252,49 +176,6 @@ with DAG(
     elementary__report = elementary("dbt_docs")
 
     # DAG
-    dvh_eiendom__brukersted2lok >> dbt_run
-    dvh_eiendom__eiendom_aarverk >> dbt_run
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon >> dbt_run
-    dvh_eiendom__eiendom_aarverk_paa_lokasjon_dato >> dbt_run
-    dvh_eiendom__eiendom_faktakorreksjon >> dbt_run
-    dvh_eiendom__eiendom_matrikkel >> dbt_run
-    dvh_eiendom__eiendom_matrikkelkorreksjon >> dbt_run
-    dvh_eiendom__eiendom_matrikkel_veiadresse >> dbt_run
-    dvh_eiendom__lyd_bygg >> dbt_run
-    dvh_eiendom__lyd_lok_komp >> dbt_run
-    dvh_eiendom__lyd_lok >> dbt_run
-    dvh_eiendom__lyd_address >> dbt_run
-    dvh_eiendom__lyd_postadr >> dbt_run
-    dvh_eiendom__lyd_kommune >> dbt_run
-    dvh_eiendom__lyd_county >> dbt_run
-    dvh_eiendom__lyd_land >> dbt_run
-    dvh_eiendom__dim_okonomi_aktivitet >> dbt_run
-    dvh_eiendom__fak_eiendom_avtale >> dbt_run
-    dvh_eiendom__dim_lokasjon >> dbt_run
-    dvh_eiendom__lyd_loc_dt >> dbt_run
-    dvh_eiendom__lyd_agreement >> dbt_run
-    dvh_eiendom__hrres_stillinger_eiendom >> dbt_run
-    dvh_eiendom__hrorg_orgstrukt_eiendom >> dbt_run
-    dvh_eiendom__lyd_agreementitem >> dbt_run
-    dvh_eiendom__lyd_amount >> dbt_run
-    dvh_eiendom__lyd_avtaltyp >> dbt_run
-    dvh_eiendom__lyd_dicipline >> dbt_run
-    dvh_eiendom__lyd_doku_tab >> dbt_run
-    dvh_eiendom__lyd_folder >> dbt_run
-    dvh_eiendom__lyd_metatable >> dbt_run
-    dvh_eiendom__lyd_orghierk >> dbt_run
-    dvh_eiendom__lyd_price >> dbt_run
-    dvh_eiendom__lyd_pricetype >> dbt_run
-    dvh_eiendom__lyd_userdefinedfielddef >> dbt_run
-    dvh_eiendom__lyd_userdefinedfields >> dbt_run
-    dvh_eiendom__lyd_userdefinedfieldswide >> dbt_run
-    dvh_eiendom__lyd_utl_stat >> dbt_run
-    dvh_eiendom__eiendom_kor2024 >> dbt_run
-    dvh_eiendom__eiendom_statenslokaler_json >> dbt_run
-    dvh_eiendom__statlok_leieforhold >> dbt_run
-    dvh_eiendom__statlok_leieobjekt >> dbt_run
-    dvh_eiendom__statlok_lokale >> dbt_run
-
     mainmanager__grouping >> mainmanager__dim_adresse >> dbt_run
     mainmanager__grouping >> mainmanager__dim_bygg >> dbt_run
     mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_run
