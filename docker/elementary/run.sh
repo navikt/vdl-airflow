@@ -35,7 +35,9 @@ fi
 
 if [ $1 = "dbt_docs" ]; then
   elementary2 send-report $SLACK_INFO_CHANNEL
-  curl -X PUT \
+  curl \
+    -L \
+    -X PUT \
     -F index.html=@edr_target/elementary_report.html \
     $url
   curl -d "text=DBT docs updated at $url" \
