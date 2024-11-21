@@ -17,7 +17,7 @@ elementary2 () {
     --slack-channel-name $2 \
     --target-path edr_target \
     --disable-samples true \
-    --disable html_attachment
+    --disable html_attachment \
     --s3-endpoint-url $url
 }
 
@@ -34,11 +34,10 @@ if [ $1 = "alert" ]; then
 fi
 
 if [ $1 = "dbt_docs" ]; then
-  edr report
+  elementary2 send-report $SLACK_INFO_CHANNEL
   curl -X PUT \
     -F index.html=@edr_target/elementary_report.html \
     $url
-  elementary2 send-report $SLACK_INFO_CHANNEL
   echo "DBT docs updated at $url"
   exit 0
 fi
