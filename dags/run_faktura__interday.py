@@ -19,8 +19,7 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-
-BRANCH = Variable.get("REGNSKAP_BRANCH")
+BRANCH = Variable.get("FAKTURA_BRANCH")
 
 
 def run_dbt_job(job_name: str):
@@ -29,18 +28,20 @@ def run_dbt_job(job_name: str):
     return kubernetes_operator(
         dag=dag,
         name=job_name,
-        repo="navikt/vdl-regnskapsdata",
+        repo="navikt/vdl-faktura",
         branch=BRANCH,
         working_dir="dbt",
         cmds=[
             "dbt deps",
-            "dbt run -s int_bilag__kontant__varm int_bilag__regnskap__varm int_hovedboksdetaljer__kontant__varm int_hovedboksdetaljer__regnskap__varm -t streamer",
+            "dbt run -s int_leverandor_oppfolging__varm",
         ],
         image=DBT_IMAGE,
         extra_envs={
-            "REGNSKAP_DB": Variable.get("REGNSKAP_DB"),
-            "SRV_USR": Variable.get("SRV_REGNSKAP_USR"),
-            "SRV_PWD": Variable.get("SRV_REGNSKAP_PWD"),
+            "FAKTURA_DB": Variable.get("FAKTURA_DB"),
+            "DBT_USR": Variable.get("SRV_FAKTURA_USR"),
+            "SNOWFLAKE_FAKTURA_TRANSFORMER_PASSWORD": Variable.get(
+                "SRV_FAKTURA_PASSWORD"
+            ),
         },
         allowlist=[
             "hub.getdbt.com",
@@ -52,8 +53,8 @@ def run_dbt_job(job_name: str):
 
 
 with DAG(
-    "run_regnskap__interday",
-    start_date=datetime(2024, 10, 23),
+    "run_faktura__interday",
+    start_date=datetime(2024, 11, 14),
     schedule_interval="0-59/10 4-19 * * *",
     max_active_runs=1,
     catchup=False,

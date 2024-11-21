@@ -13,4 +13,4 @@ export PERMISSION_BOT_AUTHENTICATOR="externalbrowser"
 export PERMISSION_BOT_DATABASE="faktura"
 export PERMISSION_BOT_ROLE="SECURITYADMIN"
 
-snowbird run --path $SCRIPTPATH
+$SCRIPTPATH/.snowbird-venv/bin/snowbird run --path $SCRIPTPATH

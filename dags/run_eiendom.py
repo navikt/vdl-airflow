@@ -8,9 +8,11 @@ from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 
 from custom.operators.slack_operator import slack_success, test_slack
+from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
+ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:bf4fa0521b1ba81514d979e06d8028619eb1636a23315f5e86eea052daa06e99"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
     "ocsp.snowflakecomputing.com",
@@ -19,7 +21,7 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = Variable.get("EIENDOM_BRANCH")
+BRANCH = Variable.get("eiendom_branch")
 
 
 def last_fra_mainmanager(inbound_job_name: str):
@@ -101,6 +103,28 @@ def run_dbt_job(job_name: str):
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
+    )
+
+
+def elementary(command: str):
+    return elementary_operator(
+        dag=dag,
+        task_id=f"elementary_{command}",
+        commands=[command],
+        allowlist=["slack.com", "files.slack.com"] + SNOW_ALLOWLIST,
+        extra_envs={
+            "DB": Variable.get("eiendom_db"),
+            "DB_ROLE": "eiendom_transformer",
+            "DB_WH": "eiendom_transformer",
+            "DBT_PROSJEKT": "eiendom",
+            "DBT_USR": Variable.get("srv_snowflake_user"),
+            "DBT_PWD": Variable.get("srv_snowflake_password"),
+            "HOST": Variable.get("dbt_docs_url"),
+            "SLACK_TOKEN": Variable.get("slack_token"),
+            "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
+            "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
+        },
+        image=ELEMENTARY_IMAGE,
     )
 
 
@@ -225,6 +249,8 @@ with DAG(
 
     notify_slack_success = slack_success(dag=dag)
 
+    elementary__report = elementary("dbt_docs")
+
     # DAG
     dvh_eiendom__brukersted2lok >> dbt_run
     dvh_eiendom__eiendom_aarverk >> dbt_run
@@ -292,3 +318,4 @@ with DAG(
     dvh_hr__hragg_aarsverk >> dbt_run
 
     dbt_run >> notify_slack_success
+    dbt_run >> elementary__report

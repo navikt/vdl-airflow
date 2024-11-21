@@ -13,4 +13,4 @@ RUN dbt --log-format json deps --project-dir /usr/local/lib/python3.10/site-pack
 
 ENV DO_NOT_TRACK=1
 
-ENTRYPOINT []
+ENTRYPOINT ["./run.sh"]
