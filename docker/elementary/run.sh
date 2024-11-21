@@ -38,6 +38,10 @@ if [ $1 = "dbt_docs" ]; then
   curl -X PUT \
     -F index.html=@edr_target/elementary_report.html \
     $url
+  curl -d "text=DBT docs updated at $url" \
+    -d "channel=$SLACK_INFO_CHANNEL" \
+    -H "Authorization: Bearer $SLACK_TOKEN" \
+    -X POST https://slack.com/api/chat.postMessage
   echo "DBT docs updated at $url"
   exit 0
 fi
