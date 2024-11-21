@@ -18,8 +18,11 @@ if [ $1 = "alert" ]; then
 fi
 
 if [ $1 = "dbt_docs" ]; then
-  elementary report 
+  edr report 
   curl -X PUT \
     -F elementary_report.html=@index.html \
     https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
 fi
+
+echo "Unknown command"
+exit 1
