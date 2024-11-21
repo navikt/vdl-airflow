@@ -25,34 +25,6 @@ SNOW_ALLOWLIST = [
 BRANCH = Variable.get("eiendom_branch")
 
 
-def last_fra_mainmanager(inbound_job_name: str):
-    from dataverk_airflow import python_operator
-
-    return python_operator(
-        dag=dag,
-        name=inbound_job_name,
-        repo="navikt/vdl-eiendom",
-        branch=BRANCH,
-        script_path=f"ingest/run.py {inbound_job_name}",
-        image=INBOUND_IMAGE,
-        extra_envs={
-            "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
-            "MAINMANAGER_API_USERNAME": Variable.get("MAINMANAGER_API_USERNAME"),
-            "MAINMANAGER_API_PASSWORD": Variable.get("MAINMANAGER_API_PASSWORD"),
-            "MAINMANAGER_URL": Variable.get("MAINMANAGER_URL"),
-            "SNOW_USR": Variable.get("SNOW_USR"),
-            "SNOW_PWD": Variable.get("SNOW_PWD"),
-            "RUN_ID": "{{ run_id }}",
-        },
-        allowlist=[
-            "nav-test.mainmanager.no",
-            "nav.mainmanager.no",
-        ]
-        + SNOW_ALLOWLIST,
-        slack_channel=Variable.get("slack_error_channel"),
-    )
-
-
 def last_fra_dvh_eiendom(inbound_job_name: str):
     from dataverk_airflow import python_operator
 
@@ -77,56 +49,6 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
-    )
-
-
-def run_dbt_job(job_name: str):
-    from dataverk_airflow import kubernetes_operator
-
-    return kubernetes_operator(
-        dag=dag,
-        name=job_name,
-        repo="navikt/vdl-eiendom",
-        branch=BRANCH,
-        working_dir="dbt",
-        cmds=["dbt deps", "dbt build"],
-        image=DBT_IMAGE,
-        extra_envs={
-            "EIENDOM_DB": Variable.get("EIENDOM_DB"),
-            "SRV_USR": Variable.get("SRV_USR"),
-            "SRV_PWD": Variable.get("SRV_PWD"),
-            "SNOW_USR": Variable.get("SNOW_USR"),
-            "SNOW_PWD": Variable.get("SNOW_PWD"),
-            "RUN_ID": "{{ run_id }}",
-        },
-        allowlist=[
-            "hub.getdbt.com",
-        ]
-        + SNOW_ALLOWLIST,
-        slack_channel=Variable.get("slack_error_channel"),
-    )
-
-
-def elementary(command: str):
-    return elementary_operator(
-        dag=dag,
-        task_id=f"elementary_{command}",
-        commands=[command],
-        allowlist=["slack.com", "files.slack.com", Variable.get("dbt_docs_url")]
-        + SNOW_ALLOWLIST,
-        extra_envs={
-            "DB": Variable.get("eiendom_db"),
-            "DB_ROLE": "eiendom_transformer",
-            "DB_WH": "eiendom_transformer",
-            "DBT_PROSJEKT": "eiendom",
-            "DBT_USR": Variable.get("srv_snowflake_user"),
-            "DBT_PWD": Variable.get("srv_snowflake_password"),
-            "HOST": Variable.get("dbt_docs_url"),
-            "SLACK_TOKEN": Variable.get("slack_token"),
-            "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
-            "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
-        },
-        image=ELEMENTARY_IMAGE,
     )
 
 

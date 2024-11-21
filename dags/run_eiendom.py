@@ -118,19 +118,16 @@ def elementary(command: str):
             "DB_ROLE": "eiendom_transformer",
             "DB_WH": "eiendom_transformer",
             "DBT_PROSJEKT": "eiendom",
-            "DBT_USR": Variable.get("srv_snowflake_user"),
-            "DBT_PWD": Variable.get("srv_snowflake_password"),
-            "HOST": Variable.get("dbt_docs_url"),
-            "SLACK_TOKEN": Variable.get("slack_token"),
-            "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
-            "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
         },
         image=ELEMENTARY_IMAGE,
     )
 
 
 with DAG(
-    "run_eiendom", start_date=days_ago(1), schedule_interval=None, max_active_runs=1
+    "run_eiendom",
+    start_date=days_ago(1),
+    schedule_interval="0 4 * * *",  # Hver dag klokken 04:00 UTC
+    max_active_runs=1,
 ) as dag:
 
     mainmanager__grouping = EmptyOperator(task_id="mainmanager__grouping")
