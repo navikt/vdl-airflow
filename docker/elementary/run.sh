@@ -16,3 +16,10 @@ fi
 if [ $1 = "alert" ]; then
   elementary monitor $SLACK_ALERT_CHANNEL
 fi
+
+if [ $1 = "dbt_docs" ]; then
+  elementary report 
+  curl -X PUT \
+    -F elementary_report.html=@index.html \
+    https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
+fi
