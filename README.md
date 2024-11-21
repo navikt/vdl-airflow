@@ -1,8 +1,24 @@
 # vdl-airflow
 
+## Lokal utvikling
+
+Kjør `make install` for å installere lokalt.
+
+```shell
+make install
+```
+
+## Snowbird
+
+Bruk `run_snowbird.sh` for å kjøre snowbird.
+
+```shell
+./infrastructure/run_snowbird.sh
+```
+
 ## Miljøer
 
-### prod 
+### prod
 - AirFlow URL: https://vdl.airflow.knada.io
 - Git branch: `main`
 
@@ -40,13 +56,13 @@ gitGraph
 Stå i `main` branchen.
 
 ```
-git switch main 
+git switch main
 ```
 
 Pull endringer i `main`
 
 ```
-git pull 
+git pull
 ```
 
 Opprett egen utviklingsbranch
@@ -57,14 +73,14 @@ git switch -c min-superfancy-utviklingsbranch
 
 ### Deploy
 
-Når du ønsker å deploye kode til prod, eller dev må koden pushes til main-branchen for prod eller dev-branchen for dev. 
+Når du ønsker å deploye kode til prod, eller dev må koden pushes til main-branchen for prod eller dev-branchen for dev.
 
 ```
 git switch <main/dev>
 ```
 
 ```
-git pull 
+git pull
 ```
 
 ```
@@ -74,4 +90,3 @@ git merge `<utviklingsbranch>`
 ```
 git push
 ```
-

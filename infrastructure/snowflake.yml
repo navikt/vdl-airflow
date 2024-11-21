@@ -6,8 +6,17 @@ roles:
       member_of:
         - regnskap_transformer
         - faktura_transformer
+        - eiendom_transformer
       warehouses:
         - airflow_transformer
+  - airflow_orchestrator:
+      member_of:
+        - regnskap_transformer
+        - regnskap_loader
+        - faktura_transformer
+        - faktura_loader
+        - eiendom_transformer
+        - eiendom_loader
 
   - reporting_airflow:
       member_of:
@@ -25,6 +34,10 @@ users:
       can_login: yes
       member_of:
         - airflow_transformer
+  - srv_airflow:
+      can_login: yes
+      member_of:
+        - airflow_orchestrator
 
 # Warehouses to be created
 warehouses:

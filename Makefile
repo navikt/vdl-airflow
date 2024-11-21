@@ -3,6 +3,8 @@ SHELL = /bin/bash
 
 PY = ./.venv/bin/python -m
 
+PY_SNOWBIRD = ./infrastructure/.snowbird-venv/bin/python -m
+
 src = .
 
 isort = $(PY) isort $(src)
@@ -24,8 +26,8 @@ _install_airflow:
 _install_snowbird:
 	rm -rf infrastructure/.snowbird-venv
 	python3.10 -m venv infrastructure/.snowbird-venv && \
-		${PY} pip install --upgrade pip && \
-		${PY} pip install snowbird@git+https://github.com/navikt/snowbird.git
+		${PY_SNOWBIRD} pip install --upgrade pip && \
+		${PY_SNOWBIRD} pip install snowbird@git+https://github.com/navikt/snowbird@v0.1
 
 .PHONY: format  ## Auto-format the source code (isort, black)
 format:

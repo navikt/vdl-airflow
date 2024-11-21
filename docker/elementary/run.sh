@@ -1,23 +1,7 @@
 #!/bin/bash
 set -e
 
-secret_filename="secret.json"
-access_token=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token | jq -r ".access_token")
-
-curl "https://secretmanager.googleapis.com/v1/$KNADA_TEAM_SECRET/versions/latest:access" \
-    --request "GET" \
-    --header "authorization: Bearer $access_token" \
-    --header "content-type: application/json" \
-    | jq -r ".payload.data" | base64 --decode >> $secret_filename
-
-export DBT_USR=$(cat $secret_filename | jq -r '.DBT_USR')
-export DBT_PWD=$(cat $secret_filename | jq -r '.DBT_PWD')
-export SLACK_TOKEN=$(cat $secret_filename | jq -r '.SLACK_TOKEN')
-export SLACK_ALERT_CHANNEL=$(cat $secret_filename | jq -r '.SLACK_ALERT_CHANNEL')
-export SLACK_INFO_CHANNEL=$(cat $secret_filename | jq -r '.SLACK_INFO_CHANNEL')
-
-CHANNEL_ALERT=$SLACK_ALERT_CHANNEL
-CHANNEL_INFO=$SLACK_INFO_CHANNEL
+url=https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
 
 elementary () {
   edr $1 \
@@ -27,10 +11,40 @@ elementary () {
     --disable-samples true
 }
 
+elementary2 () {
+  edr $1 \
+    --slack-token $SLACK_TOKEN \
+    --slack-channel-name $2 \
+    --target-path edr_target \
+    --disable-samples true \
+    --disable html_attachment \
+    --s3-endpoint-url $url
+}
+
 if [ $1 = "report" ]; then
-  elementary send-report $CHANNEL_INFO
+  elementary send-report $SLACK_INFO_CHANNEL
+  echo "Report sent to $SLACK_INFO_CHANNEL"
+  exit 0
 fi
 
 if [ $1 = "alert" ]; then
-  elementary monitor $CHANNEL_ALERT
+  elementary monitor $SLACK_ALERT_CHANNEL
+  echo "Alert sent to $SLACK_ALERT_CHANNEL"
+  exit 0
 fi
+
+if [ $1 = "dbt_docs" ]; then
+  elementary2 send-report $SLACK_INFO_CHANNEL
+  curl -X PUT \
+    -F index.html=@edr_target/elementary_report.html \
+    $url
+  curl -d "text=DBT docs updated at $url" \
+    -d "channel=$SLACK_INFO_CHANNEL" \
+    -H "Authorization: Bearer $SLACK_TOKEN" \
+    -X POST https://slack.com/api/chat.postMessage
+  echo "DBT docs updated at $url"
+  exit 0
+fi
+
+echo "Unknown command"
+exit 1
