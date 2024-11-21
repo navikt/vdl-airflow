@@ -18,9 +18,9 @@ if [ $1 = "alert" ]; then
 fi
 
 if [ $1 = "dbt_docs" ]; then
-  edr report 
+  edr report
   curl -X PUT \
-    -F elementary_report.html=@index.html \
+    -F index.html=@elementary_report.html \
     https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
 fi
 
