@@ -11,17 +11,24 @@ elementary () {
 
 if [ $1 = "report" ]; then
   elementary send-report $SLACK_INFO_CHANNEL
+  echo "Report sent to $SLACK_INFO_CHANNEL"
+  exit 0
 fi
 
 if [ $1 = "alert" ]; then
   elementary monitor $SLACK_ALERT_CHANNEL
+  echo "Alert sent to $SLACK_ALERT_CHANNEL"
+  exit 0
 fi
 
 if [ $1 = "dbt_docs" ]; then
+  url=https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
   edr report
   curl -X PUT \
     -F index.html=@edr_target/elementary_report.html \
-    https://$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
+    $url
+  echo "DBT docs updated at $url"
+  exit 0
 fi
 
 echo "Unknown command"
