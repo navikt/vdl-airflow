@@ -33,7 +33,7 @@ def elementary_operator(
         "KNADA_TEAM_SECRET": os.environ["KNADA_TEAM_SECRET"],
         "DBT_USR": Variable.get("srv_snowflake_user"),
         "DBT_PWD": Variable.get("srv_snowflake_password"),
-        "HOST": Variable.get("dbt_docs_url"),
+        "HOST": Variable.get("nav_subdomain"),
         "SLACK_TOKEN": Variable.get("slack_token"),
         "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
         "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
