@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from typing import Optional
 
 import kubernetes.client as k8s
 from airflow import DAG
@@ -24,6 +25,11 @@ def elementary_operator(
     dag: DAG,
     task_id: str,
     commands: list[str],
+    database: str,
+    schema: str,
+    snowflake_role: str,
+    snowflake_warehouse: str,
+    dbt_docs_project_name: Optional[str] = None,
     namespace: str = os.getenv("NAMESPACE"),
     retries: int = 3,
     extra_envs: dict = None,
@@ -51,6 +57,10 @@ def elementary_operator(
         "SLACK_TOKEN": Variable.get("slack_token"),
         "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
         "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
+        "DB": database,
+        "DB_ROLE": snowflake_role,
+        "DB_WH": snowflake_warehouse,
+        "DBT_PROSJEKT": dbt_docs_project_name,
     }
 
     allowlist = (

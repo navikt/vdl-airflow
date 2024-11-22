@@ -287,22 +287,20 @@ with DAG(
         dag=dag,
         task_id="faktura_alert",
         commands=["alert"],
-        extra_envs={
-            "DB": "faktura",
-            "DB_ROLE": "faktura_transformer",
-            "DB_WH": "faktura_transformer",
-        },
+        database="faktura",
+        schema="meta",
+        snowflake_role="faktura_transformer",
+        snowflake_warehouse="faktura_transformer",
     )
 
     faktura_report = elementary_operator(
         dag=dag,
         task_id="faktura_report",
         commands=["report"],
-        extra_envs={
-            "DB": "faktura",
-            "DB_ROLE": "faktura_transformer",
-            "DB_WH": "faktura_transformer",
-        },
+        database="faktura",
+        schema="meta",
+        snowflake_role="faktura_transformer",
+        snowflake_warehouse="faktura_transformer",
     )
 
     invoice >> wait_invoice

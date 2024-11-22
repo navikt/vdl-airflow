@@ -111,12 +111,11 @@ def elementary(command: str):
         dag=dag,
         task_id=f"elementary_{command}",
         commands=[command],
-        extra_envs={
-            "DB": Variable.get("eiendom_db"),
-            "DB_ROLE": "eiendom_transformer",
-            "DB_WH": "eiendom_transformer",
-            "DBT_PROSJEKT": "eiendom",
-        },
+        database=Variable.get("eiendom_db"),
+        schema="meta",
+        snowflake_role="eiendom_transformer",
+        snowflake_warehouse="eiendom_transformer",
+        dbt_docs_project_name="eiendom",
         image=ELEMENTARY_IMAGE,
     )
 
