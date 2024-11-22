@@ -301,17 +301,11 @@ with DAG(
     regnskap_report = elementary_operator(
         dag=dag,
         task_id="regnskap_report",
-        commands=["./run.sh", "report"],
-        allowlist=[
-            "slack.com",
-            "files.slack.com",
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-        ],
-        extra_envs={
-            "DB": "regnskap",
-            "DB_ROLE": "regnskap_transformer",
-            "DB_WH": "regnskap_transformer",
-        },
+        commands=["report"],
+        database="regnskap",
+        schema="meta",
+        snowflake_role="regnskap_transformer",
+        snowflake_warehouse="regnskap_transformer",
     )
 
     period_status >> wait_period_status
