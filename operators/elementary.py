@@ -10,6 +10,15 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 
 from custom.operators.slack_operator import slack_error
 
+SNOW_ALLOWLIST = [
+    "wx23413.europe-west4.gcp.snowflakecomputing.com",
+    "ocsp.snowflakecomputing.com",
+    "ocsp.digicert.com:80",
+    "o.pki.goog:80",
+    "ocsp.pki.goo:80",
+    "storage.googleapis.com",
+]
+
 
 def elementary_operator(
     dag: DAG,
@@ -25,7 +34,7 @@ def elementary_operator(
     image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:5c42da6b6e2e581433fb124805de5e576904dc7881992db085a765d8fe16d620",
     allowlist: list = [],
     *args,
-    **kwargs
+    **kwargs,
 ):
     env_vars = {
         "TZ": os.environ["TZ"],
@@ -33,11 +42,22 @@ def elementary_operator(
         "KNADA_TEAM_SECRET": os.environ["KNADA_TEAM_SECRET"],
         "DBT_USR": Variable.get("srv_snowflake_user"),
         "DBT_PWD": Variable.get("srv_snowflake_password"),
-        "HOST": Variable.get("dbt_docs_url"),
+        "DBT_DOCS_URL": f"https://dbt.intern.{Variable.get('nav_subdomain')}",
+        "DBT_DOCS_FOR_SLACK_URL": f"https://dbt.ansatt.{Variable.get('nav_subdomain')}",
         "SLACK_TOKEN": Variable.get("slack_token"),
         "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
         "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
     }
+
+    allowlist = (
+        [
+            "slack.com",
+            "files.slack.com",
+            env_vars["DBT_DOCS_URL"],
+        ]
+        + SNOW_ALLOWLIST
+        + allowlist
+    )
 
     if extra_envs:
         env_vars = dict(env_vars, **extra_envs)
@@ -62,5 +82,5 @@ def elementary_operator(
         },
         retries=retries,
         retry_delay=retry_delay,
-        **kwargs
+        **kwargs,
     )

@@ -12,7 +12,7 @@ from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
-ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:eae098d3183dd13094dccd29cbc3f16fcca9023f83ba51f693c5cd56ee234076"
+ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:603941574c7f52b3ea3091649a3890dec5382947f527c180edfd71d5c2149bf6"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
     "ocsp.snowflakecomputing.com",
@@ -111,8 +111,6 @@ def elementary(command: str):
         dag=dag,
         task_id=f"elementary_{command}",
         commands=[command],
-        allowlist=["slack.com", "files.slack.com", Variable.get("dbt_docs_url")]
-        + SNOW_ALLOWLIST,
         extra_envs={
             "DB": Variable.get("eiendom_db"),
             "DB_ROLE": "eiendom_transformer",

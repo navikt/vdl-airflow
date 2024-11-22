@@ -98,7 +98,7 @@ def anaplan_datahub_regnskapsdata():
                 k.oppgave as oppgaver_segment_kode,
                 k.felles as felles_segment_kode,
                 sum(netto_nok) as sum_netto_nok
-            from regnskap.marts.fak_kontanthovedbok_posteringer_v1 k
+            from regnskap.marts.fak_kontanthovedbok_v1 k
             join
                 regnskap.marts.dim_statsregnskapskonti ds
                 on 1 = 1

@@ -286,7 +286,7 @@ with DAG(
     faktura_alert = elementary_operator(
         dag=dag,
         task_id="faktura_alert",
-        commands=["./run.sh", "alert"],
+        commands=["alert"],
         allowlist=[
             "slack.com",
             "files.slack.com",
@@ -302,7 +302,7 @@ with DAG(
     faktura_report = elementary_operator(
         dag=dag,
         task_id="faktura_report",
-        commands=["./run.sh", "report"],
+        commands=["report"],
         allowlist=[
             "slack.com",
             "files.slack.com",

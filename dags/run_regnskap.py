@@ -134,52 +134,8 @@ with DAG(
     sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
     wait_sync_check = check_status_for_inbound_job(sync_check)
 
-    general_ledger_closed = run_inbound_job.override(
-        task_id="start_general_ledger_closed"
-    )("general_ledger_closed")
-    wait_general_ledger_closed = check_status_for_inbound_job(general_ledger_closed)
-
-    general_ledger_open = run_inbound_job.override(task_id="start_general_ledger_open")(
-        "general_ledger_open"
-    )
-    wait_general_ledger_open = check_status_for_inbound_job(general_ledger_open)
-
-    balance_closed = run_inbound_job.override(task_id="start_balance_closed")(
-        "balance_closed"
-    )
-    wait_balance_closed = check_status_for_inbound_job(balance_closed)
-
-    balance_open = run_inbound_job.override(task_id="start_balance_open")(
-        "balance_open"
-    )
-    wait_balance_open = check_status_for_inbound_job(balance_open)
-
     suppliers = run_inbound_job.override(task_id="start_suppliers")("suppliers")
     wait_suppliers = check_status_for_inbound_job(suppliers)
-
-    accounts_payable_open = run_inbound_job.override(
-        task_id="start_accounts_payable_open"
-    )("accounts_payable_open")
-    wait_accounts_payable_open = check_status_for_inbound_job(accounts_payable_open)
-
-    accounts_payable_closed = run_inbound_job.override(
-        task_id="start_accounts_payable_closed"
-    )("accounts_payable_closed")
-    wait_accounts_payable_closed = check_status_for_inbound_job(accounts_payable_closed)
-
-    accounts_receivable_open = run_inbound_job.override(
-        task_id="start_accounts_receivable_open"
-    )("accounts_receivable_open")
-    wait_accounts_receivable_open = check_status_for_inbound_job(
-        accounts_receivable_open
-    )
-
-    accounts_receivable_closed = run_inbound_job.override(
-        task_id="start_accounts_receivable_closed"
-    )("accounts_receivable_closed")
-    wait_accounts_receivable_closed = check_status_for_inbound_job(
-        accounts_receivable_closed
-    )
 
     budget = run_inbound_job.override(task_id="start_budget")("budget")
     wait_budget = check_status_for_inbound_job(budget)
@@ -359,24 +315,8 @@ with DAG(
     )
 
     period_status >> wait_period_status
-    wait_period_status >> general_ledger_closed
-    wait_period_status >> balance_closed
-    wait_period_status >> accounts_payable_closed
-    wait_period_status >> accounts_receivable_closed
 
     sync_check >> wait_sync_check
-
-    general_ledger_closed >> wait_general_ledger_closed
-    general_ledger_open >> wait_general_ledger_open
-
-    balance_open >> wait_balance_open
-    balance_closed >> wait_balance_closed
-
-    accounts_payable_closed >> wait_accounts_payable_closed
-    accounts_payable_open >> wait_accounts_payable_open
-
-    accounts_payable_closed >> wait_accounts_receivable_closed
-    accounts_receivable_open >> wait_accounts_receivable_open
 
     suppliers >> wait_suppliers
     segment >> wait_segment
@@ -386,17 +326,9 @@ with DAG(
     customers >> wait_customers
 
     wait_sync_check >> dbt_freshness
-    wait_general_ledger_open >> dbt_freshness
-    wait_general_ledger_closed >> dbt_freshness
-    wait_balance_open >> dbt_freshness
-    wait_balance_closed >> dbt_freshness
     wait_suppliers >> dbt_freshness
     wait_hierarchy >> dbt_freshness
     wait_segment >> dbt_freshness
-    wait_accounts_payable_open >> dbt_freshness
-    wait_accounts_payable_closed >> dbt_freshness
-    wait_accounts_receivable_open >> dbt_freshness
-    wait_accounts_receivable_closed >> dbt_freshness
     wait_budget >> dbt_freshness
     wait_prognosis >> dbt_freshness
     wait_customers >> dbt_freshness
