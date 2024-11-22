@@ -33,17 +33,21 @@ def elementary_operator(
     nls_lang: str = "NORWEGIAN_NORWAY.AL32UTF8",
     image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:5c42da6b6e2e581433fb124805de5e576904dc7881992db085a765d8fe16d620",
     allowlist: list = [],
+    dbt_docs_uri = f"dbt.intern.{Variable.get('nav_subdomain')}",
+    dbt_docs_for_slack_uri = f"dbt.ansatt.{Variable.get('nav_subdomain')}",
     *args,
     **kwargs,
 ):
+    
+    
     env_vars = {
         "TZ": os.environ["TZ"],
         "NLS_LANG": nls_lang,
         "KNADA_TEAM_SECRET": os.environ["KNADA_TEAM_SECRET"],
         "DBT_USR": Variable.get("srv_snowflake_user"),
         "DBT_PWD": Variable.get("srv_snowflake_password"),
-        "DBT_DOCS_URL": f"https://dbt.intern.{Variable.get('nav_subdomain')}",
-        "DBT_DOCS_FOR_SLACK_URL": f"https://dbt.ansatt.{Variable.get('nav_subdomain')}",
+        "DBT_DOCS_URL": f"https://{dbt_docs_uri}",
+        "DBT_DOCS_FOR_SLACK_URL": f"https://{dbt_docs_for_slack_uri}",
         "SLACK_TOKEN": Variable.get("slack_token"),
         "SLACK_ALERT_CHANNEL": Variable.get("slack_error_channel"),
         "SLACK_INFO_CHANNEL": Variable.get("slack_info_channel"),
@@ -53,7 +57,7 @@ def elementary_operator(
         [
             "slack.com",
             "files.slack.com",
-            env_vars["DBT_DOCS_URL"],
+            dbt_docs_uri,
         ]
         + SNOW_ALLOWLIST
         + allowlist
