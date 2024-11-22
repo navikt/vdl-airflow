@@ -15,8 +15,7 @@ elementary2 () {
     --slack-channel-name $2 \
     --target-path edr_target \
     --disable-samples true \
-    --disable html_attachment \
-    --s3-endpoint-url $url
+    --disable html_attachment
 }
 
 if [ $1 = "report" ]; then
