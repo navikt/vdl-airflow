@@ -287,11 +287,6 @@ with DAG(
         dag=dag,
         task_id="faktura_alert",
         commands=["alert"],
-        allowlist=[
-            "slack.com",
-            "files.slack.com",
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-        ],
         extra_envs={
             "DB": "faktura",
             "DB_ROLE": "faktura_transformer",
@@ -303,11 +298,6 @@ with DAG(
         dag=dag,
         task_id="faktura_report",
         commands=["report"],
-        allowlist=[
-            "slack.com",
-            "files.slack.com",
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-        ],
         extra_envs={
             "DB": "faktura",
             "DB_ROLE": "faktura_transformer",

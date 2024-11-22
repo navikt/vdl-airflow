@@ -31,7 +31,7 @@ def elementary_operator(
     startup_timeout_seconds: int = 360,
     retry_delay: timedelta = timedelta(seconds=120),
     nls_lang: str = "NORWEGIAN_NORWAY.AL32UTF8",
-    image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:5c42da6b6e2e581433fb124805de5e576904dc7881992db085a765d8fe16d620",
+    image: str = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:2f8187434db61ead6a32478ca82210733589c277dc8a4c744ccd0afe0c4f6610",
     allowlist: list = [],
     dbt_docs_uri = f"dbt.intern.{Variable.get('nav_subdomain')}",
     dbt_docs_for_slack_uri = f"dbt.ansatt.{Variable.get('nav_subdomain')}",
