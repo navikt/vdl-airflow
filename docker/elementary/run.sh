@@ -35,8 +35,8 @@ if [ $1 = "dbt_docs" ]; then
   elementary2 send-report $SLACK_INFO_CHANNEL
   curl -X PUT \
     -F index.html=@edr_target/elementary_report.html \
-    https://dbt.intern.$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT
-  curl -d "text=DBT docs updated at https://dbt.ansatt.$HOST/docs/virksomhetsdatalaget/$DBT_PROSJEKT" \
+    $DBT_DOCS_URL/docs/virksomhetsdatalaget/$DBT_PROSJEKT
+  curl -d "text=DBT docs updated at $DBT_DOCS_FOR_SLACK_URL/docs/virksomhetsdatalaget/$DBT_PROSJEKT" \
     -d "channel=$SLACK_INFO_CHANNEL" \
     -H "Authorization: Bearer $SLACK_TOKEN" \
     -X POST https://slack.com/api/chat.postMessage
