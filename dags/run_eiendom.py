@@ -88,7 +88,7 @@ def run_dbt_job(job_name: str):
         repo="navikt/vdl-eiendom",
         branch=BRANCH,
         working_dir="dbt",
-        cmds=["dbt deps", "dbt build"],
+        cmds=["dbt deps", "{{ job_name}}"],
         image=DBT_IMAGE,
         extra_envs={
             "EIENDOM_DB": Variable.get("EIENDOM_DB"),
@@ -163,7 +163,9 @@ with DAG(
     dvh_kodeverk__dim_virksomhet = last_fra_dvh_eiendom("dvh_kodeverk__dim_virksomhet")
     dvh_hr__hragg_aarsverk = last_fra_dvh_eiendom("dvh_hr__hragg_aarsverk")
 
-    dbt_run = run_dbt_job("dbt_build")
+    dbt_run = run_dbt_job("dbt run")
+    dbt_test = run_dbt_job("dbt test")
+    dbt_build = run_dbt_job("dbt build")
 
     notify_slack_success = slack_success(dag=dag)
 
@@ -192,5 +194,6 @@ with DAG(
 
     dvh_hr__hragg_aarsverk >> dbt_run
 
-    dbt_run >> notify_slack_success
-    dbt_run >> elementary__report
+    dbt_run >> dbt_test
+    dbt_test >> elementary__report
+    dbt_test >> dbt_build >> notify_slack_success
