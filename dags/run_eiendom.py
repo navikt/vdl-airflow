@@ -84,11 +84,11 @@ def run_dbt_job(job_name: str):
 
     return kubernetes_operator(
         dag=dag,
-        name=job_name,
+        name=job_name.replace(" ", "_"),
         repo="navikt/vdl-eiendom",
         branch=BRANCH,
         working_dir="dbt",
-        cmds=["dbt deps", "{{ job_name}}"],
+        cmds=["dbt deps", "{{ job_name }}"],
         image=DBT_IMAGE,
         extra_envs={
             "EIENDOM_DB": Variable.get("EIENDOM_DB"),
