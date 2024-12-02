@@ -301,11 +301,12 @@ with DAG(
     regnskap_report = elementary_operator(
         dag=dag,
         task_id="regnskap_report",
-        commands=["report"],
+        commands=["dbt_docs"],
         database="regnskap",
         schema="meta",
         snowflake_role="regnskap_transformer",
         snowflake_warehouse="regnskap_transformer",
+        dbt_docs_project_name="regnskap",
     )
 
     period_status >> wait_period_status
