@@ -296,11 +296,12 @@ with DAG(
     faktura_report = elementary_operator(
         dag=dag,
         task_id="faktura_report",
-        commands=["report"],
+        commands=["dbt_docs"],
         database="faktura",
         schema="meta",
         snowflake_role="faktura_transformer",
         snowflake_warehouse="faktura_transformer",
+        dbt_docs_project_name="faktura",
     )
 
     invoice >> wait_invoice
