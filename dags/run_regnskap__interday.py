@@ -33,7 +33,7 @@ def run_dbt_job(job_name: str):
         working_dir="dbt",
         cmds=[
             "dbt deps",
-            "dbt run -s int_bilag__kontant__varm int_bilag__regnskap__varm int_hovedboksdetaljer__kontant__varm int_hovedboksdetaljer__regnskap__varm -t streamer",
+            "dbt run -s int_bilag__kontant__varm int_bilag__regnskap__varm int_hovedboksdetaljer__kontant__varm int_hovedboksdetaljer__regnskap__varm int_bilag_kunder_leverandor_forbindelser -t streamer",
         ],
         image=DBT_IMAGE,
         extra_envs={
