@@ -166,7 +166,6 @@ with DAG(
     )
     dvh_hr__hragg_aarsverk = last_fra_dvh_eiendom("dvh_hr__hragg_aarsverk")
     dvh_hr__rem_brukersted = last_fra_dvh_eiendom("dvh_hr__rem_brukersted")
-    dvh_hr__hrres_ressurs = last_fra_dvh_eiendom("dvh_hr__hrres_ressurs")
 
     dbt_run = run_dbt_job("dbt run")
     dbt_test = run_dbt_job("dbt test")
@@ -200,7 +199,6 @@ with DAG(
 
     dvh_hr__hragg_aarsverk >> dbt_run
     dvh_hr__rem_brukersted >> dbt_run
-    dvh_hr__hrres_ressurs >> dbt_run
 
     dbt_run >> dbt_test
     dbt_test >> elementary__report
