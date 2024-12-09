@@ -134,6 +134,9 @@ with DAG(
     mainmanager__dim_eiendomstype = last_fra_mainmanager(
         "mainmanager__dim_eiendomstype"
     )
+    mainmanager__dim_eiendomskategori = last_fra_mainmanager(
+        "mainmanager__dim_eiendomskategori"
+    )
     mainmanager__dim_grunneiendom = last_fra_mainmanager(
         "mainmanager__dim_grunneiendom"
     )
@@ -180,6 +183,7 @@ with DAG(
     mainmanager__grouping >> mainmanager__dim_bygg >> dbt_run
     mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_run
     mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_eiendomskategori >> dbt_run
     mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_run
     mainmanager__grouping >> mainmanager__oversettelser >> dbt_run
     mainmanager__grouping >> mainmanager__artikler >> dbt_run
