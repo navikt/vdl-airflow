@@ -170,8 +170,6 @@ with DAG(
     dvh_hr__hragg_aarsverk = last_fra_dvh_eiendom("dvh_hr__hragg_aarsverk")
     dvh_hr__rem_brukersted = last_fra_dvh_eiendom("dvh_hr__rem_brukersted")
 
-    dbt_run = run_dbt_job("dbt run")
-    dbt_test = run_dbt_job("dbt test")
     dbt_build = run_dbt_job("dbt build")
 
     notify_slack_success = slack_success(dag=dag)
@@ -179,31 +177,30 @@ with DAG(
     elementary__report = elementary("dbt_docs")
 
     # DAG
-    mainmanager__grouping >> mainmanager__dim_adresse >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_bygg >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_eiendomskategori >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_run
-    mainmanager__grouping >> mainmanager__oversettelser >> dbt_run
-    mainmanager__grouping >> mainmanager__artikler >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_hovedleiekontrakt >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_framleie1 >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_framleie2 >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_arealtall >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_avtalepost_hoved >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie1 >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie2 >> dbt_run
+    mainmanager__grouping >> mainmanager__dim_adresse >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_bygg >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_eiendomskategori >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_build
+    mainmanager__grouping >> mainmanager__oversettelser >> dbt_build
+    mainmanager__grouping >> mainmanager__artikler >> dbt_build
+    mainmanager__grouping >> mainmanager__fak_hovedleiekontrakt >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_framleie1 >> dbt_build
+    mainmanager__grouping >> mainmanager__dim_framleie2 >> dbt_build
+    mainmanager__grouping >> mainmanager__fak_arealtall >> dbt_build
+    mainmanager__grouping >> mainmanager__fak_avtalepost_hoved >> dbt_build
+    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie1 >> dbt_build
+    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie2 >> dbt_build
 
-    dvh_kodeverk__org_enhet_til_node >> dbt_run
-    dvh_kodeverk__dim_org >> dbt_run
-    dvh_kodeverk__dim_geografi >> dbt_run
-    dvh_kodeverk__dim_virksomhet >> dbt_run
-    dvh_kodeverk__norg_rest_kontaktinfo >> dbt_run
+    dvh_kodeverk__org_enhet_til_node >> dbt_build
+    dvh_kodeverk__dim_org >> dbt_build
+    dvh_kodeverk__dim_geografi >> dbt_build
+    dvh_kodeverk__dim_virksomhet >> dbt_build
+    dvh_kodeverk__norg_rest_kontaktinfo >> dbt_build
 
-    dvh_hr__hragg_aarsverk >> dbt_run
-    dvh_hr__rem_brukersted >> dbt_run
+    dvh_hr__hragg_aarsverk >> dbt_build
+    dvh_hr__rem_brukersted >> dbt_build
 
-    dbt_run >> dbt_test
-    dbt_test >> elementary__report
-    dbt_test >> dbt_build >> notify_slack_success
+    dbt_build >> elementary__report
+    dbt_build >> notify_slack_success
