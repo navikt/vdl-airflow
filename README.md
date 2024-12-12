@@ -90,3 +90,4 @@ git merge `<utviklingsbranch>`
 ```
 git push
 ```
+ 
