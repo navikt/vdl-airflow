@@ -142,6 +142,7 @@ with DAG(
     )
     mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
     mainmanager__artikler = last_fra_mainmanager("mainmanager__artikler")
+    mainmanager__organisasjon = last_fra_mainmanager("mainmanager__organisasjon")
     mainmanager__fak_hovedleiekontrakt = last_fra_mainmanager(
         "mainmanager__fak_hovedleiekontrakt"
     )
@@ -188,6 +189,7 @@ with DAG(
     mainmanager__dim_grunneiendom >> mainmanager__grouping
     mainmanager__oversettelser >> mainmanager__grouping
     mainmanager__artikler >> mainmanager__grouping
+    mainmanager__organisasjon >> mainmanager__grouping
     mainmanager__fak_hovedleiekontrakt >> mainmanager__grouping
     mainmanager__dim_framleie1 >> mainmanager__grouping
     mainmanager__dim_framleie2 >> mainmanager__grouping
