@@ -64,5 +64,4 @@ with DAG(
     notify_slack_success = slack_success(dag=dag)
 
     # DAG
-    dbt_run >> notify_slack_success
-    dbt_run__preprod >> notify_slack_success
+    dbt_run >> dbt_run__preprod >> notify_slack_success
