@@ -59,7 +59,9 @@ with DAG(
     catchup=False,
 ) as dag:
     dbt_run = run_dbt_job("update_data", Variable.get("REPORTING_DB"))
-    dbt_run__preprod = run_dbt_job("update_data", Variable.get("REPORTING_DB__PREPROD"))
+    dbt_run__preprod = run_dbt_job(
+        "update_data preprod", Variable.get("REPORTING_DB__PREPROD")
+    )
 
     notify_slack_success = slack_success(dag=dag)
 
