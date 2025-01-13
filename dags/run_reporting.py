@@ -23,7 +23,7 @@ SNOW_ALLOWLIST = [
 BRANCH = Variable.get("REPORTING_BRANCH")
 
 
-def run_dbt_job(job_name: str):
+def run_dbt_job(job_name: str, reporting_db: str):
     from dataverk_airflow import kubernetes_operator
 
     return kubernetes_operator(
@@ -38,7 +38,7 @@ def run_dbt_job(job_name: str):
         ],
         image=DBT_IMAGE,
         extra_envs={
-            "REPORTING_DB": Variable.get("REPORTING_DB"),
+            "REPORTING_DB": reporting_db,
             "DBT_USR": Variable.get("SRV_REPORTING_USR"),
             "DBT_PWD": Variable.get("SRV_REPORTING_PWD"),
         },
@@ -58,9 +58,11 @@ with DAG(
     max_active_runs=1,
     catchup=False,
 ) as dag:
-    dbt_run = run_dbt_job("update_data")
+    dbt_run = run_dbt_job("update_data", Variable.get("REPORTING_DB"))
+    dbt_run__preprod = run_dbt_job("update_data", Variable.get("REPORTING_DB__PREPROD"))
 
     notify_slack_success = slack_success(dag=dag)
 
     # DAG
     dbt_run >> notify_slack_success
+    dbt_run__preprod >> notify_slack_success
