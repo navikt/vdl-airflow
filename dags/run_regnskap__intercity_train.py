@@ -19,28 +19,27 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
+BRANCH = Variable.get("REGNSKAP_BRANCH")
 
-BRANCH = Variable.get("REPORTING_BRANCH")
 
-
-def run_dbt_job(job_name: str, reporting_db: str):
+def run_dbt_job(job_name: str):
     from dataverk_airflow import kubernetes_operator
 
     return kubernetes_operator(
         dag=dag,
         name=job_name,
-        repo="navikt/vdl-reporting",
+        repo="navikt/vdl-regnskapsdata",
         branch=BRANCH,
         working_dir="dbt",
         cmds=[
             "dbt deps",
-            "dbt build",
+            "dbt run -s int_bilag__kontant__varm int_bilag__regnskap__varm int_hovedboksdetaljer__kontant__varm int_hovedboksdetaljer__regnskap__varm int_bilag_kunder_leverandor_forbindelser -t streamer",
         ],
         image=DBT_IMAGE,
         extra_envs={
-            "REPORTING_DB": reporting_db,
-            "DBT_USR": Variable.get("SRV_REPORTING_USR"),
-            "DBT_PWD": Variable.get("SRV_REPORTING_PWD"),
+            "REGNSKAP_DB": Variable.get("REGNSKAP_DB"),
+            "SRV_USR": Variable.get("SRV_REGNSKAP_USR"),
+            "SRV_PWD": Variable.get("SRV_REGNSKAP_PWD"),
         },
         allowlist=[
             "hub.getdbt.com",
@@ -52,18 +51,13 @@ def run_dbt_job(job_name: str, reporting_db: str):
 
 
 with DAG(
-    "run_reporting",
+    "run_regnskap__intercity_train",
     start_date=datetime(2024, 10, 23),
-    schedule_interval="0 3 * * *",
+    schedule_interval="0-59/10 4-19 * * *",
     max_active_runs=1,
     catchup=False,
 ) as dag:
-    dbt_run = run_dbt_job("update_data", Variable.get("REPORTING_DB"))
-    dbt_run__preprod = run_dbt_job(
-        "update_data__preprod", Variable.get("REPORTING_DB__PREPROD")
-    )
-
+    dbt_run = run_dbt_job("update_data")
     notify_slack_success = slack_success(dag=dag)
-
     # DAG
-    dbt_run >> dbt_run__preprod >> notify_slack_success
+    dbt_run >> notify_slack_success

@@ -105,8 +105,8 @@ def anaplan_datahub_regnskapsdata():
                 and ds.pk_dim_statsregnskapskonti = k.fk_dim_statsregnskapskonti
             where
                 1 = 1
-                and k.er_budsjettpostering = 0
-                and (endswith(k.periodenavn, '23') or endswith(k.periodenavn, '24'))
+                and k.er_bilagsposteringer = 1 
+                and regnskapsdato >= to_date('2023','yyyy')
             group by all
         """,
         import_hierarchy_data={

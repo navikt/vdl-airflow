@@ -59,6 +59,7 @@ with DAG(
     max_active_runs=1,
 ) as dag:
 
+    dvh_eiendom__agresso_arbeidssted = last_fra_dvh_eiendom("dvh_eiendom__agresso_arbeidssted")
     dvh_eiendom__brukersted2lok = last_fra_dvh_eiendom("dvh_eiendom__brukersted2lok")
     dvh_eiendom__eiendom_aarverk = last_fra_dvh_eiendom("dvh_eiendom__eiendom_aarverk")
     dvh_eiendom__eiendom_aarverk_paa_lokasjon = last_fra_dvh_eiendom(
@@ -137,6 +138,7 @@ with DAG(
     dvh_eiendom__statlok_lokale = last_fra_dvh_eiendom("dvh_eiendom__statlok_lokale")
 
     # DAG
+    dvh_eiendom__agresso_arbeidssted
     dvh_eiendom__brukersted2lok
     dvh_eiendom__eiendom_aarverk
     dvh_eiendom__eiendom_aarverk_paa_lokasjon

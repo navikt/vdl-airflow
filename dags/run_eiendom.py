@@ -134,11 +134,15 @@ with DAG(
     mainmanager__dim_eiendomstype = last_fra_mainmanager(
         "mainmanager__dim_eiendomstype"
     )
+    mainmanager__dim_eiendomskategori = last_fra_mainmanager(
+        "mainmanager__dim_eiendomskategori"
+    )
     mainmanager__dim_grunneiendom = last_fra_mainmanager(
         "mainmanager__dim_grunneiendom"
     )
     mainmanager__oversettelser = last_fra_mainmanager("mainmanager__oversettelser")
     mainmanager__artikler = last_fra_mainmanager("mainmanager__artikler")
+    mainmanager__organisasjon = last_fra_mainmanager("mainmanager__organisasjon")
     mainmanager__fak_hovedleiekontrakt = last_fra_mainmanager(
         "mainmanager__fak_hovedleiekontrakt"
     )
@@ -155,6 +159,7 @@ with DAG(
         "mainmanager__fak_avtalepost_fremleie2"
     )
 
+    dvh_kodeverk__grouping = EmptyOperator(task_id="dvh_kodeverk__grouping")
     dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
         "dvh_kodeverk__org_enhet_til_node"
     )
@@ -164,11 +169,11 @@ with DAG(
     dvh_kodeverk__norg_rest_kontaktinfo = last_fra_dvh_eiendom(
         "dvh_kodeverk__norg_rest_kontaktinfo"
     )
+
+    dvh_hr__grouping = EmptyOperator(task_id="dvh_hr__grouping")
     dvh_hr__hragg_aarsverk = last_fra_dvh_eiendom("dvh_hr__hragg_aarsverk")
     dvh_hr__rem_brukersted = last_fra_dvh_eiendom("dvh_hr__rem_brukersted")
 
-    dbt_run = run_dbt_job("dbt run")
-    dbt_test = run_dbt_job("dbt test")
     dbt_build = run_dbt_job("dbt build")
 
     notify_slack_success = slack_success(dag=dag)
@@ -176,30 +181,35 @@ with DAG(
     elementary__report = elementary("dbt_docs")
 
     # DAG
-    mainmanager__grouping >> mainmanager__dim_adresse >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_bygg >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_eiendom >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_eiendomstype >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_grunneiendom >> dbt_run
-    mainmanager__grouping >> mainmanager__oversettelser >> dbt_run
-    mainmanager__grouping >> mainmanager__artikler >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_hovedleiekontrakt >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_framleie1 >> dbt_run
-    mainmanager__grouping >> mainmanager__dim_framleie2 >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_arealtall >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_avtalepost_hoved >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie1 >> dbt_run
-    mainmanager__grouping >> mainmanager__fak_avtalepost_fremleie2 >> dbt_run
+    mainmanager__dim_adresse >> mainmanager__grouping
+    mainmanager__dim_bygg >> mainmanager__grouping
+    mainmanager__dim_eiendom >> mainmanager__grouping
+    mainmanager__dim_eiendomstype >> mainmanager__grouping
+    mainmanager__dim_eiendomskategori >> mainmanager__grouping
+    mainmanager__dim_grunneiendom >> mainmanager__grouping
+    mainmanager__oversettelser >> mainmanager__grouping
+    mainmanager__artikler >> mainmanager__grouping
+    mainmanager__organisasjon >> mainmanager__grouping
+    mainmanager__fak_hovedleiekontrakt >> mainmanager__grouping
+    mainmanager__dim_framleie1 >> mainmanager__grouping
+    mainmanager__dim_framleie2 >> mainmanager__grouping
+    mainmanager__fak_arealtall >> mainmanager__grouping
+    mainmanager__fak_avtalepost_hoved >> mainmanager__grouping
+    mainmanager__fak_avtalepost_fremleie1 >> mainmanager__grouping
+    mainmanager__fak_avtalepost_fremleie2 >> mainmanager__grouping
 
-    dvh_kodeverk__org_enhet_til_node >> dbt_run
-    dvh_kodeverk__dim_org >> dbt_run
-    dvh_kodeverk__dim_geografi >> dbt_run
-    dvh_kodeverk__dim_virksomhet >> dbt_run
-    dvh_kodeverk__norg_rest_kontaktinfo >> dbt_run
+    dvh_kodeverk__org_enhet_til_node >> dvh_kodeverk__grouping
+    dvh_kodeverk__dim_org >> dvh_kodeverk__grouping
+    dvh_kodeverk__dim_geografi >> dvh_kodeverk__grouping
+    dvh_kodeverk__dim_virksomhet >> dvh_kodeverk__grouping
+    dvh_kodeverk__norg_rest_kontaktinfo >> dvh_kodeverk__grouping
 
-    dvh_hr__hragg_aarsverk >> dbt_run
-    dvh_hr__rem_brukersted >> dbt_run
+    dvh_hr__hragg_aarsverk >> dvh_hr__grouping
+    dvh_hr__rem_brukersted >> dvh_hr__grouping
 
-    dbt_run >> dbt_test
-    dbt_test >> elementary__report
-    dbt_test >> dbt_build >> notify_slack_success
+    mainmanager__grouping >> dbt_build
+    dvh_kodeverk__grouping >> dbt_build
+    dvh_hr__grouping >> dbt_build
+
+    dbt_build >> elementary__report
+    dbt_build >> notify_slack_success
