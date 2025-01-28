@@ -21,6 +21,7 @@ roles:
   - reporting_airflow:
       member_of:
         - reporting_microstrategy
+        - okonomimodell_reporter
       warehouses:
         - reporting_airflow
       owner: useradmin
