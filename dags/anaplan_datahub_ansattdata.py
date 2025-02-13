@@ -25,7 +25,9 @@ def anaplan_datahub_ansattdata():
             "pod_override": k8s.V1Pod(
                 metadata=k8s.V1ObjectMeta(
                     annotations={
-                        "allowlist": ",".join(["slack.com", "api.anaplan.com", "auth.anaplan.com"])
+                        "allowlist": ",".join(
+                            ["slack.com", "api.anaplan.com", "auth.anaplan.com"]
+                        )
                     }
                 ),
                 spec=k8s.V1PodSpec(
@@ -59,7 +61,7 @@ def anaplan_datahub_ansattdata():
                                 "slack.com",
                                 "api.anaplan.com",
                                 "auth.anaplan.com",
-                                "dm08-scan.adeo.no:1521",
+                                "dmv09-scan.adeo.no:1521",
                             ]
                         )
                     }
@@ -89,7 +91,11 @@ def anaplan_datahub_ansattdata():
         from anaplan.import_data import import_data
         from anaplan.singleChunkUpload import transfer_data
 
-        creds = Variable.get("dvh_password", deserialize_json=True)
+        creds = {
+            "user": Variable.get("dvh_user"),
+            "password": Variable.get("dvh_password"),
+            "dsn": Variable.get("dvh_dsn"),
+        }
         ora_start = time.perf_counter()
         with oracledb.connect(**creds) as con:
             with con.cursor() as cursor:
