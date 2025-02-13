@@ -39,13 +39,13 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
             "SNOW_USR": Variable.get("SNOW_USR"),
             "SNOW_PWD": Variable.get("SNOW_PWD"),
-            "DVH_USR": Variable.get("DVH_USR"),
-            "DVH_PWD": Variable.get("DVH_PWD"),
-            "DVH_DSN": Variable.get("DVH_DSN"),
+            "DVH_USR": Variable.get("dvh_user"),
+            "DVH_PWD": Variable.get("dvh_password"),
+            "DVH_DSN": Variable.get("dvh_dsn"),
             "RUN_ID": "{{ run_id }}",
         },
         allowlist=[
-            "dm08-scan.adeo.no:1521",
+            "dmv09-scan.adeo.no:1521",
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
