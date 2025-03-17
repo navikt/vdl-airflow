@@ -97,9 +97,6 @@ with DAG(
     dvh_eiendom__dim_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__dim_lokasjon")
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
-    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom(
-        "dvh_eiendom__hrres_stillinger_eiendom"
-    )
     dvh_eiendom__hrorg_orgstrukt_eiendom = last_fra_dvh_eiendom(
         "dvh_eiendom__hrorg_orgstrukt_eiendom"
     )
@@ -160,7 +157,6 @@ with DAG(
     dvh_eiendom__dim_lokasjon
     dvh_eiendom__lyd_loc_dt
     dvh_eiendom__lyd_agreement
-    dvh_eiendom__hrres_stillinger_eiendom
     dvh_eiendom__hrorg_orgstrukt_eiendom
     dvh_eiendom__lyd_agreementitem
     dvh_eiendom__lyd_amount
