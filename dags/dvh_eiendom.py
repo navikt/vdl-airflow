@@ -11,7 +11,7 @@ from kubernetes import client as k8s
 from custom.operators.slack_operator import slack_success, test_slack
 from operators.elementary import elementary_operator
 
-INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:f97c7e4df670e1ec345ff2235e32befbedb944afb9dfeefe57be902bc13e47b4"
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:2ea798a469e615b74da8a243a8992a76a183527a5f5d9523f6911d553cbe44ff"
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:28933e3dc935645c9d22d2e0d0794e84e9f6725b5627f007332cc2b23d93d978"
 SNOW_ALLOWLIST = [
@@ -97,9 +97,6 @@ with DAG(
     dvh_eiendom__dim_lokasjon = last_fra_dvh_eiendom("dvh_eiendom__dim_lokasjon")
     dvh_eiendom__lyd_loc_dt = last_fra_dvh_eiendom("dvh_eiendom__lyd_loc_dt")
     dvh_eiendom__lyd_agreement = last_fra_dvh_eiendom("dvh_eiendom__lyd_agreement")
-    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom(
-        "dvh_eiendom__hrres_stillinger_eiendom"
-    )
     dvh_eiendom__hrorg_orgstrukt_eiendom = last_fra_dvh_eiendom(
         "dvh_eiendom__hrorg_orgstrukt_eiendom"
     )
@@ -160,7 +157,6 @@ with DAG(
     dvh_eiendom__dim_lokasjon
     dvh_eiendom__lyd_loc_dt
     dvh_eiendom__lyd_agreement
-    dvh_eiendom__hrres_stillinger_eiendom
     dvh_eiendom__hrorg_orgstrukt_eiendom
     dvh_eiendom__lyd_agreementitem
     dvh_eiendom__lyd_amount

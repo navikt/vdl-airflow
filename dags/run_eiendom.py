@@ -160,19 +160,12 @@ with DAG(
     )
 
     dvh_kodeverk__grouping = EmptyOperator(task_id="dvh_kodeverk__grouping")
-    dvh_kodeverk__org_enhet_til_node = last_fra_dvh_eiendom(
-        "dvh_kodeverk__org_enhet_til_node"
-    )
-    dvh_kodeverk__dim_org = last_fra_dvh_eiendom("dvh_kodeverk__dim_org")
-    dvh_kodeverk__dim_geografi = last_fra_dvh_eiendom("dvh_kodeverk__dim_geografi")
     dvh_kodeverk__dim_virksomhet = last_fra_dvh_eiendom("dvh_kodeverk__dim_virksomhet")
-    dvh_kodeverk__norg_rest_kontaktinfo = last_fra_dvh_eiendom(
-        "dvh_kodeverk__norg_rest_kontaktinfo"
-    )
 
-    dvh_hr__grouping = EmptyOperator(task_id="dvh_hr__grouping")
-    dvh_hr__hragg_aarsverk = last_fra_dvh_eiendom("dvh_hr__hragg_aarsverk")
-    dvh_hr__rem_brukersted = last_fra_dvh_eiendom("dvh_hr__rem_brukersted")
+    dvh_eiendom__grouping = EmptyOperator(task_id="dvh_eiendom__grouping")
+    dvh_eiendom__hrres_stillinger_eiendom = last_fra_dvh_eiendom(
+        "dvh_eiendom__hrres_stillinger_eiendom"
+    )
 
     dbt_build = run_dbt_job("dbt build")
 
@@ -198,18 +191,13 @@ with DAG(
     mainmanager__fak_avtalepost_fremleie1 >> mainmanager__grouping
     mainmanager__fak_avtalepost_fremleie2 >> mainmanager__grouping
 
-    dvh_kodeverk__org_enhet_til_node >> dvh_kodeverk__grouping
-    dvh_kodeverk__dim_org >> dvh_kodeverk__grouping
-    dvh_kodeverk__dim_geografi >> dvh_kodeverk__grouping
     dvh_kodeverk__dim_virksomhet >> dvh_kodeverk__grouping
-    dvh_kodeverk__norg_rest_kontaktinfo >> dvh_kodeverk__grouping
 
-    dvh_hr__hragg_aarsverk >> dvh_hr__grouping
-    dvh_hr__rem_brukersted >> dvh_hr__grouping
+    dvh_eiendom__hrres_stillinger_eiendom >> dvh_eiendom__grouping
 
     mainmanager__grouping >> dbt_build
     dvh_kodeverk__grouping >> dbt_build
-    dvh_hr__grouping >> dbt_build
+    dvh_eiendom__grouping >> dbt_build
 
     dbt_build >> elementary__report
     dbt_build >> notify_slack_success
