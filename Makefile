@@ -33,3 +33,11 @@ _install_snowbird:
 format:
 	$(isort)
 	$(black)
+
+.PHONY: deploy
+deploy:
+	./.scripts/deploy.sh
+
+.PHONY: development_branch ## Create a new branch for development and push it to the remote
+development_branch:
+	./.scripts/start-dev.sh
