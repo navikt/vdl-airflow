@@ -50,6 +50,8 @@ if [ "$branch" == "dev" ]; then
     read reset
     reset=${reset:-y}
     if [ "$reset" == "y" ]; then
+        git switch main
+        git pull
         git switch dev
         git reset --hard main
         git push -f
