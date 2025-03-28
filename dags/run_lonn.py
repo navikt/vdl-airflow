@@ -33,6 +33,7 @@ def last_fra_dvh_hr(inbound_job_name: str):
         image=INBOUND_IMAGE,
         extra_envs={
             "LONN_RAW_DB": Variable.get("lonn_raw_db"),
+            "LONN_LOADER_ROLE": Variable.get("lonn_loader_role"),
             "SNOW_USR": Variable.get("srv_snowflake_user"),
             "SNOW_PWD": Variable.get("srv_snowflake_password"),
             "DVH_USR": Variable.get("dvh_user"),
