@@ -53,7 +53,7 @@ def run_dbt_job(job_name: str):
 with DAG(
     "run_regnskap__intercity_train",
     start_date=datetime(2024, 10, 23),
-    schedule_interval="0-59/10 4-19 * * *",
+    schedule_interval="0-59/30 4-19 * * *",
     max_active_runs=1,
     catchup=False,
 ) as dag:
