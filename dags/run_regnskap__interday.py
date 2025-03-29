@@ -5,7 +5,7 @@ from airflow.decorators import dag
 from airflow.models import Variable
 
 from custom.operators.slack_operator import slack_success
-from docker.images import DBT_V_1_9
+from custom.images import DBT_V_1_9
 
 DBT_IMAGE = DBT_V_1_9
 SNOW_ALLOWLIST = [
