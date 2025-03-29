@@ -1,18 +1,10 @@
-import os
 from datetime import datetime
 
 from airflow import DAG
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 from airflow.models import Variable
-from airflow.operators.empty import EmptyOperator
-from airflow.utils.dates import days_ago
-from kubernetes import client as k8s
-
-from custom.operators.slack_operator import slack_success, test_slack
-from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:2ea798a469e615b74da8a243a8992a76a183527a5f5d9523f6911d553cbe44ff"
-DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:28933e3dc935645c9d22d2e0d0794e84e9f6725b5627f007332cc2b23d93d978"
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
@@ -59,7 +51,9 @@ with DAG(
     max_active_runs=1,
 ) as dag:
 
-    dvh_eiendom__agresso_arbeidssted = last_fra_dvh_eiendom("dvh_eiendom__agresso_arbeidssted")
+    dvh_eiendom__agresso_arbeidssted = last_fra_dvh_eiendom(
+        "dvh_eiendom__agresso_arbeidssted"
+    )
     dvh_eiendom__brukersted2lok = last_fra_dvh_eiendom("dvh_eiendom__brukersted2lok")
     dvh_eiendom__eiendom_aarverk = last_fra_dvh_eiendom("dvh_eiendom__eiendom_aarverk")
     dvh_eiendom__eiendom_aarverk_paa_lokasjon = last_fra_dvh_eiendom(
