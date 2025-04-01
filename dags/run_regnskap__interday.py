@@ -1,16 +1,13 @@
-import os
 from datetime import datetime
 
 from airflow import DAG
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 from airflow.models import Variable
-from airflow.providers.slack.operators.slack import SlackAPIPostOperator
-from airflow.utils.dates import days_ago
-from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_success, test_slack
+from custom.images import DBT_V_1_9
+from custom.operators.slack_operator import slack_success
 
-DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
+DBT_IMAGE = DBT_V_1_9
 SNOW_ALLOWLIST = [
     "wx23413.europe-west4.gcp.snowflakecomputing.com",
     "ocsp.snowflakecomputing.com",
@@ -33,13 +30,19 @@ def run_dbt_job(job_name: str):
         working_dir="dbt",
         cmds=[
             "dbt deps",
-            "dbt run -s int_bilag__kontant__varm int_bilag__regnskap__varm int_hovedboksdetaljer__kontant__varm int_hovedboksdetaljer__regnskap__varm int_bilag_kunder_leverandor_forbindelser -t streamer",
+            "dbt run -s \
+                int_bilag__kontant__varm \
+                int_bilag__regnskap__varm \
+                int_hovedboksdetaljer__kontant__varm \
+                int_hovedboksdetaljer__regnskap__varm \
+                int_bilag_kunder_leverandor_forbindelser",
         ],
         image=DBT_IMAGE,
         extra_envs={
             "REGNSKAP_DB": Variable.get("REGNSKAP_DB"),
             "SRV_USR": Variable.get("SRV_REGNSKAP_USR"),
             "SRV_PWD": Variable.get("SRV_REGNSKAP_PWD"),
+            "DBT_TARGET": "streamer",
         },
         allowlist=[
             "hub.getdbt.com",
