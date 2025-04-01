@@ -1,13 +1,7 @@
-import os
-
 from airflow import DAG
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 from airflow.models import Variable
-from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
-from kubernetes import client as k8s
-
-from custom.operators.slack_operator import slack_success, test_slack
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:2ea798a469e615b74da8a243a8992a76a183527a5f5d9523f6911d553cbe44ff"
 SNOW_ALLOWLIST = [
@@ -57,6 +51,8 @@ with DAG(
 ) as dag:
 
     dvh_hr__hragg_aarsverk = last_fra_dvh_hr("dvh_hr__hragg_aarsverk")
+    dvh_hr__hrorg_orgstrukt = last_fra_dvh_hr("dvh_hr__hrorg_orgstrukt")
 
     # DAG
     dvh_hr__hragg_aarsverk
+    dvh_hr__hrorg_orgstrukt
