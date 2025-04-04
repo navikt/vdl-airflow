@@ -39,8 +39,8 @@ def last_fra_mainmanager(inbound_job_name: str):
             "MAINMANAGER_API_USERNAME": Variable.get("MAINMANAGER_API_USERNAME"),
             "MAINMANAGER_API_PASSWORD": Variable.get("MAINMANAGER_API_PASSWORD"),
             "MAINMANAGER_URL": Variable.get("MAINMANAGER_URL"),
-            "SNOW_USR": Variable.get("SNOW_USR"),
-            "SNOW_PWD": Variable.get("SNOW_PWD"),
+            "SNOW_USR": Variable.get("srv_snowflake_user"),
+            "SNOW_PWD": Variable.get("srv_snowflake_password"),
             "RUN_ID": "{{ run_id }}",
         },
         allowlist=[
@@ -64,8 +64,8 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         image=INBOUND_IMAGE,
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
-            "SNOW_USR": Variable.get("SNOW_USR"),
-            "SNOW_PWD": Variable.get("SNOW_PWD"),
+            "SNOW_USR": Variable.get("srv_snowflake_user"),
+            "SNOW_PWD": Variable.get("srv_snowflake_password"),
             "DVH_USR": Variable.get("dvh_user"),
             "DVH_PWD": Variable.get("dvh_password"),
             "DVH_DSN": Variable.get("dvh_dsn"),
@@ -91,12 +91,10 @@ def run_dbt_job(job_name: str):
         cmds=["dbt deps", f"{ job_name }"],
         image=DBT_IMAGE,
         extra_envs={
-            "EIENDOM_DB": Variable.get("EIENDOM_DB"),
-            "SRV_USR": Variable.get("SRV_USR"),
-            "SRV_PWD": Variable.get("SRV_PWD"),
-            "SNOW_USR": Variable.get("SNOW_USR"),
-            "SNOW_PWD": Variable.get("SNOW_PWD"),
+            "SRV_USR": Variable.get("srv_snowflake_user"),
+            "SRV_PWD": Variable.get("srv_snowflake_password"),
             "RUN_ID": "{{ run_id }}",
+            "DBT_TARGET": Variable.get("dbt_target"),
         },
         allowlist=[
             "hub.getdbt.com",

@@ -29,8 +29,8 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         image=INBOUND_IMAGE,
         extra_envs={
             "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
-            "SNOW_USR": Variable.get("SNOW_USR"),
-            "SNOW_PWD": Variable.get("SNOW_PWD"),
+            "SNOW_USR": Variable.get("srv_snowflake_user"),
+            "SNOW_PWD": Variable.get("srv_snowflake_password"),
             "DVH_USR": Variable.get("dvh_user"),
             "DVH_PWD": Variable.get("dvh_password"),
             "DVH_DSN": Variable.get("dvh_dsn"),
