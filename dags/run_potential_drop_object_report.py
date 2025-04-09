@@ -16,6 +16,7 @@ with DAG(
         dag=dag,
         name="drop_table_report",
         repo="navikt/vdl-airflow",
+        branch="drop-tables",
         script_path="waste_report/potential_object_removal.py",
         requirements_path="waste_report/requirements.txt",
         slack_channel=Variable.get("slack_error_channel"),
