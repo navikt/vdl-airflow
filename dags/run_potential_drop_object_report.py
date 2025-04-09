@@ -25,6 +25,7 @@ with DAG(
             "SNOWFLAKE_USER": Variable.get("srv_snowflake_user"),
             "SNOWFLAKE_PASSWORD": Variable.get("srv_snowflake_password"),
             "SNOWFLAKE_AUTHENTICATOR": "snowflake",
+            "SNOWFLAKE_ROLE": "airflow_orchestrator",
         },
         allowlist=[
             "wx23413.europe-west4.gcp.snowflakecomputing.com",
