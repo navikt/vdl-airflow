@@ -1,1 +1,1 @@
-vdl-cli @ git+https://github.com/navikt/vdl-cli@761b44756f649bc32e12a972f4e40316296a53e6
+vdl-cli @ git+https://github.com/navikt/vdl-cli@4ccbddf2955d6b93a14713bc703a86b83ae4aff8
