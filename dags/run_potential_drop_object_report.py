@@ -26,6 +26,14 @@ with DAG(
             "SNOWFLAKE_PASSWORD": Variable.get("srv_snowflake_password"),
             "SNOWFLAKE_AUTHENTICATOR": "snowflake",
         },
+        allowlist=[
+            "wx23413.europe-west4.gcp.snowflakecomputing.com",
+            "ocsp.snowflakecomputing.com",
+            "ocsp.digicert.com:80",
+            "o.pki.goog:80",
+            "ocsp.pki.goo:80",
+            "storage.googleapis.com",
+        ],
     )
 
     # notify_slack_success = slack_success(dag=dag)
