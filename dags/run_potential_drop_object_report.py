@@ -37,4 +37,7 @@ with DAG(
         ],
     )
 
-    # notify_slack_success = slack_success(dag=dag)
+    send_report_to_slack = slack_success(
+        dag=dag,
+        message="{{ task_instance.xcom_pull(task_ids='drop_table_report', key='return_value')['dump'] }}",
+    )
