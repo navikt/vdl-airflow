@@ -17,7 +17,7 @@ with DAG(
         name="unused_db_objects_report",
         repo="navikt/vdl-eiendom",
         branch="unused-objects",
-        script_path="orchestration/report_unused_db_objects",
+        script_path="orchestration/report_unused_db_objects.py",
         requirements_path="orchestration/requirements.txt",
         slack_channel=Variable.get("slack_error_channel"),
         do_xcom_push=True,
