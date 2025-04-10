@@ -34,6 +34,7 @@ with DAG(
             "o.pki.goog:80",
             "ocsp.pki.goo:80",
             "storage.googleapis.com",
+            "hub.getdbt.com",
         ],
     )
 
