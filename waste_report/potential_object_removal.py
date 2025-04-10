@@ -9,6 +9,6 @@ output = subprocess.run(
 if output.returncode != 0:
     print("Error running command:", output.stderr)
     exit(1)
-output_json_dump = json.dumps({"dump": output.stdout}, indent=4)
+output_dump = output.stdout
 with open("/airflow/xcom/return.json", "w") as f:
-    f.write(output_json_dump)
+    f.write(output_dump)
