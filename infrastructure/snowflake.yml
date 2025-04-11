@@ -17,6 +17,7 @@ roles:
         - faktura_loader
         - eiendom_transformer
         - eiendom_loader
+        - okonomimodell_transformer
 
   - reporting_airflow:
       member_of:
