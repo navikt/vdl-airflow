@@ -16,7 +16,21 @@ with DAG(
     product_config = {
         "git_branch_okonomimodell": "main",
         "git_branch_eiendom": "unused-objects",
+        "git_branch_drp_objects": "drop-tables",
     }
+
+    SNOWFLAKE_ALLOWLIST = [
+        "wx23413.europe-west4.gcp.snowflakecomputing.com",
+        "ocsp.snowflakecomputing.com",
+        "ocsp.digicert.com:80",
+        "o.pki.goog:80",
+        "ocsp.pki.goo:80",
+        "storage.googleapis.com",
+    ]
+
+    DBT_PACKAGES_ALLOWLIST = [
+        "hub.getdbt.com",
+    ]
 
     report_oko = python_operator(
         dag=dag,
@@ -33,20 +47,12 @@ with DAG(
             "SNOWFLAKE_AUTHENTICATOR": "snowflake",
             "SNOWFLAKE_ROLE": "airflow_orchestrator",
         },
-        allowlist=[
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-            "ocsp.snowflakecomputing.com",
-            "ocsp.digicert.com:80",
-            "o.pki.goog:80",
-            "ocsp.pki.goo:80",
-            "storage.googleapis.com",
-            "hub.getdbt.com",
-        ],
+        allowlist=SNOWFLAKE_ALLOWLIST + DBT_PACKAGES_ALLOWLIST,
     )
 
-    report_to_slack_oko = slack_success(
+    slack_message_oko = slack_success(
         dag=dag,
-        task_id="report_to_slack_oko",
+        task_id="slack_message_oko",
         message="{{ task_instance.xcom_pull(task_ids='report_okonomimodell', key='return_value')['dump'] }}",
     )
 
@@ -67,22 +73,39 @@ with DAG(
             "SRV_USR": Variable.get("srv_snowflake_user"),
             "SRV_PWD": Variable.get("srv_snowflake_password"),
         },
-        allowlist=[
-            "wx23413.europe-west4.gcp.snowflakecomputing.com",
-            "ocsp.snowflakecomputing.com",
-            "ocsp.digicert.com:80",
-            "o.pki.goog:80",
-            "ocsp.pki.goo:80",
-            "storage.googleapis.com",
-            "hub.getdbt.com",
-        ],
+        allowlist=SNOWFLAKE_ALLOWLIST + DBT_PACKAGES_ALLOWLIST,
     )
 
-    report_to_slack_eiendom = slack_success(
+    slack_message_eiendom = slack_success(
         dag=dag,
-        task_id="report_to_slack_eiendom",
+        task_id="slack_message_eiendom",
         message="{{ task_instance.xcom_pull(task_ids='report_eiendom', key='return_value')['dump'] }}",
     )
 
-    report_oko >> report_to_slack_oko
-    report_eiendom >> report_to_slack_eiendom
+    report_drp_objects = python_operator(
+        dag=dag,
+        name="report_drp_objects",
+        repo="navikt/vdl-airflow",
+        branch=product_config["git_branch_drp_objects"],
+        script_path="waste_report/potential_object_removal.py",
+        requirements_path="waste_report/requirements.txt",
+        slack_channel=Variable.get("slack_error_channel"),
+        do_xcom_push=True,
+        extra_envs={
+            "SNOWFLAKE_USER": Variable.get("srv_snowflake_user"),
+            "SNOWFLAKE_PASSWORD": Variable.get("srv_snowflake_password"),
+            "SNOWFLAKE_AUTHENTICATOR": "snowflake",
+            "SNOWFLAKE_ROLE": "airflow_orchestrator",
+        },
+        allowlist=SNOWFLAKE_ALLOWLIST,
+    )
+
+    slack_message_drp_objects = slack_success(
+        dag=dag,
+        task_id="slack_message_drp_objects",
+        message="{{ task_instance.xcom_pull(task_ids='report_drp_objects', key='return_value')['dump'] }}",
+    )
+
+    report_oko >> slack_message_oko
+    report_eiendom >> slack_message_eiendom
+    report_drp_objects >> slack_message_drp_objects
