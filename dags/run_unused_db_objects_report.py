@@ -13,11 +13,7 @@ with DAG(
     max_active_runs=1,
 ) as dag:
 
-    product_config = {
-        "git_branch_okonomimodell": "main",
-        "git_branch_eiendom": "unused-objects",
-        "git_branch_drp_objects": "drop-tables",
-    }
+    product_config = Variable.get("product_unused_db_objects_report")
 
     SNOWFLAKE_ALLOWLIST = [
         "wx23413.europe-west4.gcp.snowflakecomputing.com",
