@@ -7,7 +7,7 @@ from dataverk_airflow import python_operator
 from custom.operators.slack_operator import slack_success
 
 with DAG(
-    "run_okonomimodell_unused_db_objects_report",
+    "run_unused_db_objects_report",
     start_date=datetime(year=2025, month=4, day=9),
     schedule_interval="0 9 * * 1",  # Hver mandag klokken 09:00 UTC
     max_active_runs=1,
