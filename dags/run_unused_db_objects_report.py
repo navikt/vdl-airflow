@@ -13,7 +13,9 @@ with DAG(
     max_active_runs=1,
 ) as dag:
 
-    product_config = Variable.get("product_unused_db_objects_report")
+    product_config = Variable.get(
+        "product_unused_db_objects_report", deserialize_json=True
+    )
 
     SNOWFLAKE_ALLOWLIST = [
         "wx23413.europe-west4.gcp.snowflakecomputing.com",
