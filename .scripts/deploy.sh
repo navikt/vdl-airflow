@@ -46,9 +46,9 @@ select branch in main dev; do
 done
 
 if [ "$branch" == "dev" ]; then
-    echo "Do you want to reset the branch 'dev' to 'main'? (Y/n)"
+    echo "Do you want to reset the branch 'dev' to 'main'? (y/N)"
     read reset
-    reset=${reset:-y}
+    reset=${reset:-n}
     if [ "$reset" == "y" ]; then
         git switch main
         git pull
