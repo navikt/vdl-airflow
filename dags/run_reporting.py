@@ -21,16 +21,17 @@ SNOW_ALLOWLIST = [
 ]
 
 BRANCH = Variable.get("REPORTING_BRANCH")
+BRANCH_PREPROD = Variable.get("REPORTING_BRANCH_PREPROD")
 
 
-def run_dbt_job(job_name: str, reporting_db: str):
+def run_dbt_job(job_name: str, reporting_db: str, branch: str):
     from dataverk_airflow import kubernetes_operator
 
     return kubernetes_operator(
         dag=dag,
         name=job_name,
         repo="navikt/vdl-reporting",
-        branch=BRANCH,
+        branch=branch,
         working_dir="dbt",
         cmds=[
             "dbt deps",
@@ -58,9 +59,9 @@ with DAG(
     max_active_runs=1,
     catchup=False,
 ) as dag:
-    dbt_run = run_dbt_job("update_data", Variable.get("REPORTING_DB"))
+    dbt_run = run_dbt_job("update_data", Variable.get("REPORTING_DB"), BRANCH)
     dbt_run__preprod = run_dbt_job(
-        "update_data__preprod", Variable.get("REPORTING_DB__PREPROD")
+        "update_data__preprod", Variable.get("REPORTING_DB__PREPROD"), BRANCH_PREPROD
     )
 
     notify_slack_success = slack_success(dag=dag)
