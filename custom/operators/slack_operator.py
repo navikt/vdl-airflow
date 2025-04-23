@@ -77,7 +77,7 @@ def slack_success(
     if message:
         info_message = f"{info_message}\n\n{message}"
     return SlackAPIPostOperator(
-        task_id="slack-message",
+        task_id=task_id,
         channel=channel,
         text=info_message,
         slack_conn_id="slack_connection",
