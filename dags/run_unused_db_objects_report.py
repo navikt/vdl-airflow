@@ -46,6 +46,7 @@ with DAG(
 
     report_to_slack_oko = slack_success(
         dag=dag,
+        task_id="report_to_slack_oko",
         message="{{ task_instance.xcom_pull(task_ids='report_okonomimodell', key='return_value')['dump'] }}",
     )
 
@@ -79,6 +80,7 @@ with DAG(
 
     report_to_slack_eiendom = slack_success(
         dag=dag,
+        task_id="report_to_slack_eiendom",
         message="{{ task_instance.xcom_pull(task_ids='report_eiendom', key='return_value')['dump'] }}",
     )
 
