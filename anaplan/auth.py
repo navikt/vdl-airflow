@@ -36,3 +36,15 @@ def get_header(auth_response: requests.Response):
         "Content-Type": "application/json",
     }
     return import_headers
+
+
+def get_access_token(client_id, device_code) -> requests.Response:
+    url = "https://us1a.app.anaplan.com/oauth/token"
+    grant_type = "urn:ietf:params:oauth:grant-type:device_code"
+    header = {"Content-Type": "application/json"}
+    data = {
+        "grant_type": grant_type,
+        "device_code": device_code,
+        "client_id": client_id,
+    }
+    return requests.post(url=url, headers=header, data=json.dumps(data))
