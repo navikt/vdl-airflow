@@ -11,6 +11,7 @@ with DAG(
     start_date=datetime(year=2025, month=4, day=9),
     schedule_interval="0 11 * * 1",  # Hver mandag klokken 09:00 UTC
     max_active_runs=1,
+    catchup=False,
 ) as dag:
 
     product_config = Variable.get(
