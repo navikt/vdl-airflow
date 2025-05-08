@@ -64,14 +64,20 @@ def test_slack(context):
     )
 
 
-def slack_success(dag, message=None, channel: str = None, emoji=":information_source:"):
+def slack_success(
+    dag,
+    task_id="slack-message",
+    message=None,
+    channel: str = None,
+    emoji=":information_source:",
+):
     if channel is None:
         channel = Variable.get("slack_info_channel")
     info_message = f"Airflow DAG: {dag.dag_id} har kjørt ferdig."
     if message:
         info_message = f"{info_message}\n\n{message}"
     return SlackAPIPostOperator(
-        task_id="slack-message",
+        task_id=task_id,
         channel=channel,
         text=info_message,
         slack_conn_id="slack_connection",
