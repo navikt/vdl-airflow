@@ -17,6 +17,8 @@ with DAG(
         "product_unused_db_objects_report", deserialize_json=True
     )
 
+    snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
+
     SNOWFLAKE_ALLOWLIST = [
         "wx23413.europe-west4.gcp.snowflakecomputing.com",
         "ocsp.snowflakecomputing.com",
@@ -40,10 +42,10 @@ with DAG(
         slack_channel=Variable.get("slack_error_channel"),
         do_xcom_push=True,
         extra_envs={
-            "SNOWFLAKE_USER": Variable.get("srv_snowflake_user"),
-            "SNOWFLAKE_PASSWORD": Variable.get("srv_snowflake_password"),
-            "SNOWFLAKE_AUTHENTICATOR": "snowflake",
-            "SNOWFLAKE_ROLE": "airflow_orchestrator",
+            "SNOWFLAKE_USER": snowflake_config["user"],
+            "SNOWFLAKE_PASSWORD": snowflake_config["password"],
+            "SNOWFLAKE_AUTHENTICATOR": snowflake_config["authenticator"],
+            "SNOWFLAKE_ROLE": snowflake_config["role"],
         },
         allowlist=SNOWFLAKE_ALLOWLIST + DBT_PACKAGES_ALLOWLIST,
     )
@@ -64,12 +66,12 @@ with DAG(
         slack_channel=Variable.get("slack_error_channel"),
         do_xcom_push=True,
         extra_envs={
-            "SNOWFLAKE_USER": Variable.get("srv_snowflake_user"),
-            "SNOWFLAKE_PASSWORD": Variable.get("srv_snowflake_password"),
-            "SNOWFLAKE_AUTHENTICATOR": "snowflake",
-            "SNOWFLAKE_ROLE": "airflow_orchestrator",
-            "SRV_USR": Variable.get("srv_snowflake_user"),
-            "SRV_PWD": Variable.get("srv_snowflake_password"),
+            "SNOWFLAKE_USER": snowflake_config["user"],
+            "SNOWFLAKE_PASSWORD": snowflake_config["password"],
+            "SNOWFLAKE_AUTHENTICATOR": snowflake_config["authenticator"],
+            "SNOWFLAKE_ROLE": snowflake_config["role"],
+            "SRV_USR": snowflake_config["user"],
+            "SRV_PWD": snowflake_config["password"],
         },
         allowlist=SNOWFLAKE_ALLOWLIST + DBT_PACKAGES_ALLOWLIST,
     )
@@ -90,10 +92,10 @@ with DAG(
         slack_channel=Variable.get("slack_error_channel"),
         do_xcom_push=True,
         extra_envs={
-            "SNOWFLAKE_USER": Variable.get("srv_snowflake_user"),
-            "SNOWFLAKE_PASSWORD": Variable.get("srv_snowflake_password"),
-            "SNOWFLAKE_AUTHENTICATOR": "snowflake",
-            "SNOWFLAKE_ROLE": "airflow_orchestrator",
+            "SNOWFLAKE_USER": snowflake_config["user"],
+            "SNOWFLAKE_PASSWORD": snowflake_config["password"],
+            "SNOWFLAKE_AUTHENTICATOR": snowflake_config["authenticator"],
+            "SNOWFLAKE_ROLE": snowflake_config["role"],
         },
         allowlist=SNOWFLAKE_ALLOWLIST,
     )
