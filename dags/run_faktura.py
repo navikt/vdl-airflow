@@ -172,7 +172,7 @@ with DAG(
 
     @task.sensor(
         poke_interval=60,
-        timeout=2 * 60 * 60,
+        timeout=4 * 60 * 60,
         mode="reschedule",
         on_failure_callback=None,
         executor_config={
