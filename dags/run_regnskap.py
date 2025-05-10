@@ -131,8 +131,8 @@ with DAG(
     # hierarchy = run_inbound_job.override(task_id="start_hierarchy")("hierarchy")
     # wait_hierarchy = check_status_for_inbound_job(hierarchy)
 
-    sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
-    wait_sync_check = check_status_for_inbound_job(sync_check)
+    # xssync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
+    # xswait_sync_check = check_status_for_inbound_job(sync_check)
 
     # suppliers = run_inbound_job.override(task_id="start_suppliers")("suppliers")
     # wait_suppliers = check_status_for_inbound_job(suppliers)
@@ -311,7 +311,7 @@ with DAG(
 
     # period_status >> wait_period_status
 
-    sync_check >> wait_sync_check
+    # sync_check >> wait_sync_check
 
     # suppliers >> wait_suppliers
     # segment >> wait_segment
