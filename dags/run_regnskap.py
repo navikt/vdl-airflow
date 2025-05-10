@@ -120,22 +120,22 @@ with DAG(
     #    "dimensional_data"
     # )
     # wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
-    segment = run_inbound_job.override(task_id="start_segment")("segment")
-    wait_segment = check_status_for_inbound_job(segment)
+    # segment = run_inbound_job.override(task_id="start_segment")("segment")
+    # wait_segment = check_status_for_inbound_job(segment)
 
-    period_status = run_inbound_job.override(task_id="start_period_status")(
-        "period_status"
-    )
-    wait_period_status = check_status_for_inbound_job(period_status)
+    # period_status = run_inbound_job.override(task_id="start_period_status")(
+    #    "period_status"
+    # )
+    # wait_period_status = check_status_for_inbound_job(period_status)
 
-    hierarchy = run_inbound_job.override(task_id="start_hierarchy")("hierarchy")
-    wait_hierarchy = check_status_for_inbound_job(hierarchy)
+    # hierarchy = run_inbound_job.override(task_id="start_hierarchy")("hierarchy")
+    # wait_hierarchy = check_status_for_inbound_job(hierarchy)
 
     sync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
     wait_sync_check = check_status_for_inbound_job(sync_check)
 
-    suppliers = run_inbound_job.override(task_id="start_suppliers")("suppliers")
-    wait_suppliers = check_status_for_inbound_job(suppliers)
+    # suppliers = run_inbound_job.override(task_id="start_suppliers")("suppliers")
+    # wait_suppliers = check_status_for_inbound_job(suppliers)
 
     budget = run_inbound_job.override(task_id="start_budget")("budget")
     wait_budget = check_status_for_inbound_job(budget)
@@ -143,8 +143,8 @@ with DAG(
     prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
     wait_prognosis = check_status_for_inbound_job(prognosis)
 
-    customers = run_inbound_job.override(task_id="start_customers")("customers")
-    wait_customers = check_status_for_inbound_job(customers)
+    # customers = run_inbound_job.override(task_id="start_customers")("customers")
+    # wait_customers = check_status_for_inbound_job(customers)
 
     @task(
         executor_config={
