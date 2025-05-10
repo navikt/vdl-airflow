@@ -309,7 +309,7 @@ with DAG(
         dbt_docs_project_name="regnskap",
     )
 
-    period_status >> wait_period_status
+    # period_status >> wait_period_status
 
     sync_check >> wait_sync_check
 
