@@ -320,7 +320,7 @@ with DAG(
     prognosis >> wait_prognosis
     # customers >> wait_customers
 
-    wait_sync_check >> dbt_freshness
+    # wait_sync_check >> dbt_freshness
     # wait_suppliers >> dbt_freshness
     # wait_hierarchy >> dbt_freshness
     # wait_segment >> dbt_freshness
