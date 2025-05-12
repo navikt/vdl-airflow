@@ -264,9 +264,6 @@ with DAG(
         summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
         slack_success_old(message=f"Resultat fra kjøringen:\n{summary}")
 
-    wait_dbt_freshness = wait_for_dbt.override(
-        task_id="check_status_for_dbt_freshness"
-    )(dbt_freshness)
     wait_dbt_run = wait_for_dbt.override(
         task_id="check_status_for_dbt_run", outlets=[Dataset("regnskap_dataset")]
     )(dbt_run)
