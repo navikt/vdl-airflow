@@ -116,35 +116,11 @@ with DAG(
                 f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
-    # dimensonal_data = run_inbound_job.override(task_id="start_dimensional_data")(
-    #    "dimensional_data"
-    # )
-    # wait_dimensonal_data = check_status_for_inbound_job(dimensonal_data)
-    # segment = run_inbound_job.override(task_id="start_segment")("segment")
-    # wait_segment = check_status_for_inbound_job(segment)
-
-    # period_status = run_inbound_job.override(task_id="start_period_status")(
-    #    "period_status"
-    # )
-    # wait_period_status = check_status_for_inbound_job(period_status)
-
-    # hierarchy = run_inbound_job.override(task_id="start_hierarchy")("hierarchy")
-    # wait_hierarchy = check_status_for_inbound_job(hierarchy)
-
-    # xssync_check = run_inbound_job.override(task_id="start_sync_check")("sync_check")
-    # xswait_sync_check = check_status_for_inbound_job(sync_check)
-
-    # suppliers = run_inbound_job.override(task_id="start_suppliers")("suppliers")
-    # wait_suppliers = check_status_for_inbound_job(suppliers)
-
     budget = run_inbound_job.override(task_id="start_budget")("budget")
     wait_budget = check_status_for_inbound_job(budget)
 
     prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
     wait_prognosis = check_status_for_inbound_job(prognosis)
-
-    # customers = run_inbound_job.override(task_id="start_customers")("customers")
-    # wait_customers = check_status_for_inbound_job(customers)
 
     @task(
         executor_config={
@@ -180,7 +156,6 @@ with DAG(
 
         return requests.get(url=f"{URL}/dbt/{job}").json()
 
-    dbt_freshness = run_dbt_job.override(task_id="start_dbt_freshness")("freshness")
     dbt_run = run_dbt_job.override(task_id="start_dbt_run")("build")
 
     @task.sensor(
@@ -324,9 +299,9 @@ with DAG(
     # wait_suppliers >> dbt_freshness
     # wait_hierarchy >> dbt_freshness
     # wait_segment >> dbt_freshness
-    wait_budget >> dbt_freshness
-    wait_prognosis >> dbt_freshness
+    wait_budget >> dbt_run
+    wait_prognosis >> dbt_run
     # wait_customers >> dbt_freshness
 
-    dbt_freshness >> wait_dbt_freshness >> dbt_run >> wait_dbt_run >> slack_summary
+    dbt_run >> wait_dbt_run >> slack_summary
     wait_dbt_run >> regnskap_report
