@@ -122,6 +122,9 @@ with DAG(
     prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
     wait_prognosis = check_status_for_inbound_job(prognosis)
 
+    prognosis_tertial = run_inbound_job.override(task_id="start_prognosis_tertial")("prognosis_tertial")
+    wait_prognosis_tertial = check_status_for_inbound_job(prognosis_tertial)
+
     @task(
         executor_config={
             "pod_override": k8s.V1Pod(
@@ -290,6 +293,9 @@ with DAG(
     # hierarchy >> wait_hierarchy
     budget >> wait_budget
     prognosis >> wait_prognosis
+    
+    # prognosis_tertial skal ikke kjøre dbt enda, bare lastes til raw
+    prognosis_tertial >> wait_prognosis_tertial
     # customers >> wait_customers
 
     # wait_sync_check >> dbt_freshness
