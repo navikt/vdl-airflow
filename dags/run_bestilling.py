@@ -46,8 +46,6 @@ def run_dbt_job(job_name: str):
         slack_channel=Variable.get("slack_error_channel"),
     )
 
-""" 
-Har foreløpig ikke koll på hva jeg trenger å gjøre for å bruke dbt_docs_project m/elementary, må finne ut
 
 def elementary(command: str):
     return elementary_operator(
@@ -62,7 +60,7 @@ def elementary(command: str):
         image=ELEMENTARY_IMAGE,
     )
 
- """
+
 with DAG(
     "run_innkjop",
     start_date=days_ago(1),
@@ -72,11 +70,11 @@ with DAG(
 
     dbt_build = run_dbt_job("dbt build")
 
-    # notify_slack_success = slack_success(dag=dag)
+    notify_slack_success = slack_success(dag=dag, channel="#virksomhetsdatalaget-info-test")
 
-    # elementary__report = elementary("dbt_docs")
+    elementary__report = elementary("dbt_docs")
 
     # DAG
    
-    dbt_build #>> elementary__report
-    #dbt_build >> notify_slack_success
+    dbt_build >> elementary__report
+    dbt_build >> notify_slack_success
