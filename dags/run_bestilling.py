@@ -59,8 +59,8 @@ def elementary(command: str):
         dbt_docs_project_name="innkjop",
         image=ELEMENTARY_IMAGE,
         extra_envs={
-            "SLACK_ALERT_CHANNEL": "#slack-info-channel-test", 
-            "SLACK_INFO_CHANNEL": "#slack-info-channel-test"
+            "SLACK_ALERT_CHANNEL": "#virksomhetsdatalaget-info-test", 
+            "SLACK_INFO_CHANNEL": "#virksomhetsdatalaget-info-test"
             },
     )
 
