@@ -116,11 +116,11 @@ with DAG(
                 f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
             )
 
-    budget = run_inbound_job.override(task_id="start_budget")("budget")
-    wait_budget = check_status_for_inbound_job(budget)
+    # budget = run_inbound_job.override(task_id="start_budget")("budget")
+    # wait_budget = check_status_for_inbound_job(budget)
 
-    prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
-    wait_prognosis = check_status_for_inbound_job(prognosis)
+    # prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
+    # wait_prognosis = check_status_for_inbound_job(prognosis)
 
     @task(
         executor_config={
@@ -288,8 +288,8 @@ with DAG(
     # suppliers >> wait_suppliers
     # segment >> wait_segment
     # hierarchy >> wait_hierarchy
-    budget >> wait_budget
-    prognosis >> wait_prognosis
+    # budget >> wait_budget
+    # prognosis >> wait_prognosis
 
     # customers >> wait_customers
 
@@ -297,8 +297,8 @@ with DAG(
     # wait_suppliers >> dbt_freshness
     # wait_hierarchy >> dbt_freshness
     # wait_segment >> dbt_freshness
-    wait_budget >> dbt_run
-    wait_prognosis >> dbt_run
+    # wait_budget >> dbt_run
+    # wait_prognosis >> dbt_run
     # wait_customers >> dbt_freshness
 
     dbt_run >> wait_dbt_run >> slack_summary
