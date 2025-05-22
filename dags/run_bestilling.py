@@ -43,7 +43,7 @@ def run_dbt_job(job_name: str):
             "hub.getdbt.com",
         ]
         + SNOW_ALLOWLIST,
-        slack_channel=Variable.get("slack_error_channel"),
+        slack_channel="#virksomhetsdatalaget-info-test",
     )
 
 
