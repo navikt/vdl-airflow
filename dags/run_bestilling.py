@@ -43,7 +43,7 @@ def run_dbt_job(job_name: str):
             "hub.getdbt.com",
         ]
         + SNOW_ALLOWLIST,
-        slack_channel=Variable.get("slack_error_channel"),
+        slack_channel="#virksomhetsdatalaget-info-test",
     )
 
 
@@ -58,6 +58,10 @@ def elementary(command: str):
         snowflake_warehouse="innkjop_transformer",
         dbt_docs_project_name="innkjop",
         image=ELEMENTARY_IMAGE,
+        extra_envs={
+            "SLACK_ALERT_CHANNEL": "#virksomhetsdatalaget-info-test", 
+            "SLACK_INFO_CHANNEL": "#virksomhetsdatalaget-info-test"
+            },
     )
 
 
