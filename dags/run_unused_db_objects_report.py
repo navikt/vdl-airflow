@@ -15,7 +15,7 @@ with DAG(
 ) as dag:
 
     product_config = Variable.get(
-        "product_unused_db_objects_report", deserialize_json=True
+        "config_run_unused_db_objects_report", deserialize_json=True
     )
 
     snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
