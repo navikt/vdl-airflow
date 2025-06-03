@@ -16,9 +16,9 @@ SNOW_ALLOWLIST = [
     "storage.googleapis.com",
 ]
 
-product_config = Variable.get(
-        "config_run_budsjett_prognose", deserialize_json=True
-    )
+product_config = Variable.get("config_run_budsjett_prognose", deserialize_json=True)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
+anaplan_config = Variable.get("conn_anaplan", deserialize_json=True)
 
 
 def last_fra_anaplan(inbound_job_name: str):
@@ -33,10 +33,10 @@ def last_fra_anaplan(inbound_job_name: str):
         image=INBOUND_IMAGE,
         extra_envs={
             "REGNSKAP_RAW_DB": product_config["raw_db"],
-            "ANAPLAN_USR": product_config["anaplan_user"],
-            "ANAPLAN_PWD": product_config["anaplan_password"],
-            "SNOW_USR": Variable.get("srv_snowflake_user"),
-            "SNOW_PWD": Variable.get("srv_snowflake_password"),
+            "ANAPLAN_USR": anaplan_config["user"],
+            "ANAPLAN_PWD": anaplan_config["password"],
+            "SNOW_USR": snowflake_config["user"],
+            "SNOW_PWD": snowflake_config["password"],
             "RUN_ID": "{{ run_id }}",
         },
         allowlist=[
@@ -59,7 +59,6 @@ with DAG(
     anaplan__prognose = last_fra_anaplan("anaplan__ingest_prognosis")
 
     notify_slack_success = slack_success(dag=dag)
-
 
     # DAG
     anaplan__budsjett >> notify_slack_success
