@@ -121,6 +121,7 @@ with DAG(
     start_date=datetime(2024, 8, 21),
     schedule_interval="0 4 * * *",  # Hver dag klokken 04:00 UTC
     max_active_runs=1,
+    catchup=False,
 ) as dag:
 
     mainmanager__grouping = EmptyOperator(task_id="mainmanager__grouping")
