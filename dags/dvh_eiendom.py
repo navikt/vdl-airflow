@@ -14,7 +14,10 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = Variable.get("eiendom_branch")
+
+product_config = Variable.get("config_dvh_eiendom", deserialize_json=True)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
+dvh_config = Variable.get("conn_dvh", deserialize_json=True)
 
 
 def last_fra_dvh_eiendom(inbound_job_name: str):
@@ -24,22 +27,20 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
-            "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
-            "SNOW_USR": Variable.get("srv_snowflake_user"),
-            "SNOW_PWD": Variable.get("srv_snowflake_password"),
-            "DVH_USR": Variable.get("dvh_user"),
-            "DVH_PWD": Variable.get("dvh_password"),
-            "DVH_DSN": Variable.get("dvh_dsn"),
+            "EIENDOM_RAW_DB": product_config["raw_db"],
+            "SNOW_USR": snowflake_config["user"],
+            "SNOW_PWD": snowflake_config["password"],
+            "SNOW_ROLE": product_config["snow_role"],
+            "DVH_USR": dvh_config["user"],
+            "DVH_PWD": dvh_config["password"],
+            "DVH_DSN": dvh_config["dsn"],
             "RUN_ID": "{{ run_id }}",
         },
-        allowlist=[
-            "dmv09-scan.adeo.no:1521",
-        ]
-        + SNOW_ALLOWLIST,
+        allowlist=[dvh_config["dsn"]] + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
