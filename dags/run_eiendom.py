@@ -1,7 +1,7 @@
 import os
+from datetime import datetime
 
 from airflow import DAG
-from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
@@ -21,7 +21,12 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = Variable.get("eiendom_branch")
+product_config = Variable.get(
+    "config_run_unused_db_objects_report", deserialize_json=True
+)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
+mainmanager_config = Variable.get("conn_mainmanager", deserialize_json=True)
+dvh_config = Variable.get("conn_dvh", deserialize_json=True)
 
 
 def last_fra_mainmanager(inbound_job_name: str):
@@ -31,23 +36,19 @@ def last_fra_mainmanager(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
-            "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
-            "MAINMANAGER_API_USERNAME": Variable.get("MAINMANAGER_API_USERNAME"),
-            "MAINMANAGER_API_PASSWORD": Variable.get("MAINMANAGER_API_PASSWORD"),
-            "MAINMANAGER_URL": Variable.get("MAINMANAGER_URL"),
-            "SNOW_USR": Variable.get("srv_snowflake_user"),
-            "SNOW_PWD": Variable.get("srv_snowflake_password"),
+            "EIENDOM_RAW_DB": product_config["raw_db"],
+            "MAINMANAGER_API_USERNAME": mainmanager_config["username"],
+            "MAINMANAGER_API_PASSWORD": mainmanager_config["password"],
+            "MAINMANAGER_URL": mainmanager_config["url"],
+            "SNOW_USR": snowflake_config["user"],
+            "SNOW_PWD": snowflake_config["password"],
             "RUN_ID": "{{ run_id }}",
         },
-        allowlist=[
-            "nav-test.mainmanager.no",
-            "nav.mainmanager.no",
-        ]
-        + SNOW_ALLOWLIST,
+        allowlist=[mainmanager_config["url"]] + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
@@ -59,22 +60,19 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
         dag=dag,
         name=inbound_job_name,
         repo="navikt/vdl-eiendom",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         script_path=f"ingest/run.py {inbound_job_name}",
         image=INBOUND_IMAGE,
         extra_envs={
-            "EIENDOM_RAW_DB": Variable.get("EIENDOM_RAW_DB"),
-            "SNOW_USR": Variable.get("srv_snowflake_user"),
-            "SNOW_PWD": Variable.get("srv_snowflake_password"),
-            "DVH_USR": Variable.get("dvh_user"),
-            "DVH_PWD": Variable.get("dvh_password"),
-            "DVH_DSN": Variable.get("dvh_dsn"),
+            "EIENDOM_RAW_DB": product_config["raw_db"],
+            "SNOW_USR": snowflake_config["user"],
+            "SNOW_PWD": snowflake_config["password"],
+            "DVH_USR": dvh_config["user"],
+            "DVH_PWD": dvh_config["password"],
+            "DVH_DSN": dvh_config["dsn"],
             "RUN_ID": "{{ run_id }}",
         },
-        allowlist=[
-            "dmv09-scan.adeo.no:1521",
-        ]
-        + SNOW_ALLOWLIST,
+        allowlist=[dvh_config["dsn"]] + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
@@ -86,13 +84,13 @@ def run_dbt_job(job_name: str):
         dag=dag,
         name=job_name.replace(" ", "_"),
         repo="navikt/vdl-eiendom",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         working_dir="dbt",
         cmds=["dbt deps", f"{ job_name }"],
         image=DBT_IMAGE,
         extra_envs={
-            "SRV_USR": Variable.get("srv_snowflake_user"),
-            "SRV_PWD": Variable.get("srv_snowflake_password"),
+            "SRV_USR": snowflake_config["user"],
+            "SRV_PWD": snowflake_config["password"],
             "RUN_ID": "{{ run_id }}",
             "DBT_TARGET": Variable.get("dbt_target"),
         },
@@ -109,7 +107,7 @@ def elementary(command: str):
         dag=dag,
         task_id=f"elementary_{command}",
         commands=[command],
-        database=Variable.get("eiendom_db"),
+        database=product_config["dbt_db"],
         schema="meta",
         snowflake_role="eiendom_transformer",
         snowflake_warehouse="eiendom_transformer",
@@ -120,7 +118,7 @@ def elementary(command: str):
 
 with DAG(
     "run_eiendom",
-    start_date=days_ago(1),
+    start_date=datetime(2024, 8, 21),
     schedule_interval="0 4 * * *",  # Hver dag klokken 04:00 UTC
     max_active_runs=1,
 ) as dag:
