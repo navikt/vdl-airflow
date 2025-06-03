@@ -1,121 +1,64 @@
-from datetime import datetime
-
 from airflow import DAG
-from airflow.decorators import dag, task
-from airflow.exceptions import AirflowFailException
+from airflow.decorators import dag
 from airflow.models import Variable
-from airflow.sensors.base import PokeReturnValue
-from kubernetes import client as k8s
+from airflow.utils.dates import days_ago
 
-from custom.decorators import CUSTOM_IMAGE
-from custom.operators.slack_operator import slack_error
+from custom.operators.slack_operator import slack_success
 
-URL = Variable.get("VDL_REGNSKAP_URL")
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:7bbe21e651aabec7e50fad053ebc315b6318c659988c2f71beb554e3994c381a"
+
+SNOW_ALLOWLIST = [
+    "wx23413.europe-west4.gcp.snowflakecomputing.com",
+    "ocsp.snowflakecomputing.com",
+    "ocsp.digicert.com:80",
+    "o.pki.goog:80",
+    "ocsp.pki.goo:80",
+    "storage.googleapis.com",
+]
+
+product_config = Variable.get("config_run_budsjett_prognose", deserialize_json=True)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
+anaplan_config = Variable.get("conn_anaplan", deserialize_json=True)
+
+
+def last_fra_anaplan(inbound_job_name: str):
+    from dataverk_airflow import python_operator
+
+    return python_operator(
+        dag=dag,
+        name=inbound_job_name,
+        repo="navikt/vdl-regnskapsdata",
+        branch=product_config["git_branch"],
+        script_path=f"ingest/run.py {inbound_job_name}",
+        image=INBOUND_IMAGE,
+        extra_envs={
+            "REGNSKAP_RAW_DB": product_config["raw_db"],
+            "ANAPLAN_USR": anaplan_config["user"],
+            "ANAPLAN_PWD": anaplan_config["password"],
+            "SNOW_USR": snowflake_config["user"],
+            "SNOW_PWD": snowflake_config["password"],
+            "RUN_ID": "{{ run_id }}",
+        },
+        allowlist=[
+            "api.anaplan.com",
+            "auth.anaplan.com",
+        ]
+        + SNOW_ALLOWLIST,
+        slack_channel=Variable.get("slack_error_channel"),
+    )
 
 
 with DAG(
-    start_date=datetime(2025, 5, 19),
-    schedule_interval=None, # prognose tertial kjøres kun manuelt, ved behov
-    dag_id="run_prognose_tertial",
+    "run_prognose_tertial",
+    start_date=days_ago(1),
+    schedule_interval=None,  # prognose tertial kjøres kun manuelt, ved behov
     catchup=False,
-    default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
 ) as dag:
 
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def run_inbound_job(job_name: str) -> dict:
-        import requests
+    anaplan__prognose_tertial = last_fra_anaplan("anaplan__ingest_prognosis_tertial")
 
-        response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
-        if response.status_code > 400:
-            raise AirflowFailException(
-                "inboundjobb eksisterer mest sannsynlig ikke på podden"
-            )
-        return response.json()
+    notify_slack_success = slack_success(dag=dag)
 
-    @task.sensor(
-        poke_interval=60,
-        timeout=8 * 60 * 60,
-        mode="reschedule",
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
-        import requests
-
-        id = job_id.get("job_id")
-
-        response: requests.Response = requests.get(url=f"{URL}/inbound/status/{id}")
-        if response.status_code > 400:
-            raise AirflowFailException(
-                "inboundjobb eksisterer mest sannsynlig ikke på podden"
-            )
-        response: dict = response.json()
-        print(response)
-        job_status = response.get("status")
-        if job_status == "done":
-            return PokeReturnValue(is_done=True)
-        if job_status == "error":
-            error_message = response["job_result"]["error_message"]
-            raise AirflowFailException(
-                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
-            )
-
-    prognosis_tertial = run_inbound_job.override(task_id="start_prognosis_tertial")("prognosis_tertial")
-    wait_prognosis_tertial = check_status_for_inbound_job(prognosis_tertial)
-    
-    # prognosis_tertial skal ikke kjøre dbt enda, bare lastes til raw
-    prognosis_tertial >> wait_prognosis_tertial
+    # DAG
+    anaplan__prognose_tertial >> notify_slack_success

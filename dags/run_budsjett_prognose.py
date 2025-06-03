@@ -52,6 +52,7 @@ with DAG(
     "run_budsjett_prognose",
     start_date=days_ago(1),
     schedule_interval="@daily",  # Hver dag klokken 02:00 CEST
+    catchup=False,
     max_active_runs=1,
 ) as dag:
 
