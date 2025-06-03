@@ -21,9 +21,7 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-product_config = Variable.get(
-    "config_run_unused_db_objects_report", deserialize_json=True
-)
+product_config = Variable.get("config_run_eiendom", deserialize_json=True)
 snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
 mainmanager_config = Variable.get("conn_mainmanager", deserialize_json=True)
 dvh_config = Variable.get("conn_dvh", deserialize_json=True)
