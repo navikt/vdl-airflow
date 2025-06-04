@@ -11,7 +11,8 @@ from custom.decorators import CUSTOM_IMAGE
 from custom.operators.slack_operator import slack_error, slack_success_old
 from operators.elementary import elementary_operator
 
-URL = Variable.get("VDL_FAKTURA_URL")
+product_config = Variable.get("config_run_faktura", deserialize_json=True)
+URL = product_config["faktura_app_url"]
 
 with DAG(
     start_date=datetime(2023, 2, 28),
