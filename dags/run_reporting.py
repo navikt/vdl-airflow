@@ -20,8 +20,13 @@ SNOW_ALLOWLIST = [
     "storage.googleapis.com",
 ]
 
-BRANCH = Variable.get("REPORTING_BRANCH")
-BRANCH_PREPROD = Variable.get("REPORTING_BRANCH_PREPROD")
+config_snowflake = Variable.get("conn_snowflake", deserialize_json=True)
+product_config = Variable.get("config_run_reporting", deserialize_json=True)
+
+BRANCH_PROD = product_config["git_branch_prod"]
+BRANCH_PREPROD = product_config["git_branch_preprod"]
+DBT_DB_PROD = product_config["dbt_db_prod"]
+DBT_DB_PREPROD = product_config["dbt_db_preprod"]
 
 
 def run_dbt_job(job_name: str, reporting_db: str, branch: str):
@@ -40,8 +45,8 @@ def run_dbt_job(job_name: str, reporting_db: str, branch: str):
         image=DBT_IMAGE,
         extra_envs={
             "REPORTING_DB": reporting_db,
-            "DBT_USR": Variable.get("SRV_REPORTING_USR"),
-            "DBT_PWD": Variable.get("SRV_REPORTING_PWD"),
+            "DBT_USR": config_snowflake["user"],
+            "DBT_PWD": config_snowflake["password"],
         },
         allowlist=[
             "hub.getdbt.com",
@@ -59,9 +64,9 @@ with DAG(
     max_active_runs=1,
     catchup=False,
 ) as dag:
-    dbt_run = run_dbt_job("update_data", Variable.get("REPORTING_DB"), BRANCH)
+    dbt_run = run_dbt_job("update_data", DBT_DB_PROD, BRANCH_PROD)
     dbt_run__preprod = run_dbt_job(
-        "update_data__preprod", Variable.get("REPORTING_DB__PREPROD"), BRANCH_PREPROD
+        "update_data__preprod", DBT_DB_PREPROD, BRANCH_PREPROD
     )
 
     notify_slack_success = slack_success(dag=dag)
