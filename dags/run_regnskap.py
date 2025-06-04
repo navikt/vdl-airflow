@@ -1,305 +1,117 @@
-from datetime import datetime
-
 from airflow import DAG
 from airflow.datasets import Dataset
-from airflow.decorators import dag, task
-from airflow.exceptions import AirflowFailException
+from airflow.decorators import dag
 from airflow.models import Variable
-from airflow.sensors.base import PokeReturnValue
-from kubernetes import client as k8s
+from airflow.utils.dates import days_ago
 
-from custom.decorators import CUSTOM_IMAGE
-from custom.operators.slack_operator import slack_error, slack_success_old
+from custom.images import DBT_V_1_9
+from custom.operators.slack_operator import slack_success
 from operators.elementary import elementary_operator
 
-URL = Variable.get("VDL_REGNSKAP_URL")
+DBT_IMAGE = DBT_V_1_9
+INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:7bbe21e651aabec7e50fad053ebc315b6318c659988c2f71beb554e3994c381a"
+ELEMENTARY_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/vdl-airflow-elementary@sha256:2f8187434db61ead6a32478ca82210733589c277dc8a4c744ccd0afe0c4f6610"
+SNOW_ALLOWLIST = [
+    "wx23413.europe-west4.gcp.snowflakecomputing.com",
+    "ocsp.snowflakecomputing.com",
+    "ocsp.digicert.com:80",
+    "o.pki.goog:80",
+    "ocsp.pki.goo:80",
+    "storage.googleapis.com",
+]
+
+product_config = Variable.get("config_run_regnskap", deserialize_json=True)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
+anaplan_config = Variable.get("conn_anaplan", deserialize_json=True)
+
+
+def last_fra_anaplan(inbound_job_name: str):
+    from dataverk_airflow import python_operator
+
+    return python_operator(
+        dag=dag,
+        name=inbound_job_name,
+        repo="navikt/vdl-regnskapsdata",
+        branch=product_config["git_branch"],
+        script_path=f"ingest/run.py {inbound_job_name}",
+        image=INBOUND_IMAGE,
+        extra_envs={
+            "REGNSKAP_RAW_DB": product_config["raw_db"],
+            "ANAPLAN_USR": anaplan_config["user"],
+            "ANAPLAN_PWD": anaplan_config["password"],
+            "SNOW_USR": snowflake_config["user"],
+            "SNOW_PWD": snowflake_config["password"],
+            "RUN_ID": "{{ run_id }}",
+        },
+        allowlist=[
+            "api.anaplan.com",
+            "auth.anaplan.com",
+        ]
+        + SNOW_ALLOWLIST,
+        slack_channel=Variable.get("slack_error_channel"),
+    )
+
+
+def run_dbt_job(job_name: str):
+    from dataverk_airflow import kubernetes_operator
+
+    return kubernetes_operator(
+        dag=dag,
+        name=job_name.replace(" ", "_"),
+        repo="navikt/vdl-regnskapsdata",
+        branch=product_config["git_branch"],
+        working_dir="dbt",
+        cmds=["dbt deps", f"{ job_name }"],
+        image=DBT_IMAGE,
+        extra_envs={
+            "SRV_USR": snowflake_config["user"],
+            "SRV_PWD": snowflake_config["password"],
+            "DBT_TARGET": product_config["dbt_target"],
+            "REGNSKAP_DB": product_config["dbt_db"],
+            "RUN_ID": "{{ run_id }}",
+        },
+        allowlist=[
+            "hub.getdbt.com",
+        ]
+        + SNOW_ALLOWLIST,
+        slack_channel=Variable.get("slack_error_channel"),
+    )
+
+
+def elementary(command: str):
+    return elementary_operator(
+        dag=dag,
+        task_id=f"elementary_{command}",
+        commands=[command],
+        database=product_config["dbt_db"],
+        schema="meta",
+        snowflake_role=product_config["elementary_role"],
+        snowflake_warehouse=product_config["elementary_warehouse"],
+        dbt_docs_project_name=product_config["dbt_docs_project_name"],
+        image=ELEMENTARY_IMAGE,
+    )
 
 
 with DAG(
-    start_date=datetime(2023, 2, 28),
-    schedule_interval="@daily",
-    dag_id="run_regnskap",
+    "run_regnskap_ny",
+    start_date=days_ago(1),
+    schedule_interval="@daily",  # Hver dag klokken 00:00 UTC (02:00 CEST)
+    outlets=[Dataset("regnskap_dataset")],
     catchup=False,
-    default_args={"on_failure_callback": slack_error, "retries": 3},
     max_active_runs=1,
 ) as dag:
 
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def run_inbound_job(job_name: str) -> dict:
-        import requests
+    anaplan__budsjett = last_fra_anaplan("anaplan__ingest_budget")
+    anaplan__prognose = last_fra_anaplan("anaplan__ingest_prognosis")
 
-        response: requests.Response = requests.get(url=f"{URL}/inbound/run/{job_name}")
-        if response.status_code > 400:
-            raise AirflowFailException(
-                "inboundjobb eksisterer mest sannsynlig ikke på podden"
-            )
-        return response.json()
+    dbt_build = run_dbt_job("dbt build")
 
-    @task.sensor(
-        poke_interval=60,
-        timeout=8 * 60 * 60,
-        mode="reschedule",
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def check_status_for_inbound_job(job_id: dict) -> PokeReturnValue:
-        import requests
+    notify_slack_success = slack_success(dag=dag)
 
-        id = job_id.get("job_id")
+    elementary__report = elementary("dbt_docs")
 
-        response: requests.Response = requests.get(url=f"{URL}/inbound/status/{id}")
-        if response.status_code > 400:
-            raise AirflowFailException(
-                "inboundjobb eksisterer mest sannsynlig ikke på podden"
-            )
-        response: dict = response.json()
-        print(response)
-        job_status = response.get("status")
-        if job_status == "done":
-            return PokeReturnValue(is_done=True)
-        if job_status == "error":
-            error_message = response["job_result"]["error_message"]
-            raise AirflowFailException(
-                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
-            )
-
-    # budget = run_inbound_job.override(task_id="start_budget")("budget")
-    # wait_budget = check_status_for_inbound_job(budget)
-
-    # prognosis = run_inbound_job.override(task_id="start_prognosis")("prognosis")
-    # wait_prognosis = check_status_for_inbound_job(prognosis)
-
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def run_dbt_job(job: str) -> dict:
-        import requests
-
-        return requests.get(url=f"{URL}/dbt/{job}").json()
-
-    dbt_run = run_dbt_job.override(task_id="start_dbt_run")("build")
-
-    @task.sensor(
-        poke_interval=60,
-        timeout=2 * 60 * 60,
-        mode="reschedule",
-        on_failure_callback=None,
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                                "vdl-regnskap.intern.nav.no",
-                                "vdl-regnskap.intern.dev.nav.no",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def wait_for_dbt(job_status: dict) -> PokeReturnValue:
-        import requests
-
-        id = job_status.get("job_id")
-        try:
-            response: dict = requests.get(url=f"{URL}/dbt/status/{id}").json()
-        except Exception:
-            slack_error()
-            raise Exception("Lastejobben har feilet! Sjekk loggene til podden")
-        print(response)
-        job_status = response.get("status")
-        if job_status == "error":
-            error_message = response["job_result"]["error_message"]
-            raise AirflowFailException(
-                f"Lastejobben har feilet! Sjekk loggene til podden. Feilmelding: {error_message}"
-            )
-        if job_status != "done":
-            return PokeReturnValue(is_done=False)
-
-        job_result = response.get("job_result")
-        if job_result["dbt_run_result"]["exception"]:
-            slack_error(message=job_result["dbt_run_result"]["exception"])
-            raise AirflowFailException(job_result["dbt_run_result"]["exception"])
-
-        if not job_result["dbt_run_result"]["success"]:
-            dbt_error_messages = [
-                result["msg"]
-                for result in job_result["dbt_log"]
-                if result["level"] in ["warning", "error"]
-            ]
-            error_message = "\n".join(dbt_error_messages)
-            slack_error(message=f"```\n{error_message}\n```")
-            raise AirflowFailException(error_message)
-        summary_messages = [
-            result["msg"]
-            for result in job_result["dbt_log"]
-            if result["code"] == "E047"
-        ]
-        return PokeReturnValue(is_done=True, xcom_value=summary_messages)
-
-    @task(
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                metadata=k8s.V1ObjectMeta(
-                    annotations={
-                        "allowlist": ",".join(
-                            [
-                                "slack.com",
-                            ]
-                        )
-                    }
-                ),
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image=CUSTOM_IMAGE,
-                            resources=k8s.V1ResourceRequirements(
-                                requests={"ephemeral-storage": "100M"},
-                                limits={"ephemeral-storage": "200M"},
-                            ),
-                        )
-                    ]
-                ),
-            )
-        },
-    )
-    def send_slack_summary(dbt_test, dbt_run):
-        dbt_test_summary = "\n".join(dbt_test)
-        dbt_run_summary = "\n".join(dbt_run)
-        summary = f"dbt test:\n```\n{dbt_test_summary}\n```\ndbt run:\n```\n{dbt_run_summary}\n```"
-        slack_success_old(message=f"Resultat fra kjøringen:\n{summary}")
-
-    wait_dbt_run = wait_for_dbt.override(
-        task_id="check_status_for_dbt_run", outlets=[Dataset("regnskap_dataset")]
-    )(dbt_run)
-
-    slack_summary = send_slack_summary(dbt_test=wait_dbt_run, dbt_run=wait_dbt_run)
-
-    regnskap_report = elementary_operator(
-        dag=dag,
-        task_id="regnskap_report",
-        commands=["dbt_docs"],
-        database="regnskap",
-        schema="meta",
-        snowflake_role="regnskap_transformer",
-        snowflake_warehouse="regnskap_transformer",
-        dbt_docs_project_name="regnskap",
-    )
-
-    # period_status >> wait_period_status
-
-    # sync_check >> wait_sync_check
-
-    # suppliers >> wait_suppliers
-    # segment >> wait_segment
-    # hierarchy >> wait_hierarchy
-    # budget >> wait_budget
-    # prognosis >> wait_prognosis
-
-    # customers >> wait_customers
-
-    # wait_sync_check >> dbt_freshness
-    # wait_suppliers >> dbt_freshness
-    # wait_hierarchy >> dbt_freshness
-    # wait_segment >> dbt_freshness
-    # wait_budget >> dbt_run
-    # wait_prognosis >> dbt_run
-    # wait_customers >> dbt_freshness
-
-    dbt_run >> wait_dbt_run >> slack_summary
-    wait_dbt_run >> regnskap_report
+    # DAG
+    anaplan__budsjett >> dbt_build
+    anaplan__prognose >> dbt_build
+    dbt_build >> elementary__report
+    dbt_build >> notify_slack_success
