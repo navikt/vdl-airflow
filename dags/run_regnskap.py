@@ -93,7 +93,7 @@ def elementary(command: str):
 
 
 with DAG(
-    "run_regnskap_ny",
+    "run_regnskap",
     start_date=days_ago(1),
     schedule_interval="@daily",  # Hver dag klokken 00:00 UTC (02:00 CEST)
     outlets=[Dataset("regnskap_dataset")],
