@@ -20,7 +20,8 @@ SNOW_ALLOWLIST = [
     "storage.googleapis.com",
 ]
 
-BRANCH = Variable.get("OKONOMIMODELL_BRANCH")
+product_config = Variable.get("config_run_okonomimodell", deserialize_json=True)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
 
 
 def run_dbt_job(job_name: str):
@@ -30,7 +31,7 @@ def run_dbt_job(job_name: str):
         dag=dag,
         name=job_name,
         repo="navikt/vdl-okonomimodell",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         working_dir="dbt",
         cmds=[
             "dbt deps",
@@ -39,9 +40,9 @@ def run_dbt_job(job_name: str):
         ],
         image=DBT_IMAGE,
         extra_envs={
-            "OKONOMIMODELL_DB": Variable.get("OKONOMIMODELL_DB"),
-            "DBT_USR": Variable.get("SRV_OKONOMIMODELL_USER"),
-            "DBT_PWD": Variable.get("SRV_OKONOMIMODELL_PASSWORD"),
+            "OKONOMIMODELL_DB": product_config["dbt_db"],
+            "DBT_USR": snowflake_config["user"],
+            "DBT_PWD": snowflake_config["password"],
         },
         allowlist=[
             "hub.getdbt.com",
