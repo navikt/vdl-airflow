@@ -53,7 +53,7 @@ def last_fra_anaplan(inbound_job_name: str):
 
 
 def run_dbt_job(job_name: str):
-    from dataverk_airflow import kubernetes_operator
+    from custom.operators.kubernetes_operator import kubernetes_operator
 
     return kubernetes_operator(
         dag=dag,
@@ -75,6 +75,7 @@ def run_dbt_job(job_name: str):
         ]
         + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
+        outlets=[Dataset("regnskap_dataset")],
     )
 
 
@@ -96,7 +97,6 @@ with DAG(
     "run_regnskap",
     start_date=days_ago(1),
     schedule_interval="@daily",  # Hver dag klokken 00:00 UTC (02:00 CEST)
-    outlets=[Dataset("regnskap_dataset")],
     catchup=False,
     max_active_runs=1,
 ) as dag:
