@@ -1,14 +1,9 @@
-import os
 from datetime import datetime
 
 from airflow import DAG
-from airflow.decorators import dag, task
 from airflow.models import Variable
-from airflow.providers.slack.operators.slack import SlackAPIPostOperator
-from airflow.utils.dates import days_ago
-from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_success, test_slack
+from custom.operators.slack_operator import slack_success
 
 DBT_IMAGE = "ghcr.io/dbt-labs/dbt-snowflake:1.8.3@sha256:b95cc0481ec39cb48f09d63ae0f912033b10b32f3a93893a385262f4ba043f50"
 SNOW_ALLOWLIST = [
