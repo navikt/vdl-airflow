@@ -47,7 +47,7 @@ def last_fra_mainmanager(inbound_job_name: str):
             "SNOW_ROLE": product_config["snow_role"],
             "RUN_ID": "{{ run_id }}",
         },
-        allowlist=[mainmanager_config["url"]] + SNOW_ALLOWLIST,
+        allowlist=["nav.mainmanager.no"] + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
@@ -72,7 +72,7 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
             "DVH_DSN": dvh_config["dsn"],
             "RUN_ID": "{{ run_id }}",
         },
-        allowlist=[dvh_config["dsn"]] + SNOW_ALLOWLIST,
+        allowlist=["dmv09-scan.adeo.no:1521"] + SNOW_ALLOWLIST,
         slack_channel=Variable.get("slack_error_channel"),
     )
 
