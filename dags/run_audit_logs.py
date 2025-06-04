@@ -9,7 +9,8 @@ from kubernetes import client as k8s
 from custom.decorators import CUSTOM_IMAGE
 from custom.operators.slack_operator import slack_error, slack_success_old
 
-URL = Variable.get("VDL_LOGGDATA_URL")
+product_config = Variable.get("config_run_audit_logs", deserialize_json=True)
+URL = product_config["loggdata_app_url"]
 
 
 @dag(

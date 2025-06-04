@@ -17,10 +17,11 @@ from custom.operators.slack_operator import slack_error, slack_info, slack_succe
     default_args={"on_failure_callback": slack_error, "retries": 3},
 )
 def anaplan_datahub_regnskaphierarkier():
-    wGuid = Variable.get("anaplan_workspace_id")
-    mGuid = Variable.get("anaplan_model_id")
-    username = Variable.get("anaplan_username")
-    password = Variable.get("anaplan_password")
+    config_anaplan = Variable.get("conn_anaplan", deserialize_json=True)
+    wGuid = config_anaplan.get("workspace_id")
+    mGuid = config_anaplan.get("model_id")
+    username = config_anaplan.get("user")
+    password = config_anaplan.get("password")
 
     @task(
         executor_config={
@@ -417,7 +418,6 @@ def anaplan_datahub_regnskaphierarkier():
         },
         query="""
             with
-            
                 src as (
                     select
                         pk_dim_statsregnskapskonti,
@@ -473,7 +473,7 @@ def anaplan_datahub_regnskaphierarkier():
                     from filter_unused
                 ),
                 final as (select * from depricated)
-            
+
             select *
             from final
         """,
