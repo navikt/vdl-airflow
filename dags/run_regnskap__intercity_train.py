@@ -16,7 +16,11 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = Variable.get("REGNSKAP_BRANCH")
+
+product_config = Variable.get(
+    "config_run_regnskap__intercity_train", deserialize_json=True
+)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
 
 
 def run_dbt_job(job_name: str):
@@ -26,7 +30,7 @@ def run_dbt_job(job_name: str):
         dag=dag,
         name=job_name,
         repo="navikt/vdl-regnskapsdata",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         working_dir="dbt",
         cmds=[
             "dbt deps",
@@ -39,10 +43,10 @@ def run_dbt_job(job_name: str):
         ],
         image=DBT_IMAGE,
         extra_envs={
-            "REGNSKAP_DB": Variable.get("REGNSKAP_DB"),
-            "SRV_USR": Variable.get("SRV_REGNSKAP_USR"),
-            "SRV_PWD": Variable.get("SRV_REGNSKAP_PWD"),
-            "DBT_TARGET": "streamer",
+            "REGNSKAP_DB": product_config["dbt_db"],
+            "SRV_USR": snowflake_config["user"],
+            "SRV_PWD": snowflake_config["password"],
+            "DBT_TARGET": product_config["dbt_target"],
         },
         allowlist=[
             "hub.getdbt.com",
@@ -61,6 +65,8 @@ with DAG(
     catchup=False,
 ) as dag:
     dbt_run = run_dbt_job("update_data")
-    notify_slack_success = slack_success(dag=dag, channel="#vdl-intercity")
+    notify_slack_success = slack_success(
+        dag=dag, channel=product_config["slack_info_channel"]
+    )
     # DAG
     dbt_run >> notify_slack_success
