@@ -18,6 +18,15 @@ roles:
         - eiendom_transformer
         - eiendom_loader
         - okonomimodell_transformer
+        - reporting_transformer
+        - eiendom_loader__preprod
+        - eiendom_transformer__preprod
+        - innkjop_loader
+        - innkjop_transformer
+        - lonn_loader
+        - lonn_loader__preprod
+        - lonn_transformer
+        - lonn_transformer__preprod
 
   - reporting_airflow:
       member_of:
