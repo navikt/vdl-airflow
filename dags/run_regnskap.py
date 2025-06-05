@@ -53,7 +53,7 @@ def last_fra_anaplan(inbound_job_name: str):
 
 
 def run_dbt_job(job_name: str):
-    from custom.operators.kubernetes_operator import kubernetes_operator
+    from dataverk_airflow import kubernetes_operator
 
     return kubernetes_operator(
         dag=dag,
