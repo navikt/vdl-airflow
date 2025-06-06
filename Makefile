@@ -27,7 +27,7 @@ _install_snowbird:
 	rm -rf infrastructure/.snowbird-venv
 	python3.10 -m venv infrastructure/.snowbird-venv && \
 		${PY_SNOWBIRD} pip install --upgrade pip && \
-		${PY_SNOWBIRD} pip install snowbird@git+https://github.com/navikt/snowbird@v0.1
+		${PY_SNOWBIRD} pip install snowbird@git+https://github.com/navikt/snowbird@v0.3
 
 .PHONY: format  ## Auto-format the source code (isort, black)
 format:
