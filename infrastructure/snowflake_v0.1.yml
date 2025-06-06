@@ -1,0 +1,59 @@
+version: "1.0"
+
+# Roles
+roles:
+  - airflow_transformer:
+      member_of:
+        - regnskap_transformer
+        - faktura_transformer
+        - eiendom_transformer
+      warehouses:
+        - airflow_transformer
+  - airflow_orchestrator:
+      member_of:
+        - regnskap_transformer
+        - regnskap_loader
+        - faktura_transformer
+        - faktura_loader
+        - eiendom_transformer
+        - eiendom_loader
+        - okonomimodell_transformer
+        - reporting_transformer
+        - eiendom_loader__preprod
+        - eiendom_transformer__preprod
+        - innkjop_loader
+        - innkjop_transformer
+        - lonn_loader
+        - lonn_loader__preprod
+        - lonn_transformer
+        - lonn_transformer__preprod
+
+  - reporting_airflow:
+      member_of:
+        - reporting_microstrategy
+        - okonomimodell_reporter
+      warehouses:
+        - reporting_airflow
+      owner: useradmin
+
+users:
+  - srv_airflow_reader:
+      can_login: yes
+      member_of:
+        - reporting_airflow
+  - srv_airflow_transformer:
+      can_login: yes
+      member_of:
+        - airflow_transformer
+  - srv_airflow:
+      can_login: yes
+      member_of:
+        - airflow_orchestrator
+
+# Warehouses to be created
+warehouses:
+  - airflow_transformer:
+      size: x-small
+
+  - reporting_airflow:
+      size: x-small

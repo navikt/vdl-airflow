@@ -18,10 +18,11 @@ from custom.operators.slack_operator import slack_error, slack_info, slack_succe
     default_args={"on_failure_callback": slack_error, "retries": 3},
 )
 def anaplan_datahub_regnskapsdata():
-    wGuid = Variable.get("anaplan_workspace_id")
-    mGuid = Variable.get("anaplan_model_id")
-    username = Variable.get("anaplan_username")
-    password = Variable.get("anaplan_password")
+    config_anaplan = Variable.get("conn_anaplan", deserialize_json=True)
+    wGuid = config_anaplan.get("workspace_id")
+    mGuid = config_anaplan.get("model_id")
+    username = config_anaplan.get("user")
+    password = config_anaplan.get("password")
 
     @task(
         on_success_callback=slack_success_old,
@@ -105,7 +106,7 @@ def anaplan_datahub_regnskapsdata():
                 and ds.pk_dim_statsregnskapskonti = k.fk_dim_statsregnskapskonti
             where
                 1 = 1
-                and k.er_bilagsposteringer = 1 
+                and k.er_bilagsposteringer = 1
                 and regnskapsdato >= to_date('2023','yyyy')
             group by all
         """,

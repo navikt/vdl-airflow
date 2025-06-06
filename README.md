@@ -13,7 +13,7 @@ make install
 Bruk `run_snowbird.sh` for å kjøre snowbird.
 
 ```shell
-./infrastructure/run_snowbird.sh
+./infrastructure/run_snowbird.sh <args>
 ```
 
 ## Miljøer
