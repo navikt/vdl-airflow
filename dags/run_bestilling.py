@@ -20,7 +20,9 @@ SNOW_ALLOWLIST = [
     "ocsp.pki.goo:80",
     "storage.googleapis.com",
 ]
-BRANCH = Variable.get("bestilling_branch")
+
+product_config = Variable.get("config_run_bestilling", deserialize_json=True)
+snowflake_config = Variable.get("conn_snowflake", deserialize_json=True)
 
 def run_dbt_job(job_name: str):
     from dataverk_airflow import kubernetes_operator
@@ -29,15 +31,15 @@ def run_dbt_job(job_name: str):
         dag=dag,
         name=job_name.replace(" ", "_"),
         repo="navikt/vdl-innkjop",
-        branch=BRANCH,
+        branch=product_config["git_branch"],
         working_dir="dbt",
         cmds=["dbt deps", f"{ job_name }"],
         image=DBT_IMAGE,
         extra_envs={
-            "SRV_USR": Variable.get("srv_snowflake_user"),
-            "SRV_PWD": Variable.get("srv_snowflake_password"),
+            "SRV_USR": snowflake_config["user"],
+            "SRV_PWD": snowflake_config["password"],
             "RUN_ID": "{{ run_id }}",
-            "DBT_TARGET": Variable.get("dbt_target"),
+            "DBT_TARGET": product_config["dbt_target"]
         },
         allowlist=[
             "hub.getdbt.com",
@@ -52,7 +54,7 @@ def elementary(command: str):
         dag=dag,
         task_id=f"elementary_{command}",
         commands=[command],
-        database=Variable.get("bestilling_db"),
+        database=product_config["dbt_db"],
         schema="meta",
         snowflake_role="innkjop_transformer",
         snowflake_warehouse="innkjop_transformer",
