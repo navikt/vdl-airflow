@@ -7,7 +7,8 @@ from airflow.operators.empty import EmptyOperator
 from airflow.utils.dates import days_ago
 from kubernetes import client as k8s
 
-from custom.operators.slack_operator import slack_success, test_slack
+from custom.operators.dbt_operator import dbt_operator
+from custom.operators.slack_operator import slack_success
 from operators.elementary import elementary_operator
 
 INBOUND_IMAGE = "europe-north1-docker.pkg.dev/nais-management-233d/virksomhetsdatalaget/inbound@sha256:2ea798a469e615b74da8a243a8992a76a183527a5f5d9523f6911d553cbe44ff"
@@ -77,31 +78,6 @@ def last_fra_dvh_eiendom(inbound_job_name: str):
     )
 
 
-def run_dbt_job(job_name: str):
-    from dataverk_airflow import kubernetes_operator
-
-    return kubernetes_operator(
-        dag=dag,
-        name=job_name.replace(" ", "_"),
-        repo="navikt/vdl-eiendom",
-        branch=product_config["git_branch"],
-        working_dir="dbt",
-        cmds=["dbt deps", f"{ job_name }"],
-        image=DBT_IMAGE,
-        extra_envs={
-            "SRV_USR": snowflake_config["user"],
-            "SRV_PWD": snowflake_config["password"],
-            "RUN_ID": "{{ run_id }}",
-            "DBT_TARGET": Variable.get("dbt_target"),
-        },
-        allowlist=[
-            "hub.getdbt.com",
-        ]
-        + SNOW_ALLOWLIST,
-        slack_channel=Variable.get("slack_error_channel"),
-    )
-
-
 def elementary(command: str):
     return elementary_operator(
         dag=dag,
@@ -164,7 +140,12 @@ with DAG(
         "dvh_eiendom__hrres_stillinger_eiendom"
     )
 
-    dbt_build = run_dbt_job("dbt build")
+    dbt_build = dbt_operator(
+        task_id="dbt_build",
+        repo="navikt/vdl-eiendom",
+        branch=product_config["git_branch"],
+        command="build",
+    )
 
     notify_slack_success = slack_success(dag=dag)
 
